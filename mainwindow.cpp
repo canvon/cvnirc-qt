@@ -42,3 +42,33 @@ void MainWindow::on_action_Connect_triggered()
         ", as user " + dialog.user() + " and nick " + dialog.nick()
     );
 }
+
+void MainWindow::on_pushButtonUserInput_clicked()
+{
+    QString line = ui->lineEditUserInput->text();
+    if (line.length() < 1)
+        return;
+
+    bool isCommand = false;
+    if (line[0] == '/') {
+        if (line.length() == 1) {
+            line.remove(0, 1);
+        }
+        else if (line[1] == ' ') {
+            line.remove(0, 2);
+        }
+        else {
+            isCommand = true;
+            line.remove(0, 1);
+        }
+    }
+
+    if (!isCommand) {
+        // FIXME: Build a PRIVMSG command from that.
+        logbufferAppend("(Stub: Would send this as normal text message: \"" + line + "\")");
+    }
+    else {
+        // FIXME: Really parse as command.
+        logbufferAppend("(Stub: Would parse this as command: \"" + line + "\")");
+    }
+}

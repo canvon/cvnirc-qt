@@ -22,6 +22,8 @@ private slots:
 
     void on_action_Connect_triggered();
 
+    void on_pushButtonUserInput_clicked();
+
 private:
     Ui::MainWindow *ui;
 };
