@@ -2,6 +2,8 @@
 #include "ui_mainwindow.h"
 #include "connectdialog.h"
 
+#include <QDate>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -16,8 +18,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::logbufferAppend(const QString &s)
 {
-    // TODO: Prepend timestamp.
-    ui->textEditLogbuffer->append(s);
+    // Prepend timestamp and append to logbuffer.
+    QDateTime ts = QDateTime::currentDateTime();
+    ui->textEditLogbuffer->append("[" + ts.toString() + "] " + s);
 }
 
 void MainWindow::on_action_Quit_triggered()
