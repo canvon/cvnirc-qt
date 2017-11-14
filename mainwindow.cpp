@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "connectdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -19,4 +20,16 @@ void MainWindow::on_action_Quit_triggered()
 
     // For now, this will have to suffice.
     exit(0);
+}
+
+void MainWindow::on_action_Connect_triggered()
+{
+    ConnectDialog dialog(this);
+    if (dialog.exec() != QDialog::Accepted)
+        return;
+
+    ui->textEditLogbuffer->append(
+        "Would connect to " + dialog.host() + ":" + dialog.port() +
+        ", as user " + dialog.user() + " and nick " + dialog.nick() + "\n"
+    );
 }

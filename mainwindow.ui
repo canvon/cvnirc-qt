@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QTextEdit" name="textEdit">
+     <widget class="QTextEdit" name="textEditLogbuffer">
       <property name="undoRedoEnabled">
        <bool>false</bool>
       </property>
@@ -67,6 +67,8 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="action_Connect"/>
+    <addaction name="separator"/>
     <addaction name="action_Quit"/>
    </widget>
    <addaction name="menu_File"/>
@@ -83,6 +85,11 @@
   <action name="action_Quit">
    <property name="text">
     <string>&amp;Quit</string>
+   </property>
+  </action>
+  <action name="action_Connect">
+   <property name="text">
+    <string>&amp;Connect</string>
    </property>
   </action>
  </widget>
