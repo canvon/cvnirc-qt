@@ -14,6 +14,12 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::logbufferAppend(const QString &s)
+{
+    // TODO: Prepend timestamp.
+    ui->textEditLogbuffer->append(s);
+}
+
 void MainWindow::on_action_Quit_triggered()
 {
     // TODO: Close the UI more gently, provide ability to cancel quit.
@@ -28,8 +34,8 @@ void MainWindow::on_action_Connect_triggered()
     if (dialog.exec() != QDialog::Accepted)
         return;
 
-    ui->textEditLogbuffer->append(
+    logbufferAppend(
         "Would connect to " + dialog.host() + ":" + dialog.port() +
-        ", as user " + dialog.user() + " and nick " + dialog.nick() + "\n"
+        ", as user " + dialog.user() + " and nick " + dialog.nick()
     );
 }

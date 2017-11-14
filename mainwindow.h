@@ -15,6 +15,8 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    void logbufferAppend(const QString &s);
+
 private slots:
     void on_action_Quit_triggered();
 
