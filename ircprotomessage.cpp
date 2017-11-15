@@ -63,8 +63,9 @@ IRCProtoMessage::IRCProtoMessage(const QString &rawLine) :
 
 }
 
-PingPongIRCProtoMessage::PingPongIRCProtoMessage(const QString &rawLine, IRCMsgType msgType, const QString &target) :
+PingPongIRCProtoMessage::PingPongIRCProtoMessage(const QString &rawLine, const QString &source, IRCMsgType msgType, const QString &target) :
     IRCProtoMessage(rawLine),
+    source(source),
     target(target)
 {
     switch (msgType) {

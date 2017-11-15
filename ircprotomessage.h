@@ -23,8 +23,9 @@ public:
 class PingPongIRCProtoMessage : public IRCProtoMessage
 {
 public:
-    PingPongIRCProtoMessage(const QString &rawLine, IRCMsgType msgType, const QString &target);
+    PingPongIRCProtoMessage(const QString &rawLine, const QString &source, IRCMsgType msgType, const QString &target);
 
+    QString source;
     QString target;
 };
 

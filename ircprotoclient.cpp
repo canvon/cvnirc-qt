@@ -106,6 +106,18 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
     }
 
     IRCProtoMessage *msg = nullptr;
+    QString source;
+
+    if (tokens[0].length() >= 1 && tokens[0][0] == ':') {
+        source = tokens[0];
+        tokens.erase(tokens.begin());
+    }
+
+    if (!(tokens.size() >= 1)) {
+        notifyUser("Protocol error, aborting connection: Received line with a source token only!");
+        socket->abort();
+        return;
+    }
 
     if (tokens[0] == "PING") {
         if (!(tokens.size() == 2)) {
@@ -113,7 +125,7 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
             socket->abort();
             return;
         }
-        msg = new PingPongIRCProtoMessage(rawLine, IRCMsgType::Ping, tokens[1]);
+        msg = new PingPongIRCProtoMessage(rawLine, source, IRCMsgType::Ping, tokens[1]);
     }
     else {
         msg = new IRCProtoMessage(rawLine);
