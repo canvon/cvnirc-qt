@@ -26,11 +26,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp\
         mainwindow.cpp \
     connectdialog.cpp \
-    ircprotoclient.cpp
+    ircprotoclient.cpp \
+    ircprotomessage.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
-    ircprotoclient.h
+    ircprotoclient.h \
+    ircprotomessage.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui

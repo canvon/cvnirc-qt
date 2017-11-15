@@ -13,21 +13,21 @@ IRCProtoClient::IRCProtoClient(QObject *parent) : QObject(parent),
 
 void IRCProtoClient::connectToIRCServer(const QString &host, const QString &port, const QString &user, const QString &nick)
 {
-    receivedMessage("Connecting to " + host + ":" + port +
+    notifyUser("Connecting to " + host + ":" + port +
         ", as user " + user + " and nick " + nick);
     socket->connectToHost(host, port.toShort());
 }
 
 void IRCProtoClient::sendRaw(const QString &line)
 {
-    receivedMessage("< " + line);
+    notifyUser("< " + line);
     socket->write((line + "\r\n").toUtf8());
 }
 
 void IRCProtoClient::processIncomingData()
 {
     if (socketReadBufUsed >= socketReadBuf.size()) {
-        receivedMessage("Socket read buffer size exceeded, aborting connection.");
+        notifyUser("Socket read buffer size exceeded, aborting connection.");
         socket->abort();
         return;
     }
@@ -57,7 +57,7 @@ void IRCProtoClient::processIncomingData()
                         state++;
                     }
                     else {
-                        receivedMessage("Protocol error: Server seems to have broken line-termination! Aborting connection.");
+                        notifyUser("Protocol error: Server seems to have broken line-termination! Aborting connection.");
                         socket->abort();
                         return;
                     }
@@ -76,9 +76,11 @@ void IRCProtoClient::processIncomingData()
                         *writeIter++ = *readIter++;
                     socketReadBufUsed -= lineLen + 2;
 
-                    receivedMessage("> " + line);
+                    notifyUser("> " + line);
 
-                    // TODO: Interpret messages.
+                    // Interpret messages.
+                    IRCProtoMessage msg(line);
+                    receivedMessage(msg);
 
                     break;
                 }
@@ -90,7 +92,7 @@ void IRCProtoClient::processIncomingData()
     }
 
     if (ret < 0) {
-        receivedMessage("Error reading from network socket, aborting connection.");
+        notifyUser("Error reading from network socket, aborting connection.");
         socket->abort();
         return;
     }

@@ -4,6 +4,8 @@
 #include <QObject>
 #include <vector>
 
+#include "ircprotomessage.h"
+
 class QTcpSocket;
 
 class IRCProtoClient : public QObject
@@ -16,7 +18,8 @@ public:
     void sendRaw(const QString &line);
 
 signals:
-    void receivedMessage(const QString &msg);
+    void notifyUser(const QString &msg);
+    void receivedMessage(const IRCProtoMessage &msg);
 
 public slots:
 

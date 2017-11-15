@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(&irc, &IRCProtoClient::receivedMessage, this, &MainWindow::logbufferAppend);
+    connect(&irc, &IRCProtoClient::notifyUser, this, &MainWindow::logbufferAppend);
 }
 
 MainWindow::~MainWindow()
