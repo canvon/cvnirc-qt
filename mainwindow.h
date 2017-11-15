@@ -3,13 +3,11 @@
 
 #include <QMainWindow>
 
-#include <vector>
+#include "ircprotoclient.h"
 
 namespace Ui {
 class MainWindow;
 }
-
-class QTcpSocket;
 
 class MainWindow : public QMainWindow
 {
@@ -21,6 +19,8 @@ public:
 
     void logbufferAppend(const QString &s);
 
+    IRCProtoClient irc;
+
 private slots:
     void on_action_Quit_triggered();
 
@@ -28,15 +28,8 @@ private slots:
 
     void on_pushButtonUserInput_clicked();
 
-    void processIncomingData();
-
 private:
     Ui::MainWindow *ui;
-    QTcpSocket *socket;
-
-    typedef std::vector<char> socketReadBuf_type;
-    socketReadBuf_type socketReadBuf;
-    int socketReadBufUsed;
 };
 
 #endif // MAINWINDOW_H
