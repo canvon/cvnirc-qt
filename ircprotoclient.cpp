@@ -76,12 +76,8 @@ void IRCProtoClient::processIncomingData()
                         *writeIter++ = *readIter++;
                     socketReadBufUsed -= lineLen + 2;
 
-                    notifyUser("> " + line);
-
                     // Interpret messages.
-                    IRCProtoMessage msg(line);
-                    receivedMessage(msg);
-
+                    receivedRaw(line);
                     break;
                 }
             }
@@ -95,5 +91,36 @@ void IRCProtoClient::processIncomingData()
         notifyUser("Error reading from network socket, aborting connection.");
         socket->abort();
         return;
+    }
+}
+
+void IRCProtoClient::receivedRaw(const QString &rawLine)
+{
+    notifyUser("> " + rawLine);
+
+    std::vector<QString> tokens = IRCProtoMessage::splitRawLine(rawLine);
+    if (!(tokens.size() >= 1)) {
+        notifyUser("Protocol error, aborting connection: Received raw line with no tokens!");
+        socket->abort();
+        return;
+    }
+
+    IRCProtoMessage *msg = nullptr;
+
+    if (tokens[0] == "PING") {
+        if (!(tokens.size() == 2)) {
+            notifyUser("Protocol error, aborting connection: Received PING message with unexpected token count " + tokens.size());
+            socket->abort();
+            return;
+        }
+        msg = new PingPongIRCProtoMessage(rawLine, IRCMsgType::Ping, tokens[1]);
+    }
+    else {
+        msg = new IRCProtoMessage(rawLine);
+    }
+
+    if (msg != nullptr) {
+        receivedMessage(*msg);
+        delete msg;
     }
 }

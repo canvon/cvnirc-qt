@@ -16,6 +16,7 @@ public:
 
     void connectToIRCServer(const QString &host, const QString &port, const QString &user, const QString &nick);
     void sendRaw(const QString &line);
+    void receivedRaw(const QString &rawLine);
 
 signals:
     void notifyUser(const QString &msg);
