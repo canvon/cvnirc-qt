@@ -74,8 +74,9 @@ void MainWindow::on_pushButtonUserInput_clicked()
         logbufferAppend("(Stub: Would send this as normal text message: \"" + line + "\")");
     }
     else {
-        // FIXME: Really parse as command.
-        logbufferAppend("(Stub: Would parse this as command: \"" + line + "\")");
+        // TODO: Pre-parse as a command, to have local meanings as well.
+        logbufferAppend("Sending command: \"" + line + "\"");
+        socket->write((line + "\r\n").toUtf8());
     }
 }
 
