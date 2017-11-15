@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     connect(&irc, &IRCProtoClient::notifyUser, this, &MainWindow::logbufferAppend);
+    connect(&irc, &IRCProtoClient::receivedMessage, this, &MainWindow::on_irc_receivedMessage);
 }
 
 MainWindow::~MainWindow()
@@ -70,5 +71,20 @@ void MainWindow::on_pushButtonUserInput_clicked()
         // TODO: Pre-parse as a command, to have local meanings as well.
         //logbufferAppend("Sending command: \"" + line + "\"");
         irc.sendRaw(line);
+    }
+}
+
+void MainWindow::on_irc_receivedMessage(const IRCProtoMessage &msg)
+{
+    switch (msg.msgType) {
+    case IRCMsgType::Ping:
+        {
+            auto &pingMsg(static_cast<const PingPongIRCProtoMessage &>(msg));
+            irc.sendRaw("PONG :" + pingMsg.target);
+        }
+        break;
+    default:
+        logbufferAppend("Unrecognized IRC protocol message of type " + (int)msg.msgType);
+        break;
     }
 }

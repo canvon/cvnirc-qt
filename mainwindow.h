@@ -28,6 +28,8 @@ private slots:
 
     void on_pushButtonUserInput_clicked();
 
+    void on_irc_receivedMessage(const IRCProtoMessage &msg);
+
 private:
     Ui::MainWindow *ui;
 };
