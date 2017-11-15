@@ -33,8 +33,14 @@ std::vector<QString> IRCProtoMessage::splitRawLine(const QString &rawLine)
             token.clear();
             break;
         case ':':
-            // Ignore character, start quote.
-            quoteStarted = true;
+            if (ret.size() == 0 || token.length() > 0) {
+                // Append to token.
+                token.append(c);
+            }
+            else {
+                // Ignore character, start quote.
+                quoteStarted = true;
+            }
             break;
         default:
             // Append to token.
