@@ -31,6 +31,10 @@ public:
     void receivedMessageAutonomous(const IRCProtoMessage &msg);
 
     IRCConnectionState connectionState();
+    const QString &hostRequested();
+    const QString &portRequested();
+    const QString &userRequested();
+    const QString &nickRequested();
 
 signals:
     void notifyUser(const QString &msg);
@@ -53,9 +57,9 @@ private:
 
     std::deque<QString> sendQueue;
 
-    QString hostRequested, portRequested;
-    QString userRequested;
-    QString nickRequested;
+    QString _hostRequested, _portRequested;
+    QString _userRequested;
+    QString _nickRequested;
 
     IRCConnectionState _connectionState;
     void _setConnectionState(IRCConnectionState newState);
