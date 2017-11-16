@@ -41,6 +41,11 @@ void IRCProtoClient::disconnectFromIRCServer()
     return disconnectFromIRCServer(nullptr);
 }
 
+void IRCProtoClient::disconnectFromIRCServer(const QString &quitMsg)
+{
+    return disconnectFromIRCServer(&quitMsg);
+}
+
 void IRCProtoClient::connectToIRCServer(const QString &host, const QString &port, const QString &user, const QString &nick)
 {
     // TODO: Do sanity checks on user-supplied data.

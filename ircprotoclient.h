@@ -25,7 +25,7 @@ public:
     void connectToIRCServer(const QString &host, const QString &port, const QString &user, const QString &nick);
     void reconnectToIRCServer();
     void disconnectFromIRCServer();
-    void disconnectFromIRCServer(const QString *quitMsg);
+    void disconnectFromIRCServer(const QString &quitMsg);
     void sendRaw(const QString &line);
     void receivedRaw(const QString &rawLine);
 
@@ -54,6 +54,8 @@ private:
     QString nickRequested;
 
     IRCConnectionState connectionState;
+
+    void disconnectFromIRCServer(const QString *quitMsg);
 };
 
 #endif // IRCPROTOCLIENT_H
