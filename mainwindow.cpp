@@ -92,6 +92,8 @@ void MainWindow::on_pushButtonUserInput_clicked()
         //logbufferAppend("Sending command: \"" + line + "\"");
         irc.sendRaw(line);
     }
+
+    ui->lineEditUserInput->setText("");
 }
 
 void MainWindow::on_irc_receivedMessage(IRCProtoMessage &msg)
