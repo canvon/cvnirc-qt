@@ -87,7 +87,7 @@ PingPongIRCProtoMessage::PingPongIRCProtoMessage(
     case IRCMsgType::Pong:
         break;
     default:
-        throw std::runtime_error("PingPongIRCProtoMessage ctor: Invalid msgType " + (int)msgType);
+        throw std::runtime_error("PingPongIRCProtoMessage ctor: Invalid msgType " + std::to_string((int)msgType));
     }
     this->msgType = msgType;
 }

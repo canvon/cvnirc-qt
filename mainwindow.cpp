@@ -84,7 +84,7 @@ void MainWindow::on_irc_receivedMessage(const IRCProtoMessage &msg)
         }
         break;
     default:
-        logbufferAppend("Unrecognized IRC protocol message of type " + (int)msg.msgType);
+        logbufferAppend("Unrecognized IRC protocol message of type " + QString::number((int)msg.msgType));
         break;
     }
 }

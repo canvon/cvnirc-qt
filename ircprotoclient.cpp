@@ -198,7 +198,7 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
 
     if (tokens[0] == "PING") {
         if (!(tokens.size() == 2)) {
-            notifyUser("Protocol error, aborting connection: Received PING message with unexpected token count " + tokens.size());
+            notifyUser("Protocol error, aborting connection: Received PING message with unexpected token count " + QString::number(tokens.size()));
             socket->abort();
             return;
         }
