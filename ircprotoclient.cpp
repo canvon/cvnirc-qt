@@ -6,7 +6,7 @@ IRCProtoClient::IRCProtoClient(QObject *parent) : QObject(parent),
     socket(new QTcpSocket(this)),
     socketReadBuf(10*1024),
     socketReadBufUsed(0),
-    connectionState(IRCConnectionState::Disconnected)
+    _connectionState(IRCConnectionState::Disconnected)
 {
     // Set up signals & slots.
     connect(socket, &QAbstractSocket::connected, this, &IRCProtoClient::on_socket_connected);
@@ -15,12 +15,12 @@ IRCProtoClient::IRCProtoClient(QObject *parent) : QObject(parent),
 
 void IRCProtoClient::disconnectFromIRCServer(const QString *quitMsg)
 {
-    if (connectionState == IRCConnectionState::Disconnected) {
+    if (connectionState() == IRCConnectionState::Disconnected) {
         notifyUser("Already disconnected.");
         return;
     }
 
-    if (connectionState >= IRCConnectionState::Registering) {
+    if (connectionState() >= IRCConnectionState::Registering) {
         if (quitMsg == nullptr) {
             notifyUser("Sending quit request to server...");
             sendRaw("QUIT");
@@ -33,7 +33,7 @@ void IRCProtoClient::disconnectFromIRCServer(const QString *quitMsg)
 
     notifyUser("Aborting connection...");
     socket->abort();
-    connectionState = IRCConnectionState::Disconnected;
+    _setConnectionState(IRCConnectionState::Disconnected);
 }
 
 void IRCProtoClient::disconnectFromIRCServer()
@@ -50,7 +50,7 @@ void IRCProtoClient::connectToIRCServer(const QString &host, const QString &port
 {
     // TODO: Do sanity checks on user-supplied data.
 
-    if (connectionState != IRCConnectionState::Disconnected)
+    if (connectionState() != IRCConnectionState::Disconnected)
         disconnectFromIRCServer();
 
     notifyUser("Changing requested host:port to " + host + ":" + port +
@@ -65,17 +65,17 @@ void IRCProtoClient::connectToIRCServer(const QString &host, const QString &port
 
 void IRCProtoClient::reconnectToIRCServer()
 {
-    if (connectionState != IRCConnectionState::Disconnected)
+    if (connectionState() != IRCConnectionState::Disconnected)
         disconnectFromIRCServer();
 
     notifyUser("(Re)Connecting to " + hostRequested + ":" + portRequested);
     socket->connectToHost(hostRequested, portRequested.toShort());
-    connectionState = IRCConnectionState::Connecting;
+    _setConnectionState(IRCConnectionState::Connecting);
 }
 
 void IRCProtoClient::on_socket_connected()
 {
-    connectionState = IRCConnectionState::Registering;
+    _setConnectionState(IRCConnectionState::Registering);
 
     notifyUser("Registering as user " + userRequested + "...");
     // "USER" USERNAME HOSTNAME SERVERNAME REALNAME
@@ -227,16 +227,30 @@ void IRCProtoClient::receivedMessageAutonomous(const IRCProtoMessage &msg)
 {
     switch (msg.msgType) {
     case IRCMsgType::Welcome:
-        if (connectionState != IRCConnectionState::Registering) {
+        if (connectionState() != IRCConnectionState::Registering) {
             notifyUser("Protocol error, disconnecting: Got random Welcome/001 message");
             disconnectFromIRCServer("Protocol error");
             return;
         }
 
         notifyUser("Got welcome message; we're connected, now");
-        connectionState = IRCConnectionState::Connected;
+        _setConnectionState(IRCConnectionState::Connected);
         break;
     default:
         break;
     }
+}
+
+IRCConnectionState IRCProtoClient::connectionState()
+{
+    return _connectionState;
+}
+
+void IRCProtoClient::_setConnectionState(IRCConnectionState newState)
+{
+    if (_connectionState == newState)
+        return;
+
+    _connectionState = newState;
+    connectionStateChanged();
 }
