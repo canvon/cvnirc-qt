@@ -44,7 +44,7 @@ signals:
 public slots:
 
 private slots:
-    void on_socket_connected();
+    void handle_socket_connected();
     void processOutgoingData();
     void processIncomingData();
 

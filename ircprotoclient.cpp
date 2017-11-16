@@ -9,7 +9,7 @@ IRCProtoClient::IRCProtoClient(QObject *parent) : QObject(parent),
     _connectionState(IRCConnectionState::Disconnected)
 {
     // Set up signals & slots.
-    connect(socket, &QAbstractSocket::connected, this, &IRCProtoClient::on_socket_connected);
+    connect(socket, &QAbstractSocket::connected, this, &IRCProtoClient::handle_socket_connected);
     connect(socket, &QIODevice::readyRead, this, &IRCProtoClient::processIncomingData);
 }
 
@@ -77,7 +77,7 @@ void IRCProtoClient::reconnectToIRCServer()
     _setConnectionState(IRCConnectionState::Connecting);
 }
 
-void IRCProtoClient::on_socket_connected()
+void IRCProtoClient::handle_socket_connected()
 {
     _setConnectionState(IRCConnectionState::Registering);
 
