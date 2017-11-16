@@ -29,8 +29,8 @@ private slots:
 
     void on_pushButtonUserInput_clicked();
 
-    void on_irc_receivedMessage(IRCProtoMessage &msg);
-    void on_irc_connectionStateChanged();
+    void handle_irc_receivedMessage(IRCProtoMessage &msg);
+    void handle_irc_connectionStateChanged();
 
 private:
     Ui::MainWindow *ui;
