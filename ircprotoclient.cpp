@@ -204,6 +204,9 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
         }
         msg = new PingPongIRCProtoMessage(rawLine, prefix, tokens, IRCMsgType::Ping, tokens[1]);
     }
+    else if (tokens[0] == "001") {
+        msg = new NumericIRCProtoMessage(rawLine, prefix, tokens, IRCMsgType::Welcome, 1);
+    }
     else {
         msg = new IRCProtoMessage(rawLine, prefix, tokens);
     }

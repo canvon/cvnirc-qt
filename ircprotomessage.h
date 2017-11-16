@@ -7,6 +7,7 @@
 enum class IRCMsgType {
     Unknown,
     Ping, Pong,
+    Welcome,
 };
 
 class IRCProtoMessage
@@ -32,6 +33,15 @@ public:
                             IRCMsgType msgType, const QString &target);
 
     QString target;
+};
+
+class NumericIRCProtoMessage : public IRCProtoMessage
+{
+public:
+    NumericIRCProtoMessage(const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,
+                           IRCMsgType msgType, int numeric);
+
+    int numeric;
 };
 
 #endif // IRCPROTOMESSAGE_H

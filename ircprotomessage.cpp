@@ -91,3 +91,15 @@ PingPongIRCProtoMessage::PingPongIRCProtoMessage(
     }
     this->msgType = msgType;
 }
+
+NumericIRCProtoMessage::NumericIRCProtoMessage(
+    const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,
+    IRCMsgType msgType, int numeric) :
+        IRCProtoMessage(rawLine, prefix, mainTokens),
+        numeric(numeric)
+{
+    this->msgType = msgType;
+
+    if (numeric < 0 || numeric > 999)
+        throw std::runtime_error("NumericIRCProtoMessage ctor: Numeric " + std::to_string(numeric) + " out of range");
+}
