@@ -16,7 +16,49 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="LogBuffer" name="logBufferMain">
+     <widget class="LogBuffer" name="logBufferProto" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>160</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>160</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <property name="tabsClosable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="tabMain">
+       <attribute name="title">
+        <string>Main</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="LogBuffer" name="logBufferMain" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>80</height>
+           </size>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
     <item>
@@ -84,7 +126,8 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_Quit">
    <property name="icon">
-    <iconset theme="application-exit"/>
+    <iconset theme="application-exit">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Quit</string>
@@ -95,7 +138,8 @@
   </action>
   <action name="action_Connect">
    <property name="icon">
-    <iconset theme="network-server"/>
+    <iconset theme="network-server">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Connect</string>
@@ -103,7 +147,8 @@
   </action>
   <action name="action_Reconnect">
    <property name="icon">
-    <iconset theme="network-transmit-receive"/>
+    <iconset theme="network-transmit-receive">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Reconnect</string>
@@ -111,7 +156,8 @@
   </action>
   <action name="action_Disconnect">
    <property name="icon">
-    <iconset theme="process-stop"/>
+    <iconset theme="process-stop">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Disconnect</string>
@@ -119,6 +165,13 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>LogBuffer</class>
+   <extends>QWidget</extends>
+   <header>logbuffer.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
