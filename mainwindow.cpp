@@ -97,15 +97,7 @@ void MainWindow::on_pushButtonUserInput_clicked()
 void MainWindow::on_irc_receivedMessage(IRCProtoMessage &msg)
 {
     switch (msg.msgType) {
-    case IRCMsgType::Ping:
-        {
-            auto &pingMsg(static_cast<const PingPongIRCProtoMessage &>(msg));
-            irc.sendRaw("PONG :" + pingMsg.target);
-        }
-        break;
     default:
-        if (!msg.handled)
-            logbufferAppend("Unrecognized IRC protocol message of type " + QString::number((int)msg.msgType));
         break;
     }
 }

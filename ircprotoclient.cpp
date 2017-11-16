@@ -223,6 +223,10 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
     if (msg != nullptr) {
         receivedMessageAutonomous(*msg);
         receivedMessage(*msg);
+
+        if (!msg->handled)
+            notifyUser("Unrecognized IRC protocol message of type " + QString::number((int)msg->msgType));
+
         delete msg;
     }
 }
@@ -230,6 +234,13 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
 void IRCProtoClient::receivedMessageAutonomous(IRCProtoMessage &msg)
 {
     switch (msg.msgType) {
+    case IRCMsgType::Ping:
+        {
+            auto &pingMsg(static_cast<PingPongIRCProtoMessage &>(msg));
+            sendRaw("PONG :" + pingMsg.target);
+            pingMsg.handled = true;
+        }
+        break;
     case IRCMsgType::Welcome:
         if (connectionState() != IRCConnectionState::Registering) {
             notifyUser("Protocol error, disconnecting: Got random Welcome/001 message");
