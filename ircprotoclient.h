@@ -16,6 +16,7 @@ public:
     explicit IRCProtoClient(QObject *parent = 0);
 
     void connectToIRCServer(const QString &host, const QString &port, const QString &user, const QString &nick);
+    void reconnectToIRCServer();
     void sendRaw(const QString &line);
     void receivedRaw(const QString &rawLine);
 
@@ -26,6 +27,7 @@ signals:
 public slots:
 
 private slots:
+    void on_socket_connected();
     void processOutgoingData();
     void processIncomingData();
 
@@ -37,6 +39,10 @@ private:
     int socketReadBufUsed;
 
     std::deque<QString> sendQueue;
+
+    QString hostRequested, portRequested;
+    QString userRequested;
+    QString nickRequested;
 };
 
 #endif // IRCPROTOCLIENT_H

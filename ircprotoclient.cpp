@@ -8,6 +8,7 @@ IRCProtoClient::IRCProtoClient(QObject *parent) : QObject(parent),
     socketReadBufUsed(0)
 {
     // Set up signals & slots.
+    connect(socket, &QAbstractSocket::connected, this, &IRCProtoClient::on_socket_connected);
     connect(socket, &QIODevice::readyRead, this, &IRCProtoClient::processIncomingData);
 }
 
@@ -15,16 +16,31 @@ void IRCProtoClient::connectToIRCServer(const QString &host, const QString &port
 {
     // TODO: Do sanity checks on user-supplied data.
 
-    notifyUser("Connecting to " + host + ":" + port);
-    socket->connectToHost(host, port.toShort());
+    notifyUser("Changing requested host:port to " + host + ":" + port +
+               ", user to " + user + ", nick to " + nick + ".");
+    hostRequested = host;
+    portRequested = port;
+    userRequested = user;
+    nickRequested = nick;
 
-    notifyUser("Registering as user " + user + "...");
+    reconnectToIRCServer();
+}
+
+void IRCProtoClient::reconnectToIRCServer()
+{
+    notifyUser("(Re)Connecting to " + hostRequested + ":" + portRequested);
+    socket->connectToHost(hostRequested, portRequested.toShort());
+}
+
+void IRCProtoClient::on_socket_connected()
+{
+    notifyUser("Registering as user " + userRequested + "...");
     // "USER" USERNAME HOSTNAME SERVERNAME REALNAME
     // TODO: Allow setting realname.
-    sendRaw("USER " + user + " * * :a cvnirc-qt user");
+    sendRaw("USER " + userRequested + " * * :a cvnirc-qt user");
 
-    notifyUser("Requesting nick " + nick + "...");
-    sendRaw("NICK " + nick);
+    notifyUser("Requesting nick " + nickRequested + "...");
+    sendRaw("NICK " + nickRequested);
 }
 
 void IRCProtoClient::sendRaw(const QString &line)
