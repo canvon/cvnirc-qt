@@ -13,19 +13,42 @@ IRCProtoClient::IRCProtoClient(QObject *parent) : QObject(parent),
 
 void IRCProtoClient::connectToIRCServer(const QString &host, const QString &port, const QString &user, const QString &nick)
 {
-    notifyUser("Connecting to " + host + ":" + port +
-        ", as user " + user + " and nick " + nick);
+    // TODO: Do sanity checks on user-supplied data.
+
+    notifyUser("Connecting to " + host + ":" + port);
     socket->connectToHost(host, port.toShort());
+
+    notifyUser("Registering as user " + user + "...");
+    // "USER" USERNAME HOSTNAME SERVERNAME REALNAME
+    // TODO: Allow setting realname.
+    sendRaw("USER " + user + " * * :a cvnirc-qt user");
+
+    notifyUser("Requesting nick " + nick + "...");
+    sendRaw("NICK " + nick);
 }
 
 void IRCProtoClient::sendRaw(const QString &line)
 {
-    notifyUser("< " + line);
-    socket->write((line + "\r\n").toUtf8());
+    sendQueue.push_back(line);
+
+    if (socket->state() == QAbstractSocket::ConnectedState)
+        processOutgoingData();
+}
+
+void IRCProtoClient::processOutgoingData()
+{
+    while (sendQueue.size() > 0) {
+        QString rawLine = sendQueue.front();
+        notifyUser("< " + rawLine);
+        socket->write((rawLine + "\r\n").toUtf8());
+        sendQueue.pop_front();
+    }
 }
 
 void IRCProtoClient::processIncomingData()
 {
+    processOutgoingData();
+
     if (socketReadBufUsed >= socketReadBuf.size()) {
         notifyUser("Socket read buffer size exceeded, aborting connection.");
         socket->abort();

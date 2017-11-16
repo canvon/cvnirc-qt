@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <vector>
+#include <deque>
 
 #include "ircprotomessage.h"
 
@@ -25,6 +26,7 @@ signals:
 public slots:
 
 private slots:
+    void processOutgoingData();
     void processIncomingData();
 
 private:
@@ -33,6 +35,8 @@ private:
     typedef std::vector<char> socketReadBuf_type;
     socketReadBuf_type socketReadBuf;
     int socketReadBufUsed;
+
+    std::deque<QString> sendQueue;
 };
 
 #endif // IRCPROTOCLIENT_H
