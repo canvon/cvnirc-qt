@@ -63,6 +63,18 @@ QWidget *MainWindow::findTabWidgetForElement(const QString &elem)
     return nullptr;
 }
 
+QWidget *MainWindow::openTabForElement(const QString &elem)
+{
+    QWidget *w = findTabWidgetForElement(elem);
+    if (w == nullptr) {
+        auto logBuf = new LogBuffer();
+        logBuf->associatedElements.append(elem);
+        w = logBuf;
+        ui->tabWidget->addTab(w, elem);
+    }
+    return w;
+}
+
 void MainWindow::on_action_Quit_triggered()
 {
     // TODO: Close the UI more gently, provide ability to cancel quit.
@@ -120,13 +132,7 @@ void MainWindow::handle_irc_receivedMessage(IRCProtoMessage &msg)
             auto joinMsg(static_cast<JoinIRCProtoMessage &>(msg));
 
             for (QString channel : joinMsg.channels) {
-                QWidget *w = findTabWidgetForElement(channel);
-                if (w == nullptr) {
-                    auto logBuf = new LogBuffer();
-                    logBuf->associatedElements.append(channel);
-                    w = logBuf;
-                    ui->tabWidget->addTab(w, channel);
-                }
+                QWidget *w = openTabForElement(channel);
 
                 auto logBuf = dynamic_cast<LogBuffer *>(w);
                 if (logBuf == nullptr) {
