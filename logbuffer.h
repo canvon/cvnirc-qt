@@ -17,6 +17,8 @@ public:
 
 public slots:
     void appendLine(const QString &line);
+    void appendSentLine(const QString &rawLine);
+    void appendReceivedLine(const QString &rawLine);
 
 private:
     Ui::LogBuffer *ui;

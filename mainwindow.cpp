@@ -10,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     connect(&irc, &IRCProtoClient::notifyUser, ui->logBufferMain, &LogBuffer::appendLine);
+    connect(&irc, &IRCProtoClient::sentMessageLast, ui->logBufferProto, &LogBuffer::appendSentLine);
+    connect(&irc, &IRCProtoClient::receivedMessageFirst, ui->logBufferProto, &LogBuffer::appendReceivedLine);
     connect(&irc, &IRCProtoClient::receivedMessage, this, &MainWindow::handle_irc_receivedMessage);
     connect(&irc, &IRCProtoClient::connectionStateChanged, this, &MainWindow::handle_irc_connectionStateChanged);
 

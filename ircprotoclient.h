@@ -35,6 +35,8 @@ public:
 
 signals:
     void notifyUser(const QString &msg);
+    void sentMessageLast(const QString &rawLine);
+    void receivedMessageFirst(const QString &rawLine);
     void receivedMessage(IRCProtoMessage &msg);
     void connectionStateChanged();
 

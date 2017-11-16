@@ -21,3 +21,13 @@ void LogBuffer::appendLine(const QString &line)
     QDateTime ts = QDateTime::currentDateTime();
     ui->textEdit->append("[" + ts.toString() + "] " + line);
 }
+
+void LogBuffer::appendSentLine(const QString &rawLine)
+{
+    return appendLine("< " + rawLine);
+}
+
+void LogBuffer::appendReceivedLine(const QString &rawLine)
+{
+    return appendLine("> " + rawLine);
+}
