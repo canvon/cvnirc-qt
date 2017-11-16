@@ -31,6 +31,10 @@ void IRCProtoClient::disconnectFromIRCServer(const QString *quitMsg)
         }
     }
 
+    // Make sure nothing stays queued from the old connection,
+    // or it would probably be misdirected to a new connection...
+    sendQueue.clear();
+
     notifyUser("Aborting connection...");
     socket->abort();
     _setConnectionState(IRCConnectionState::Disconnected);
