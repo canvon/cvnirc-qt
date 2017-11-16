@@ -5,27 +5,32 @@
 #include <vector>
 
 enum class IRCMsgType {
-    Raw,
+    Unknown,
     Ping, Pong,
 };
 
 class IRCProtoMessage
 {
 public:
+    typedef std::vector<QString> tokens_type;
+
     IRCProtoMessage(const QString &rawLine);
+    IRCProtoMessage(const QString &rawLine, const QString &prefix, const tokens_type &mainTokens);
 
     IRCMsgType msgType;
     QString rawLine;
+    QString prefix;
+    tokens_type mainTokens;
 
-    static std::vector<QString> splitRawLine(const QString &rawLine);
+    static tokens_type splitRawLine(const QString &rawLine);
 };
 
 class PingPongIRCProtoMessage : public IRCProtoMessage
 {
 public:
-    PingPongIRCProtoMessage(const QString &rawLine, const QString &source, IRCMsgType msgType, const QString &target);
+    PingPongIRCProtoMessage(const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,
+                            IRCMsgType msgType, const QString &target);
 
-    QString source;
     QString target;
 };
 

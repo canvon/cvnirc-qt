@@ -2,9 +2,9 @@
 
 #include <stdexcept>
 
-std::vector<QString> IRCProtoMessage::splitRawLine(const QString &rawLine)
+IRCProtoMessage::tokens_type IRCProtoMessage::splitRawLine(const QString &rawLine)
 {
-    std::vector<QString> ret;
+    tokens_type ret;
     QString token;
     bool quoteStarted = false;
 
@@ -57,16 +57,30 @@ std::vector<QString> IRCProtoMessage::splitRawLine(const QString &rawLine)
 }
 
 IRCProtoMessage::IRCProtoMessage(const QString &rawLine) :
-    msgType(IRCMsgType::Raw),
+    msgType(IRCMsgType::Unknown),
     rawLine(rawLine)
+{
+    mainTokens = splitRawLine(rawLine);
+    if (mainTokens.size() >= 1 && mainTokens[0].length() >= 1 && mainTokens[0][0] == ':') {
+        prefix = mainTokens[0];
+        mainTokens.erase(mainTokens.begin());
+    }
+}
+
+IRCProtoMessage::IRCProtoMessage(const QString &rawLine, const QString &prefix, const IRCProtoMessage::tokens_type &mainTokens) :
+    msgType(IRCMsgType::Unknown),
+    rawLine(rawLine),
+    prefix(prefix),
+    mainTokens(mainTokens)
 {
 
 }
 
-PingPongIRCProtoMessage::PingPongIRCProtoMessage(const QString &rawLine, const QString &source, IRCMsgType msgType, const QString &target) :
-    IRCProtoMessage(rawLine),
-    source(source),
-    target(target)
+PingPongIRCProtoMessage::PingPongIRCProtoMessage(
+    const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,
+    IRCMsgType msgType, const QString &target) :
+        IRCProtoMessage(rawLine, prefix, mainTokens),
+        target(target)
 {
     switch (msgType) {
     case IRCMsgType::Ping:
