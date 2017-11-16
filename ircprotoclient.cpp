@@ -217,7 +217,26 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
     }
 
     if (msg != nullptr) {
+        receivedMessageAutonomous(*msg);
         receivedMessage(*msg);
         delete msg;
+    }
+}
+
+void IRCProtoClient::receivedMessageAutonomous(const IRCProtoMessage &msg)
+{
+    switch (msg.msgType) {
+    case IRCMsgType::Welcome:
+        if (connectionState != IRCConnectionState::Registering) {
+            notifyUser("Protocol error, aborting connection: Got random Welcome/001 message");
+            disconnectFromIRCServer("Protocol error");
+            return;
+        }
+
+        notifyUser("Got welcome message; we're connected, now");
+        connectionState = IRCConnectionState::Connected;
+        break;
+    default:
+        break;
     }
 }

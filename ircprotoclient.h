@@ -28,6 +28,7 @@ public:
     void disconnectFromIRCServer(const QString &quitMsg);
     void sendRaw(const QString &line);
     void receivedRaw(const QString &rawLine);
+    void receivedMessageAutonomous(const IRCProtoMessage &msg);
 
 signals:
     void notifyUser(const QString &msg);
