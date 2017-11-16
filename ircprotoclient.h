@@ -9,6 +9,13 @@
 
 class QTcpSocket;
 
+enum class IRCConnectionState {
+    Disconnected,
+    Connecting,
+    Registering,
+    Connected
+};
+
 class IRCProtoClient : public QObject
 {
     Q_OBJECT
@@ -17,6 +24,8 @@ public:
 
     void connectToIRCServer(const QString &host, const QString &port, const QString &user, const QString &nick);
     void reconnectToIRCServer();
+    void disconnectFromIRCServer();
+    void disconnectFromIRCServer(const QString *quitMsg);
     void sendRaw(const QString &line);
     void receivedRaw(const QString &rawLine);
 
@@ -43,6 +52,8 @@ private:
     QString hostRequested, portRequested;
     QString userRequested;
     QString nickRequested;
+
+    IRCConnectionState connectionState;
 };
 
 #endif // IRCPROTOCLIENT_H

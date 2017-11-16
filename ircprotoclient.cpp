@@ -5,16 +5,48 @@
 IRCProtoClient::IRCProtoClient(QObject *parent) : QObject(parent),
     socket(new QTcpSocket(this)),
     socketReadBuf(10*1024),
-    socketReadBufUsed(0)
+    socketReadBufUsed(0),
+    connectionState(IRCConnectionState::Disconnected)
 {
     // Set up signals & slots.
     connect(socket, &QAbstractSocket::connected, this, &IRCProtoClient::on_socket_connected);
     connect(socket, &QIODevice::readyRead, this, &IRCProtoClient::processIncomingData);
 }
 
+void IRCProtoClient::disconnectFromIRCServer(const QString *quitMsg)
+{
+    if (connectionState == IRCConnectionState::Disconnected) {
+        notifyUser("Already disconnected.");
+        return;
+    }
+
+    if (connectionState >= IRCConnectionState::Registering) {
+        if (quitMsg == nullptr) {
+            notifyUser("Sending quit request to server...");
+            sendRaw("QUIT");
+        }
+        else {
+            notifyUser("Sending quit request (message: " + *quitMsg + ") to server...");
+            sendRaw("QUIT :" + *quitMsg);
+        }
+    }
+
+    notifyUser("Aborting connection...");
+    socket->abort();
+    connectionState = IRCConnectionState::Disconnected;
+}
+
+void IRCProtoClient::disconnectFromIRCServer()
+{
+    return disconnectFromIRCServer(nullptr);
+}
+
 void IRCProtoClient::connectToIRCServer(const QString &host, const QString &port, const QString &user, const QString &nick)
 {
     // TODO: Do sanity checks on user-supplied data.
+
+    if (connectionState != IRCConnectionState::Disconnected)
+        disconnectFromIRCServer();
 
     notifyUser("Changing requested host:port to " + host + ":" + port +
                ", user to " + user + ", nick to " + nick + ".");
@@ -28,12 +60,18 @@ void IRCProtoClient::connectToIRCServer(const QString &host, const QString &port
 
 void IRCProtoClient::reconnectToIRCServer()
 {
+    if (connectionState != IRCConnectionState::Disconnected)
+        disconnectFromIRCServer();
+
     notifyUser("(Re)Connecting to " + hostRequested + ":" + portRequested);
     socket->connectToHost(hostRequested, portRequested.toShort());
+    connectionState = IRCConnectionState::Connecting;
 }
 
 void IRCProtoClient::on_socket_connected()
 {
+    connectionState = IRCConnectionState::Registering;
+
     notifyUser("Registering as user " + userRequested + "...");
     // "USER" USERNAME HOSTNAME SERVERNAME REALNAME
     // TODO: Allow setting realname.
