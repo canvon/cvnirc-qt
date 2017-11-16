@@ -27,12 +27,15 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     connectdialog.cpp \
     ircprotoclient.cpp \
-    ircprotomessage.cpp
+    ircprotomessage.cpp \
+    logbuffer.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
     ircprotoclient.h \
-    ircprotomessage.h
+    ircprotomessage.h \
+    logbuffer.h
 
 FORMS    += mainwindow.ui \
-    connectdialog.ui
+    connectdialog.ui \
+    logbuffer.ui

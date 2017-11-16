@@ -18,7 +18,6 @@ public:
     ~MainWindow();
 
     void updateState();
-    void logbufferAppend(const QString &s);
 
     IRCProtoClient irc;
 

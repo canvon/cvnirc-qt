@@ -2,8 +2,6 @@
 #include "ui_mainwindow.h"
 #include "connectdialog.h"
 
-#include <QDate>
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -11,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(&irc, &IRCProtoClient::notifyUser, this, &MainWindow::logbufferAppend);
+    connect(&irc, &IRCProtoClient::notifyUser, ui->logBufferMain, &LogBuffer::appendLine);
     connect(&irc, &IRCProtoClient::receivedMessage, this, &MainWindow::handle_irc_receivedMessage);
     connect(&irc, &IRCProtoClient::connectionStateChanged, this, &MainWindow::handle_irc_connectionStateChanged);
 
@@ -45,13 +43,6 @@ void MainWindow::updateState()
         setWindowTitle(irc.hostRequested() + " - " + baseWindowTitle + " (Connected)");
         break;
     }
-}
-
-void MainWindow::logbufferAppend(const QString &s)
-{
-    // Prepend timestamp and append to logbuffer.
-    QDateTime ts = QDateTime::currentDateTime();
-    ui->textEditLogbuffer->append("[" + ts.toString() + "] " + s);
 }
 
 void MainWindow::on_action_Quit_triggered()
@@ -93,11 +84,10 @@ void MainWindow::on_pushButtonUserInput_clicked()
 
     if (!isCommand) {
         // FIXME: Build a PRIVMSG command from that.
-        logbufferAppend("(Stub: Would send this as normal text message: \"" + line + "\")");
+        ui->logBufferMain->appendLine("(Stub: Would send this as normal text message: \"" + line + "\")");
     }
     else {
         // TODO: Pre-parse as a command, to have local meanings as well.
-        //logbufferAppend("Sending command: \"" + line + "\"");
         irc.sendRaw(line);
     }
 
