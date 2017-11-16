@@ -74,6 +74,9 @@
         <property name="text">
          <string>User input</string>
         </property>
+        <property name="buddy">
+         <cstring>lineEditUserInput</cstring>
+        </property>
        </widget>
       </item>
       <item>
