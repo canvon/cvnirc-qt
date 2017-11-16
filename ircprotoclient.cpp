@@ -102,7 +102,7 @@ void IRCProtoClient::processOutgoingData()
 {
     while (sendQueue.size() > 0) {
         QString rawLine = sendQueue.front();
-        sentMessageLast(rawLine);
+        sendingLine(rawLine);
         socket->write((rawLine + "\r\n").toUtf8());
         sendQueue.pop_front();
     }
@@ -186,7 +186,7 @@ void IRCProtoClient::processIncomingData()
 
 void IRCProtoClient::receivedRaw(const QString &rawLine)
 {
-    receivedMessageFirst(rawLine);
+    receivedLine(rawLine);
 
     std::vector<QString> tokens = IRCProtoMessage::splitRawLine(rawLine);
     if (!(tokens.size() >= 1)) {

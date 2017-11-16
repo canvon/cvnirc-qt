@@ -22,7 +22,7 @@ void LogBuffer::appendLine(const QString &line)
     ui->textEdit->append("[" + ts.toString() + "] " + line);
 }
 
-void LogBuffer::appendSentLine(const QString &rawLine)
+void LogBuffer::appendSendingLine(const QString &rawLine)
 {
     return appendLine("< " + rawLine);
 }
