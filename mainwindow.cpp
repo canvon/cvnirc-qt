@@ -14,6 +14,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&irc, &IRCProtoClient::notifyUser, this, &MainWindow::logbufferAppend);
     connect(&irc, &IRCProtoClient::receivedMessage, this, &MainWindow::on_irc_receivedMessage);
     connect(&irc, &IRCProtoClient::connectionStateChanged, this, &MainWindow::on_irc_connectionStateChanged);
+
+    // Immediately let the user type commands.
+    ui->lineEditUserInput->setFocus();
 }
 
 MainWindow::~MainWindow()
