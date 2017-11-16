@@ -115,3 +115,20 @@ JoinIRCProtoMessage::JoinIRCProtoMessage(
         throw std::runtime_error("JoinIRCProtoMessage ctor: Invalid msgType " + std::to_string((int)msgType));
     this->msgType = msgType;
 }
+
+ChatterIRCProtoMessage::ChatterIRCProtoMessage(
+    const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,
+    IRCMsgType msgType, QString target, QString chatterData) :
+        IRCProtoMessage(rawLine, prefix, mainTokens),
+        target(target),
+        chatterData(chatterData)
+{
+    switch (msgType) {
+    case IRCMsgType::PrivMsg:
+    case IRCMsgType::Notice:
+        break;
+    default:
+        throw std::runtime_error("ChatterIRCProtoMessage ctor: Invalid msgType " + std::to_string((int)msgType));
+    }
+    this->msgType = msgType;
+}

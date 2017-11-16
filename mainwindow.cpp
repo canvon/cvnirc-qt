@@ -52,7 +52,7 @@ QWidget *MainWindow::findTabWidgetForElement(const QString &elem)
     // (Start at index 1 to skip main logbuffer.)
     for (int i = 1; i < ui->tabWidget->count(); i++) {
         QWidget *w = ui->tabWidget->widget(i);
-        auto logBuf = dynamic_cast<LogBuffer *>(w);
+        auto *logBuf = dynamic_cast<LogBuffer *>(w);
         if (logBuf == nullptr)
             continue;
 
@@ -67,7 +67,7 @@ QWidget *MainWindow::openTabForElement(const QString &elem)
 {
     QWidget *w = findTabWidgetForElement(elem);
     if (w == nullptr) {
-        auto logBuf = new LogBuffer();
+        auto *logBuf = new LogBuffer();
         logBuf->associatedElements.append(elem);
         w = logBuf;
         ui->tabWidget->addTab(w, elem);
@@ -129,12 +129,12 @@ void MainWindow::handle_irc_receivedMessage(IRCProtoMessage &msg)
     switch (msg.msgType) {
     case IRCMsgType::Join:
         {
-            auto joinMsg(static_cast<JoinIRCProtoMessage &>(msg));
+            auto &joinMsg(static_cast<JoinIRCProtoMessage &>(msg));
 
             for (QString channel : joinMsg.channels) {
                 QWidget *w = openTabForElement(channel);
 
-                auto logBuf = dynamic_cast<LogBuffer *>(w);
+                auto *logBuf = dynamic_cast<LogBuffer *>(w);
                 if (logBuf == nullptr) {
                     ui->logBufferMain->appendLine("Error: Widget is not a LogBuffer. Can't handle join to channel " + channel);
                     continue;
@@ -142,6 +142,25 @@ void MainWindow::handle_irc_receivedMessage(IRCProtoMessage &msg)
 
                 logBuf->appendLine("Joined channel " + channel);
             }
+
+            joinMsg.handled = true;
+        }
+        break;
+    case IRCMsgType::PrivMsg:
+    case IRCMsgType::Notice:
+        {
+            auto &chatterMsg(static_cast<ChatterIRCProtoMessage &>(msg));
+            bool isNotice = chatterMsg.msgType == IRCMsgType::Notice;
+
+            QWidget *w = findTabWidgetForElement(chatterMsg.target);
+            QString sourceTyped = (isNotice ? "-" : "<") + chatterMsg.prefix + (isNotice ? "-" : ">");
+
+            auto *logBuf = dynamic_cast<LogBuffer *>(w);
+            if (logBuf == nullptr)
+                logBuf = ui->logBufferMain;
+
+            logBuf->appendLine(chatterMsg.target + " " + sourceTyped + " " + chatterMsg.chatterData);
+            chatterMsg.handled = true;
         }
         break;
     default:

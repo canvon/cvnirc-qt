@@ -230,6 +230,20 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
         JoinIRCProtoMessage::keys_type keys = tokens.size() >= 3 ? tokens[2].split(',') : QStringList();
         msg = new JoinIRCProtoMessage(rawLine, prefix, tokens, IRCMsgType::Join, channels, keys);
     }
+    else if (tokens[0] == "PRIVMSG" || tokens[0] == "NOTICE") {
+        if (!(tokens.size() == 3)) {
+            notifyUser("Protocol error, ignoring: Received " + tokens[0] + " message with unexpected token count " + QString::number(tokens.size()));
+            return;
+        }
+
+        IRCMsgType msgType = IRCMsgType::Unknown;
+        if (tokens[0] == "PRIVMSG")
+            msgType = IRCMsgType::PrivMsg;
+        else if (tokens[0] == "NOTICE")
+            msgType = IRCMsgType::Notice;
+
+        msg = new ChatterIRCProtoMessage(rawLine, prefix, tokens, msgType, tokens[1], tokens[2]);
+    }
     else {
         msg = new IRCProtoMessage(rawLine, prefix, tokens);
     }

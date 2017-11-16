@@ -9,7 +9,8 @@ enum class IRCMsgType {
     Unknown,
     Ping, Pong,
     Welcome,
-    Join
+    Join,
+    PrivMsg, Notice,
 };
 
 class IRCProtoMessage
@@ -57,6 +58,16 @@ public:
 
     channels_type channels;
     keys_type keys;
+};
+
+class ChatterIRCProtoMessage : public IRCProtoMessage
+{
+public:
+    ChatterIRCProtoMessage(const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,
+                           IRCMsgType msgType, QString target, QString chatterData);
+
+    QString target;
+    QString chatterData;
 };
 
 #endif // IRCPROTOMESSAGE_H
