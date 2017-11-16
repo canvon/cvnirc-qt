@@ -17,6 +17,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    void updateState();
     void logbufferAppend(const QString &s);
 
     IRCProtoClient irc;
@@ -29,9 +30,11 @@ private slots:
     void on_pushButtonUserInput_clicked();
 
     void on_irc_receivedMessage(const IRCProtoMessage &msg);
+    void on_irc_connectionStateChanged();
 
 private:
     Ui::MainWindow *ui;
+    QString baseWindowTitle;
 };
 
 #endif // MAINWINDOW_H

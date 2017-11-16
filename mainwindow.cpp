@@ -6,17 +6,37 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    baseWindowTitle("cvnirc-qt")
 {
     ui->setupUi(this);
 
     connect(&irc, &IRCProtoClient::notifyUser, this, &MainWindow::logbufferAppend);
     connect(&irc, &IRCProtoClient::receivedMessage, this, &MainWindow::on_irc_receivedMessage);
+    connect(&irc, &IRCProtoClient::connectionStateChanged, this, &MainWindow::on_irc_connectionStateChanged);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::updateState()
+{
+    switch (irc.connectionState()) {
+    case IRCConnectionState::Disconnected:
+        setWindowTitle(baseWindowTitle);
+        break;
+    case IRCConnectionState::Connecting:
+        setWindowTitle(irc.hostRequested() + " - " + baseWindowTitle + " (Connecting...)");
+        break;
+    case IRCConnectionState::Registering:
+        setWindowTitle(irc.hostRequested() + " - " + baseWindowTitle + " (Registering...)");
+        break;
+    case IRCConnectionState::Connected:
+        setWindowTitle(irc.hostRequested() + " - " + baseWindowTitle + " (Connected)");
+        break;
+    }
 }
 
 void MainWindow::logbufferAppend(const QString &s)
@@ -87,4 +107,9 @@ void MainWindow::on_irc_receivedMessage(const IRCProtoMessage &msg)
         logbufferAppend("Unrecognized IRC protocol message of type " + QString::number((int)msg.msgType));
         break;
     }
+}
+
+void MainWindow::on_irc_connectionStateChanged()
+{
+    updateState();
 }
