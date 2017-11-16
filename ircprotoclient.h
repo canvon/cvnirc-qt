@@ -23,9 +23,6 @@ public:
     explicit IRCProtoClient(QObject *parent = 0);
 
     void connectToIRCServer(const QString &host, const QString &port, const QString &user, const QString &nick);
-    void reconnectToIRCServer();
-    void disconnectFromIRCServer();
-    void disconnectFromIRCServer(const QString &quitMsg);
     void sendRaw(const QString &line);
     void receivedRaw(const QString &rawLine);
     void receivedMessageAutonomous(IRCProtoMessage &msg);
@@ -42,6 +39,9 @@ signals:
     void connectionStateChanged();
 
 public slots:
+    void reconnectToIRCServer();
+    void disconnectFromIRCServer();
+    void disconnectFromIRCServer(const QString &quitMsg);
 
 private slots:
     void handle_socket_connected();
