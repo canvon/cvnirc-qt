@@ -225,7 +225,7 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
         receivedMessage(*msg);
 
         if (!msg->handled)
-            notifyUser("Unrecognized IRC protocol message of type " + QString::number((int)msg->msgType));
+            notifyUser("Unhandled IRC protocol message (type " + QString::number((int)msg->msgType) + "): " + msg->mainTokens[0]);
 
         delete msg;
     }
