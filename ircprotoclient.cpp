@@ -119,7 +119,7 @@ void IRCProtoClient::processIncomingData()
     }
 
     qint64 ret = 0;
-    while ((ret = socket->read(socketReadBuf.data(),
+    while ((ret = socket->read(socketReadBuf.data() + socketReadBufUsed,
                                socketReadBuf.size() - socketReadBufUsed)
             ) > 0) {
         socketReadBufUsed += ret;
@@ -135,8 +135,10 @@ void IRCProtoClient::processIncomingData()
             {
                 switch (state) {
                 case 0:
-                    if (*iter == '\r')
+                    if (*iter == '\r') {
                         state++;
+                        continue;
+                    }
                     break;
                 case 1:
                     if (*iter == '\n') {
@@ -156,11 +158,13 @@ void IRCProtoClient::processIncomingData()
                     socketReadBuf[lineLen] = '\0';
                     QString line(socketReadBuf.data());
 
-                    socketReadBuf_type::iterator writeIter = socketReadBuf.begin();
-                    socketReadBuf_type::const_iterator readIter = iter;
-                    while (usedEnd - readIter > 0)
-                        *writeIter++ = *readIter++;
-                    socketReadBufUsed -= lineLen + 2;
+                    if (socketReadBufUsed >= lineLen + 2) {
+                        socketReadBuf_type::iterator writeIter = socketReadBuf.begin();
+                        socketReadBuf_type::const_iterator readIter = iter + 1;
+                        while (usedEnd - readIter > 0)
+                            *writeIter++ = *readIter++;
+                        socketReadBufUsed -= lineLen + 2;
+                    }
 
                     // Interpret messages.
                     receivedRaw(line);
