@@ -29,7 +29,7 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -46,6 +46,9 @@
         <property name="text">
          <string>Hostname</string>
         </property>
+        <property name="buddy">
+         <cstring>lineEditHost</cstring>
+        </property>
        </widget>
       </item>
       <item>
@@ -55,6 +58,9 @@
        <widget class="QLabel" name="labelPort">
         <property name="text">
          <string>Port</string>
+        </property>
+        <property name="buddy">
+         <cstring>lineEditPort</cstring>
         </property>
        </widget>
       </item>
@@ -68,6 +74,9 @@
       <property name="text">
        <string>Username</string>
       </property>
+      <property name="buddy">
+       <cstring>lineEditUser</cstring>
+      </property>
      </widget>
     </item>
     <item row="1" column="1">
@@ -77,6 +86,9 @@
      <widget class="QLabel" name="labelNick">
       <property name="text">
        <string>Nickname</string>
+      </property>
+      <property name="buddy">
+       <cstring>lineEditNick</cstring>
       </property>
      </widget>
     </item>
