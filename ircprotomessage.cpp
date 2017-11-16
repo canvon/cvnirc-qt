@@ -103,3 +103,15 @@ NumericIRCProtoMessage::NumericIRCProtoMessage(
     if (numeric < 0 || numeric > 999)
         throw std::runtime_error("NumericIRCProtoMessage ctor: Numeric " + std::to_string(numeric) + " out of range");
 }
+
+JoinIRCProtoMessage::JoinIRCProtoMessage(
+    const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,
+    IRCMsgType msgType, channels_type channels, keys_type keys) :
+        IRCProtoMessage(rawLine, prefix, mainTokens),
+        channels(channels),
+        keys(keys)
+{
+    if (msgType != IRCMsgType::Join)
+        throw std::runtime_error("JoinIRCProtoMessage ctor: Invalid msgType " + std::to_string((int)msgType));
+    this->msgType = msgType;
+}

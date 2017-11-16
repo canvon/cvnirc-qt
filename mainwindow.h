@@ -18,6 +18,7 @@ public:
     ~MainWindow();
 
     void updateState();
+    QWidget *findTabWidgetForElement(const QString &elem);
 
     IRCProtoClient irc;
 

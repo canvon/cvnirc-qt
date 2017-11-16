@@ -220,6 +220,16 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
     else if (tokens[0] == "001") {
         msg = new NumericIRCProtoMessage(rawLine, prefix, tokens, IRCMsgType::Welcome, 1);
     }
+    else if (tokens[0] == "JOIN") {
+        if (!(tokens.size() >= 2 && tokens.size() <= 3)) {
+            notifyUser("Protocol error, ignoring: Received JOIN message with unexpected token count " + QString::number(tokens.size()));
+            return;
+        }
+
+        JoinIRCProtoMessage::channels_type channels = tokens[1].split(',');
+        JoinIRCProtoMessage::keys_type keys = tokens.size() >= 3 ? tokens[2].split(',') : QStringList();
+        msg = new JoinIRCProtoMessage(rawLine, prefix, tokens, IRCMsgType::Join, channels, keys);
+    }
     else {
         msg = new IRCProtoMessage(rawLine, prefix, tokens);
     }

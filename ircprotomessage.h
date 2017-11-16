@@ -1,13 +1,15 @@
 #ifndef IRCPROTOMESSAGE_H
 #define IRCPROTOMESSAGE_H
 
-#include "QString"
+#include <QString>
+#include <QStringList>
 #include <vector>
 
 enum class IRCMsgType {
     Unknown,
     Ping, Pong,
     Welcome,
+    Join
 };
 
 class IRCProtoMessage
@@ -43,6 +45,18 @@ public:
                            IRCMsgType msgType, int numeric);
 
     int numeric;
+};
+
+class JoinIRCProtoMessage : public IRCProtoMessage
+{
+public:
+    typedef QStringList channels_type, keys_type;
+
+    JoinIRCProtoMessage(const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,
+                        IRCMsgType msgType, channels_type channels, keys_type keys);
+
+    channels_type channels;
+    keys_type keys;
 };
 
 #endif // IRCPROTOMESSAGE_H

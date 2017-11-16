@@ -15,6 +15,8 @@ public:
     explicit LogBuffer(QWidget *parent = 0);
     ~LogBuffer();
 
+    QStringList associatedElements;
+
 public slots:
     void appendLine(const QString &line);
     void appendSendingLine(const QString &rawLine);

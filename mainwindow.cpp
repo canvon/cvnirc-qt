@@ -47,6 +47,22 @@ void MainWindow::updateState()
     }
 }
 
+QWidget *MainWindow::findTabWidgetForElement(const QString &elem)
+{
+    // (Start at index 1 to skip main logbuffer.)
+    for (int i = 1; i < ui->tabWidget->count(); i++) {
+        QWidget *w = ui->tabWidget->widget(i);
+        auto logBuf = dynamic_cast<LogBuffer *>(w);
+        if (logBuf == nullptr)
+            continue;
+
+        if (logBuf->associatedElements.contains(elem))
+            return w;
+    }
+
+    return nullptr;
+}
+
 void MainWindow::on_action_Quit_triggered()
 {
     // TODO: Close the UI more gently, provide ability to cancel quit.
@@ -99,6 +115,29 @@ void MainWindow::on_pushButtonUserInput_clicked()
 void MainWindow::handle_irc_receivedMessage(IRCProtoMessage &msg)
 {
     switch (msg.msgType) {
+    case IRCMsgType::Join:
+        {
+            auto joinMsg(static_cast<JoinIRCProtoMessage &>(msg));
+
+            for (QString channel : joinMsg.channels) {
+                QWidget *w = findTabWidgetForElement(channel);
+                if (w == nullptr) {
+                    auto logBuf = new LogBuffer();
+                    logBuf->associatedElements.append(channel);
+                    w = logBuf;
+                    ui->tabWidget->addTab(w, channel);
+                }
+
+                auto logBuf = dynamic_cast<LogBuffer *>(w);
+                if (logBuf == nullptr) {
+                    ui->logBufferMain->appendLine("Error: Widget is not a LogBuffer. Can't handle join to channel " + channel);
+                    continue;
+                }
+
+                logBuf->appendLine("Joined channel " + channel);
+            }
+        }
+        break;
     default:
         break;
     }
@@ -106,5 +145,8 @@ void MainWindow::handle_irc_receivedMessage(IRCProtoMessage &msg)
 
 void MainWindow::handle_irc_connectionStateChanged()
 {
+    // TODO: Translate to human-readable.
+    ui->logBufferProto->appendLine("Connection state changed to " + QString::number((int)irc.connectionState()));
+
     updateState();
 }
