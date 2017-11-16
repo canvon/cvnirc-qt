@@ -200,6 +200,7 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
 
     if (tokens[0].length() >= 1 && tokens[0][0] == ':') {
         prefix = tokens[0];
+        prefix.remove(0, 1);  // Strip prefix identifier from identified prefix.
         tokens.erase(tokens.begin());
     }
 
