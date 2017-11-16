@@ -113,8 +113,17 @@ void MainWindow::on_pushButtonUserInput_clicked()
     }
 
     if (!isCommand) {
-        // FIXME: Build a PRIVMSG command from that.
-        ui->logBufferMain->appendLine("(Stub: Would send this as normal text message: \"" + line + "\")");
+        // Build and send a PRIVMSG message.
+        QWidget *w = ui->tabWidget->currentWidget();
+        auto *logBuf = dynamic_cast<LogBuffer *>(w);
+        if (logBuf == nullptr || !(logBuf->associatedElements.count() > 0)) {
+            ui->logBufferMain->appendLine("Don't know to where I should send!");
+            return;
+        }
+        QString target = logBuf->associatedElements[0];
+
+        logBuf->appendLine(target + "> " + line);
+        irc.sendRaw("PRIVMSG " + target + " :" + line);
     }
     else {
         // TODO: Pre-parse as a command, to have local meanings as well.
