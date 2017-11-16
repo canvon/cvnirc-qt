@@ -182,8 +182,8 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
 
     std::vector<QString> tokens = IRCProtoMessage::splitRawLine(rawLine);
     if (!(tokens.size() >= 1)) {
-        notifyUser("Protocol error, aborting connection: Received raw line with no tokens!");
-        socket->abort();
+        notifyUser("Protocol error, disconnecting: Received raw line with no tokens!");
+        disconnectFromIRCServer("Protocol error");
         return;
     }
 
@@ -196,15 +196,15 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
     }
 
     if (!(tokens.size() >= 1)) {
-        notifyUser("Protocol error, aborting connection: Received line with a prefix token only!");
-        socket->abort();
+        notifyUser("Protocol error, disconnecting: Received line with a prefix token only!");
+        disconnectFromIRCServer("Protocol error");
         return;
     }
 
     if (tokens[0] == "PING") {
         if (!(tokens.size() == 2)) {
-            notifyUser("Protocol error, aborting connection: Received PING message with unexpected token count " + QString::number(tokens.size()));
-            socket->abort();
+            notifyUser("Protocol error, disconnecting: Received PING message with unexpected token count " + QString::number(tokens.size()));
+            disconnectFromIRCServer("Protocol error");
             return;
         }
         msg = new PingPongIRCProtoMessage(rawLine, prefix, tokens, IRCMsgType::Ping, tokens[1]);
@@ -228,7 +228,7 @@ void IRCProtoClient::receivedMessageAutonomous(const IRCProtoMessage &msg)
     switch (msg.msgType) {
     case IRCMsgType::Welcome:
         if (connectionState != IRCConnectionState::Registering) {
-            notifyUser("Protocol error, aborting connection: Got random Welcome/001 message");
+            notifyUser("Protocol error, disconnecting: Got random Welcome/001 message");
             disconnectFromIRCServer("Protocol error");
             return;
         }
