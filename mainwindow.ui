@@ -68,6 +68,8 @@
      <string>&amp;File</string>
     </property>
     <addaction name="action_Connect"/>
+    <addaction name="action_Reconnect"/>
+    <addaction name="action_Disconnect"/>
     <addaction name="separator"/>
     <addaction name="action_Quit"/>
    </widget>
@@ -80,9 +82,16 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="action_Quit"/>
+   <addaction name="action_Connect"/>
+   <addaction name="action_Reconnect"/>
+   <addaction name="action_Disconnect"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_Quit">
+   <property name="icon">
+    <iconset theme="application-exit"/>
+   </property>
    <property name="text">
     <string>&amp;Quit</string>
    </property>
@@ -91,8 +100,27 @@
    </property>
   </action>
   <action name="action_Connect">
+   <property name="icon">
+    <iconset theme="network-server"/>
+   </property>
    <property name="text">
     <string>&amp;Connect</string>
+   </property>
+  </action>
+  <action name="action_Reconnect">
+   <property name="icon">
+    <iconset theme="network-transmit-receive"/>
+   </property>
+   <property name="text">
+    <string>&amp;Reconnect</string>
+   </property>
+  </action>
+  <action name="action_Disconnect">
+   <property name="icon">
+    <iconset theme="process-stop"/>
+   </property>
+   <property name="text">
+    <string>&amp;Disconnect</string>
    </property>
   </action>
  </widget>

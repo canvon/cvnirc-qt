@@ -15,6 +15,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&irc, &IRCProtoClient::receivedMessage, this, &MainWindow::handle_irc_receivedMessage);
     connect(&irc, &IRCProtoClient::connectionStateChanged, this, &MainWindow::handle_irc_connectionStateChanged);
 
+    connect(ui->action_Reconnect, &QAction::triggered, &irc, &IRCProtoClient::reconnectToIRCServer);
+    connect(ui->action_Disconnect, &QAction::triggered,
+            &irc, static_cast<void (IRCProtoClient::*)()>(&IRCProtoClient::disconnectFromIRCServer));
+    // ^ The cast is necessary to select one of the overloaded methods.
+
     // Immediately let the user type commands.
     ui->lineEditUserInput->setFocus();
 }
