@@ -28,7 +28,7 @@ public:
     void disconnectFromIRCServer(const QString &quitMsg);
     void sendRaw(const QString &line);
     void receivedRaw(const QString &rawLine);
-    void receivedMessageAutonomous(const IRCProtoMessage &msg);
+    void receivedMessageAutonomous(IRCProtoMessage &msg);
 
     IRCConnectionState connectionState();
     const QString &hostRequested();
@@ -38,7 +38,7 @@ public:
 
 signals:
     void notifyUser(const QString &msg);
-    void receivedMessage(const IRCProtoMessage &msg);
+    void receivedMessage(IRCProtoMessage &msg);
     void connectionStateChanged();
 
 public slots:

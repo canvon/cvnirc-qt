@@ -94,7 +94,7 @@ void MainWindow::on_pushButtonUserInput_clicked()
     }
 }
 
-void MainWindow::on_irc_receivedMessage(const IRCProtoMessage &msg)
+void MainWindow::on_irc_receivedMessage(IRCProtoMessage &msg)
 {
     switch (msg.msgType) {
     case IRCMsgType::Ping:
@@ -104,7 +104,8 @@ void MainWindow::on_irc_receivedMessage(const IRCProtoMessage &msg)
         }
         break;
     default:
-        logbufferAppend("Unrecognized IRC protocol message of type " + QString::number((int)msg.msgType));
+        if (!msg.handled)
+            logbufferAppend("Unrecognized IRC protocol message of type " + QString::number((int)msg.msgType));
         break;
     }
 }

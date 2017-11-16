@@ -18,6 +18,7 @@ public:
     IRCProtoMessage(const QString &rawLine);
     IRCProtoMessage(const QString &rawLine, const QString &prefix, const tokens_type &mainTokens);
 
+    bool handled = false;
     IRCMsgType msgType;
     QString rawLine;
     QString prefix;

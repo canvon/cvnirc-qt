@@ -29,7 +29,7 @@ private slots:
 
     void on_pushButtonUserInput_clicked();
 
-    void on_irc_receivedMessage(const IRCProtoMessage &msg);
+    void on_irc_receivedMessage(IRCProtoMessage &msg);
     void on_irc_connectionStateChanged();
 
 private:

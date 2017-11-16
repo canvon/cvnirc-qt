@@ -227,7 +227,7 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
     }
 }
 
-void IRCProtoClient::receivedMessageAutonomous(const IRCProtoMessage &msg)
+void IRCProtoClient::receivedMessageAutonomous(IRCProtoMessage &msg)
 {
     switch (msg.msgType) {
     case IRCMsgType::Welcome:
@@ -239,6 +239,7 @@ void IRCProtoClient::receivedMessageAutonomous(const IRCProtoMessage &msg)
 
         notifyUser("Got welcome message; we're connected, now");
         _setConnectionState(IRCConnectionState::Connected);
+        msg.handled = true;
         break;
     default:
         break;
