@@ -95,5 +95,22 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>lineEditUserInput</sender>
+   <signal>returnPressed()</signal>
+   <receiver>pushButtonUserInput</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>583</x>
+     <y>561</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>737</x>
+     <y>553</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
