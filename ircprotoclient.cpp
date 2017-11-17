@@ -9,7 +9,11 @@ IRCProtoClient::IRCProtoClient(QObject *parent) : QObject(parent),
     _connectionState(IRCConnectionState::Disconnected)
 {
     // Set up signals & slots.
-    connect(socket, &QAbstractSocket::connected, this, &IRCProtoClient::handle_socket_connected);
+    connect(socket, &QAbstractSocket::connected,
+            this, &IRCProtoClient::handle_socket_connected);
+    typedef void (QAbstractSocket::*error_signal_type)(QAbstractSocket::SocketError);
+    connect(socket, static_cast<error_signal_type>(&QAbstractSocket::error),
+            this, &IRCProtoClient::handle_socket_error);
     connect(socket, &QIODevice::readyRead, this, &IRCProtoClient::processIncomingData);
 }
 
@@ -83,6 +87,14 @@ void IRCProtoClient::handle_socket_connected()
 
     notifyUser("Requesting nick " + _nickRequested + "...");
     sendRaw("NICK " + _nickRequested);
+}
+
+void IRCProtoClient::handle_socket_error(QAbstractSocket::SocketError err)
+{
+    notifyUser(QString("Socket error ") +
+               QMetaEnum::fromType<QAbstractSocket::SocketError>().valueToKey(err) +
+               ": " + socket->errorString());
+    _setConnectionState(IRCConnectionState::Disconnected);
 }
 
 void IRCProtoClient::sendRaw(const QString &line)

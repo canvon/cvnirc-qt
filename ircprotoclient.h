@@ -2,6 +2,7 @@
 #define IRCPROTOCLIENT_H
 
 #include <QObject>
+#include <QAbstractSocket>
 #include <vector>
 #include <deque>
 
@@ -47,6 +48,7 @@ public slots:
 
 private slots:
     void handle_socket_connected();
+    void handle_socket_error(QAbstractSocket::SocketError err);
     void processOutgoingData();
     void processIncomingData();
 
