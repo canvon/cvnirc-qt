@@ -151,7 +151,8 @@ void MainWindow::handle_irc_receivedMessage(IRCProtoMessage &msg)
                     continue;
                 }
 
-                logBuf->appendLine("Joined channel " + channel);
+                logBuf->appendLine("Joined channel " + channel +
+                                   (joinMsg.prefix.count() > 0 ? ": " + joinMsg.prefix : ""));
             }
 
             joinMsg.handled = true;
