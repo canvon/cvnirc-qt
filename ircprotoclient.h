@@ -65,8 +65,6 @@ private:
 
     IRCConnectionState _connectionState;
     void _setConnectionState(IRCConnectionState newState);
-
-    void disconnectFromIRCServer(const QString *quitMsg);
 };
 
 #endif // IRCPROTOCLIENT_H

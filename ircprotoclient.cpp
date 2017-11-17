@@ -13,7 +13,7 @@ IRCProtoClient::IRCProtoClient(QObject *parent) : QObject(parent),
     connect(socket, &QIODevice::readyRead, this, &IRCProtoClient::processIncomingData);
 }
 
-void IRCProtoClient::disconnectFromIRCServer(const QString *quitMsg)
+void IRCProtoClient::disconnectFromIRCServer(const QString &quitMsg)
 {
     if (connectionState() == IRCConnectionState::Disconnected) {
         notifyUser("Already disconnected.");
@@ -21,13 +21,13 @@ void IRCProtoClient::disconnectFromIRCServer(const QString *quitMsg)
     }
 
     if (connectionState() >= IRCConnectionState::Registering) {
-        if (quitMsg == nullptr) {
+        if (quitMsg.isNull()) {
             notifyUser("Sending quit request to server...");
             sendRaw("QUIT");
         }
         else {
-            notifyUser("Sending quit request (message: " + *quitMsg + ") to server...");
-            sendRaw("QUIT :" + *quitMsg);
+            notifyUser("Sending quit request (message: " + quitMsg + ") to server...");
+            sendRaw("QUIT :" + quitMsg);
         }
     }
 
@@ -42,12 +42,7 @@ void IRCProtoClient::disconnectFromIRCServer(const QString *quitMsg)
 
 void IRCProtoClient::disconnectFromIRCServer()
 {
-    return disconnectFromIRCServer(nullptr);
-}
-
-void IRCProtoClient::disconnectFromIRCServer(const QString &quitMsg)
-{
-    return disconnectFromIRCServer(&quitMsg);
+    return disconnectFromIRCServer(QString());
 }
 
 void IRCProtoClient::connectToIRCServer(const QString &host, const QString &port, const QString &user, const QString &nick)
