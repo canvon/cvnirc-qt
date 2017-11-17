@@ -22,6 +22,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Immediately let the user type commands.
     ui->lineEditUserInput->setFocus();
+
+    updateState();
 }
 
 MainWindow::~MainWindow()
