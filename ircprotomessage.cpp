@@ -8,12 +8,8 @@ IRCProtoMessage::tokens_type IRCProtoMessage::splitRawLine(const QString &rawLin
     QString token;
     bool quoteStarted = false;
 
-    for (QString::const_iterator iter = rawLine.cbegin();
-         iter < rawLine.cend();
-         iter++)
+    for (QChar c : rawLine)
     {
-        QChar c = *iter;
-
         if (quoteStarted) {
             token.append(c);
             continue;
