@@ -13,13 +13,17 @@ class QTcpSocket;
 class IRCProtoClient : public QObject
 {
     Q_OBJECT
+
 public:
+
     enum class ConnectionState {
         Disconnected,
         Connecting,
         Registering,
         Connected
     };
+    Q_ENUM(ConnectionState)
+
 
     explicit IRCProtoClient(QObject *parent = 0);
 

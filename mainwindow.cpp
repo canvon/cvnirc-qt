@@ -2,6 +2,8 @@
 #include "ui_mainwindow.h"
 #include "connectdialog.h"
 
+#include <QMetaEnum>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -182,8 +184,12 @@ void MainWindow::handle_irc_receivedMessage(IRCProtoMessage &msg)
 
 void MainWindow::handle_irc_connectionStateChanged()
 {
-    // TODO: Translate to human-readable.
-    ui->logBufferProto->appendLine("Connection state changed to " + QString::number((int)irc.connectionState()));
+    auto state = irc.connectionState();
+    ui->logBufferProto->appendLine(QString("Connection state changed to ") +
+        QString::number((int)state) + QString(": ") +
+        // Translate to human-readable.
+        QMetaEnum::fromType<IRCProtoClient::ConnectionState>().valueToKey((int)state)
+    );
 
     updateState();
 }
