@@ -34,16 +34,16 @@ MainWindow::~MainWindow()
 void MainWindow::updateState()
 {
     switch (irc.connectionState()) {
-    case IRCConnectionState::Disconnected:
+    case IRCProtoClient::ConnectionState::Disconnected:
         setWindowTitle(baseWindowTitle);
         break;
-    case IRCConnectionState::Connecting:
+    case IRCProtoClient::ConnectionState::Connecting:
         setWindowTitle(irc.hostRequested() + " - " + baseWindowTitle + " (Connecting...)");
         break;
-    case IRCConnectionState::Registering:
+    case IRCProtoClient::ConnectionState::Registering:
         setWindowTitle(irc.hostRequested() + " - " + baseWindowTitle + " (Registering...)");
         break;
-    case IRCConnectionState::Connected:
+    case IRCProtoClient::ConnectionState::Connected:
         setWindowTitle(irc.hostRequested() + " - " + baseWindowTitle + " (Connected)");
         break;
     }
