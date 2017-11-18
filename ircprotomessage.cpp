@@ -53,7 +53,7 @@ IRCProtoMessage::tokens_type IRCProtoMessage::splitRawLine(const QString &rawLin
 }
 
 IRCProtoMessage::IRCProtoMessage(const QString &rawLine) :
-    msgType(IRCMsgType::Unknown),
+    msgType(MsgType::Unknown),
     rawLine(rawLine)
 {
     mainTokens = splitRawLine(rawLine);
@@ -64,7 +64,7 @@ IRCProtoMessage::IRCProtoMessage(const QString &rawLine) :
 }
 
 IRCProtoMessage::IRCProtoMessage(const QString &rawLine, const QString &prefix, const IRCProtoMessage::tokens_type &mainTokens) :
-    msgType(IRCMsgType::Unknown),
+    msgType(MsgType::Unknown),
     rawLine(rawLine),
     prefix(prefix),
     mainTokens(mainTokens)
@@ -74,13 +74,13 @@ IRCProtoMessage::IRCProtoMessage(const QString &rawLine, const QString &prefix, 
 
 PingPongIRCProtoMessage::PingPongIRCProtoMessage(
     const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,
-    IRCMsgType msgType, const QString &target) :
+    MsgType msgType, const QString &target) :
         IRCProtoMessage(rawLine, prefix, mainTokens),
         target(target)
 {
     switch (msgType) {
-    case IRCMsgType::Ping:
-    case IRCMsgType::Pong:
+    case MsgType::Ping:
+    case MsgType::Pong:
         break;
     default:
         throw std::runtime_error("PingPongIRCProtoMessage ctor: Invalid msgType " + std::to_string((int)msgType));
@@ -90,7 +90,7 @@ PingPongIRCProtoMessage::PingPongIRCProtoMessage(
 
 NumericIRCProtoMessage::NumericIRCProtoMessage(
     const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,
-    IRCMsgType msgType, int numeric) :
+    MsgType msgType, int numeric) :
         IRCProtoMessage(rawLine, prefix, mainTokens),
         numeric(numeric)
 {
@@ -102,26 +102,26 @@ NumericIRCProtoMessage::NumericIRCProtoMessage(
 
 JoinIRCProtoMessage::JoinIRCProtoMessage(
     const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,
-    IRCMsgType msgType, channels_type channels, keys_type keys) :
+    MsgType msgType, channels_type channels, keys_type keys) :
         IRCProtoMessage(rawLine, prefix, mainTokens),
         channels(channels),
         keys(keys)
 {
-    if (msgType != IRCMsgType::Join)
+    if (msgType != MsgType::Join)
         throw std::runtime_error("JoinIRCProtoMessage ctor: Invalid msgType " + std::to_string((int)msgType));
     this->msgType = msgType;
 }
 
 ChatterIRCProtoMessage::ChatterIRCProtoMessage(
     const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,
-    IRCMsgType msgType, QString target, QString chatterData) :
+    MsgType msgType, QString target, QString chatterData) :
         IRCProtoMessage(rawLine, prefix, mainTokens),
         target(target),
         chatterData(chatterData)
 {
     switch (msgType) {
-    case IRCMsgType::PrivMsg:
-    case IRCMsgType::Notice:
+    case MsgType::PrivMsg:
+    case MsgType::Notice:
         break;
     default:
         throw std::runtime_error("ChatterIRCProtoMessage ctor: Invalid msgType " + std::to_string((int)msgType));

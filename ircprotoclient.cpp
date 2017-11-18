@@ -223,10 +223,10 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
             disconnectFromIRCServer("Protocol error");
             return;
         }
-        msg = new PingPongIRCProtoMessage(rawLine, prefix, tokens, IRCMsgType::Ping, tokens[1]);
+        msg = new PingPongIRCProtoMessage(rawLine, prefix, tokens, IRCProtoMessage::MsgType::Ping, tokens[1]);
     }
     else if (tokens[0] == "001") {
-        msg = new NumericIRCProtoMessage(rawLine, prefix, tokens, IRCMsgType::Welcome, 1);
+        msg = new NumericIRCProtoMessage(rawLine, prefix, tokens, IRCProtoMessage::MsgType::Welcome, 1);
     }
     else if (tokens[0] == "JOIN") {
         if (!(tokens.size() >= 2 && tokens.size() <= 3)) {
@@ -236,7 +236,7 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
 
         JoinIRCProtoMessage::channels_type channels = tokens[1].split(',');
         JoinIRCProtoMessage::keys_type keys = tokens.size() >= 3 ? tokens[2].split(',') : QStringList();
-        msg = new JoinIRCProtoMessage(rawLine, prefix, tokens, IRCMsgType::Join, channels, keys);
+        msg = new JoinIRCProtoMessage(rawLine, prefix, tokens, IRCProtoMessage::MsgType::Join, channels, keys);
     }
     else if (tokens[0] == "PRIVMSG" || tokens[0] == "NOTICE") {
         if (!(tokens.size() == 3)) {
@@ -244,11 +244,11 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
             return;
         }
 
-        IRCMsgType msgType = IRCMsgType::Unknown;
+        auto msgType = IRCProtoMessage::MsgType::Unknown;
         if (tokens[0] == "PRIVMSG")
-            msgType = IRCMsgType::PrivMsg;
+            msgType = IRCProtoMessage::MsgType::PrivMsg;
         else if (tokens[0] == "NOTICE")
-            msgType = IRCMsgType::Notice;
+            msgType = IRCProtoMessage::MsgType::Notice;
 
         msg = new ChatterIRCProtoMessage(rawLine, prefix, tokens, msgType, tokens[1], tokens[2]);
     }
@@ -270,14 +270,14 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
 void IRCProtoClient::receivedMessageAutonomous(IRCProtoMessage &msg)
 {
     switch (msg.msgType) {
-    case IRCMsgType::Ping:
+    case IRCProtoMessage::MsgType::Ping:
         {
             auto &pingMsg(static_cast<PingPongIRCProtoMessage &>(msg));
             sendRaw("PONG :" + pingMsg.target);
             pingMsg.handled = true;
         }
         break;
-    case IRCMsgType::Welcome:
+    case IRCProtoMessage::MsgType::Welcome:
         if (connectionState() != ConnectionState::Registering) {
             notifyUser("Protocol error, disconnecting: Got random Welcome/001 message");
             disconnectFromIRCServer("Protocol error");

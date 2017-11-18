@@ -140,7 +140,7 @@ void MainWindow::on_pushButtonUserInput_clicked()
 void MainWindow::handle_irc_receivedMessage(IRCProtoMessage &msg)
 {
     switch (msg.msgType) {
-    case IRCMsgType::Join:
+    case IRCProtoMessage::MsgType::Join:
         {
             auto &joinMsg(static_cast<JoinIRCProtoMessage &>(msg));
 
@@ -160,11 +160,11 @@ void MainWindow::handle_irc_receivedMessage(IRCProtoMessage &msg)
             joinMsg.handled = true;
         }
         break;
-    case IRCMsgType::PrivMsg:
-    case IRCMsgType::Notice:
+    case IRCProtoMessage::MsgType::PrivMsg:
+    case IRCProtoMessage::MsgType::Notice:
         {
             auto &chatterMsg(static_cast<ChatterIRCProtoMessage &>(msg));
-            bool isNotice = chatterMsg.msgType == IRCMsgType::Notice;
+            bool isNotice = chatterMsg.msgType == IRCProtoMessage::MsgType::Notice;
 
             QWidget *w = findTabWidgetForElement(chatterMsg.target);
             QString sourceTyped = (isNotice ? "-" : "<") + chatterMsg.prefix + (isNotice ? "-" : ">");
