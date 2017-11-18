@@ -1,5 +1,6 @@
 #include "ircprotoclient.h"
 
+#include <QMetaEnum>
 #include <QtNetwork>
 
 IRCProtoClient::IRCProtoClient(QObject *parent) : QObject(parent),
@@ -261,7 +262,9 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
         receivedMessage(*msg);
 
         if (!msg->handled)
-            notifyUser("Unhandled IRC protocol message (type " + QString::number((int)msg->msgType) + "): " + msg->mainTokens[0]);
+            notifyUser("Unhandled IRC protocol message (type " + QString::number((int)msg->msgType) +
+                       ": " + QMetaEnum::fromType<IRCProtoMessage::MsgType>().valueToKey((int)msg->msgType) +
+                       "): " + msg->mainTokens[0]);
 
         delete msg;
     }
