@@ -21,6 +21,10 @@ public slots:
     void outLine(const QString &line);
     void outSendingLine(const QString &rawLine);
     void outReceivedLine(const QString &rawLine);
+
+private slots:
+    void handle_irc_connectionStateChanged();
+    void handle_irc_receivedMessage(IRCProtoMessage &msg);
 };
 
 #endif // TERMINALUI_H
