@@ -1,0 +1,12 @@
+#ifndef CVNIRCCORE_GLOBAL_H
+#define CVNIRCCORE_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(CVNIRCCORE_LIBRARY)
+#  define CVNIRCCORESHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define CVNIRCCORESHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // CVNIRCCORE_GLOBAL_H
