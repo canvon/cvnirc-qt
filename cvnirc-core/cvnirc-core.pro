@@ -24,10 +24,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-SOURCES += irccore.cpp
+SOURCES += irccore.cpp \
+    ircprotoclient.cpp \
+    ircprotomessage.cpp
 
 HEADERS += irccore.h\
-        cvnirc-core_global.h
+    ircprotoclient.h \
+    ircprotomessage.h \
+    cvnirc-core_global.h
 
 unix {
     target.path = /usr/lib
