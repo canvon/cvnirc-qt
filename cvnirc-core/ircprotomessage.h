@@ -1,12 +1,14 @@
 #ifndef IRCPROTOMESSAGE_H
 #define IRCPROTOMESSAGE_H
 
+#include "cvnirc-core_global.h"
+
 #include <QObject>
 #include <QString>
 #include <QStringList>
 #include <vector>
 
-class IRCProtoMessage
+class CVNIRCCORESHARED_EXPORT IRCProtoMessage
 {
     Q_GADGET
 public:
@@ -33,7 +35,7 @@ public:
     static tokens_type splitRawLine(const QString &rawLine);
 };
 
-class PingPongIRCProtoMessage : public IRCProtoMessage
+class CVNIRCCORESHARED_EXPORT PingPongIRCProtoMessage : public IRCProtoMessage
 {
 public:
     PingPongIRCProtoMessage(const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,
@@ -42,7 +44,7 @@ public:
     QString target;
 };
 
-class NumericIRCProtoMessage : public IRCProtoMessage
+class CVNIRCCORESHARED_EXPORT NumericIRCProtoMessage : public IRCProtoMessage
 {
 public:
     NumericIRCProtoMessage(const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,
@@ -51,7 +53,7 @@ public:
     int numeric;
 };
 
-class JoinIRCProtoMessage : public IRCProtoMessage
+class CVNIRCCORESHARED_EXPORT JoinIRCProtoMessage : public IRCProtoMessage
 {
 public:
     typedef QStringList channels_type, keys_type;
@@ -63,7 +65,7 @@ public:
     keys_type keys;
 };
 
-class ChatterIRCProtoMessage : public IRCProtoMessage
+class CVNIRCCORESHARED_EXPORT ChatterIRCProtoMessage : public IRCProtoMessage
 {
 public:
     ChatterIRCProtoMessage(const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,

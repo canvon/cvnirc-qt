@@ -1,6 +1,8 @@
 #ifndef IRCPROTOCLIENT_H
 #define IRCPROTOCLIENT_H
 
+#include "cvnirc-core_global.h"
+
 #include <QObject>
 #include <QAbstractSocket>
 #include <vector>
@@ -10,7 +12,7 @@
 
 class QTcpSocket;
 
-class IRCProtoClient : public QObject
+class CVNIRCCORESHARED_EXPORT IRCProtoClient : public QObject
 {
     Q_OBJECT
 
