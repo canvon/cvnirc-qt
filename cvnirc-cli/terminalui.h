@@ -18,6 +18,9 @@ public:
 signals:
 
 public slots:
+    void outLine(const QString &line);
+    void outSendingLine(const QString &rawLine);
+    void outReceivedLine(const QString &rawLine);
 };
 
 #endif // TERMINALUI_H
