@@ -3,7 +3,7 @@ QT -= gui
 
 CONFIG += c++11
 
-TARGET = cvnirc-cli
+TARGET = cvnirc-qt-cli
 CONFIG += console
 CONFIG -= app_bundle
 
