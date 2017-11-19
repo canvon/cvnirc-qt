@@ -2,9 +2,15 @@
 
 #include <QMetaEnum>
 
-TerminalUI::TerminalUI(QObject *parent, FILE *inFile, FILE *outFile) :
-    QObject(parent), in(inFile), out(outFile)
+TerminalUI::TerminalUI(FILE *inFileC, FILE *outFileC, QObject *parent) :
+    QObject(parent),
+    inFile(), outFile(),
+    in((inFile.open(inFileC, QIODevice::ReadOnly), &inFile)),
+    out((outFile.open(outFileC, QIODevice::WriteOnly), &outFile)),
+    inNotify(inFile.handle(), QSocketNotifier::Read)
 {
+    connect(&inNotify, &QSocketNotifier::activated, this, &TerminalUI::handle_inNotify_activated);
+
     connect(&irc, &IRCProtoClient::notifyUser, this, &TerminalUI::outLine);
     connect(&irc, &IRCProtoClient::sendingLine, this, &TerminalUI::outSendingLine);
     connect(&irc, &IRCProtoClient::receivedLine, this, &TerminalUI::outReceivedLine);
@@ -43,6 +49,14 @@ void TerminalUI::outSendingLine(const QString &rawLine)
 void TerminalUI::outReceivedLine(const QString &rawLine)
 {
     out << "> " << rawLine << endl;
+}
+
+void TerminalUI::handle_inNotify_activated(int socket)
+{
+    QString userInput;
+    while (in.readLineInto(&userInput)) {
+        irc.sendRaw(userInput);
+    }
 }
 
 void TerminalUI::handle_irc_connectionStateChanged()

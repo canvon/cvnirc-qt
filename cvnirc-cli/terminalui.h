@@ -3,15 +3,19 @@
 
 #include <QObject>
 #include "ircprotoclient.h"
+#include <QFile>
 #include <QTextStream>
+#include <QSocketNotifier>
 
 class TerminalUI : public QObject
 {
     Q_OBJECT
     IRCProtoClient irc;
+    QFile inFile, outFile;
     QTextStream in, out;
+    QSocketNotifier inNotify;
 public:
-    explicit TerminalUI(QObject *parent, FILE *inFile, FILE *outFile);
+    explicit TerminalUI(FILE *inFileC, FILE *outFileC, QObject *parent = 0);
 
     void promptConnect();
 
@@ -23,6 +27,8 @@ public slots:
     void outReceivedLine(const QString &rawLine);
 
 private slots:
+    void handle_inNotify_activated(int socket);
+
     void handle_irc_connectionStateChanged();
     void handle_irc_receivedMessage(IRCProtoMessage &msg);
 };

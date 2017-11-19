@@ -4,7 +4,7 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    TerminalUI ui(nullptr, stdin, stdout);
+    TerminalUI ui(stdin, stdout);
 
     return a.exec();
 }
