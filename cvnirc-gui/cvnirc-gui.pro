@@ -35,3 +35,10 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui \
     connectdialog.ui \
     logbuffer.ui
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../cvnirc-core/release/ -lcvnirc-core
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../cvnirc-core/debug/ -lcvnirc-core
+else:unix: LIBS += -L$$OUT_PWD/../cvnirc-core/ -lcvnirc-core
+
+INCLUDEPATH += $$PWD/../cvnirc-core
+DEPENDPATH += $$PWD/../cvnirc-core
