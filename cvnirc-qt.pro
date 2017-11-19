@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     cvnirc-gui \
-    cvnirc-core
+    cvnirc-core \
+    cvnirc-cli
