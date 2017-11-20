@@ -2,6 +2,9 @@
 
 #include <QMetaEnum>
 
+#include <stdio.h>
+#include <readline/readline.h>
+
 TerminalUI::TerminalUI(FILE *inFileC, FILE *outFileC, QObject *parent) :
     QObject(parent),
     inFile(), outFile(),
@@ -36,6 +39,11 @@ void TerminalUI::promptConnect()
     irc.connectToIRCServer(host, port, user, nick);
 }
 
+void TerminalUI::userInput(const QString &line)
+{
+    irc.sendRaw(line);
+}
+
 void TerminalUI::outLine(const QString &line)
 {
     out << line << endl;
@@ -53,10 +61,14 @@ void TerminalUI::outReceivedLine(const QString &rawLine)
 
 void TerminalUI::handle_inNotify_activated(int socket)
 {
-    QString userInput;
-    while (in.readLineInto(&userInput)) {
-        irc.sendRaw(userInput);
+    /*
+    QString line;
+    while (in.readLineInto(&line)) {
+        userInput(line);
     }
+    */
+
+    rl_callback_read_char();
 }
 
 void TerminalUI::handle_irc_connectionStateChanged()

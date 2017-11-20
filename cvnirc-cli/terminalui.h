@@ -22,6 +22,7 @@ public:
 signals:
 
 public slots:
+    void userInput(const QString &line);
     void outLine(const QString &line);
     void outSendingLine(const QString &rawLine);
     void outReceivedLine(const QString &rawLine);

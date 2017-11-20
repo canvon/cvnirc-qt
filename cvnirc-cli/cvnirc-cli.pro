@@ -1,6 +1,8 @@
 QT += core network
 QT -= gui
 
+LIBS += -lreadline
+
 CONFIG += c++11
 
 TARGET = cvnirc-qt-cli
