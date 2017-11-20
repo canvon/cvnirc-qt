@@ -34,11 +34,11 @@ public:
     void receivedRaw(const QString &rawLine);
     void receivedMessageAutonomous(IRCProtoMessage &msg);
 
-    ConnectionState connectionState();
-    const QString &hostRequested();
-    const QString &portRequested();
-    const QString &userRequested();
-    const QString &nickRequested();
+    ConnectionState connectionState() const;
+    const QString &hostRequested() const;
+    const QString &portRequested() const;
+    const QString &userRequested() const;
+    const QString &nickRequested() const;
     void setHostRequested(const QString &host);
     void setPortRequested(const QString &port);
     void setUserRequested(const QString &user);

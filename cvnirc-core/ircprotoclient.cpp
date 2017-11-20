@@ -296,27 +296,27 @@ void IRCProtoClient::receivedMessageAutonomous(IRCProtoMessage &msg)
     }
 }
 
-IRCProtoClient::ConnectionState IRCProtoClient::connectionState()
+IRCProtoClient::ConnectionState IRCProtoClient::connectionState() const
 {
     return _connectionState;
 }
 
-const QString &IRCProtoClient::hostRequested()
+const QString &IRCProtoClient::hostRequested() const
 {
     return _hostRequested;
 }
 
-const QString &IRCProtoClient::portRequested()
+const QString &IRCProtoClient::portRequested() const
 {
     return _portRequested;
 }
 
-const QString &IRCProtoClient::userRequested()
+const QString &IRCProtoClient::userRequested() const
 {
     return _userRequested;
 }
 
-const QString &IRCProtoClient::nickRequested()
+const QString &IRCProtoClient::nickRequested() const
 {
     return _nickRequested;
 }
