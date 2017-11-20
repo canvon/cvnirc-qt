@@ -6,10 +6,13 @@
 IRCCoreContext::IRCCoreContext(IRCProtoClient *ircProtoClient, IRCCoreContext::Type type, const QString &outgoingTarget, QObject *parent) :
     QObject(parent), _ircProtoClient(ircProtoClient), _type(type), _outgoingTarget(outgoingTarget)
 {
-    connect(ircProtoClient, &IRCProtoClient::connectionStateChanged, this, &IRCCoreContext::handle_connectionStateChanged);
-    connect(ircProtoClient, &IRCProtoClient::notifyUser, this, &IRCCoreContext::handle_notifyUser);
-    connect(ircProtoClient, &IRCProtoClient::sendingLine, this, &IRCCoreContext::handle_sendingLine);
-    connect(ircProtoClient, &IRCProtoClient::receivedLine, this, &IRCCoreContext::handle_receivedLine);
+    if (type == Type::Server) {
+        connect(ircProtoClient, &IRCProtoClient::connectionStateChanged, this, &IRCCoreContext::handle_connectionStateChanged);
+        connect(ircProtoClient, &IRCProtoClient::notifyUser, this, &IRCCoreContext::handle_notifyUser);
+        connect(ircProtoClient, &IRCProtoClient::sendingLine, this, &IRCCoreContext::handle_sendingLine);
+        connect(ircProtoClient, &IRCProtoClient::receivedLine, this, &IRCCoreContext::handle_receivedLine);
+    }
+
     connect(ircProtoClient, &IRCProtoClient::receivedMessage, this, &IRCCoreContext::receiveIRCProtoMessage);
 }
 
