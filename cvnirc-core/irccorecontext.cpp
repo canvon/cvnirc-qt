@@ -96,10 +96,11 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProtoMessage &msg)
             // TODO: Recognize other types of channels.
             bool isChannel = chatterMsg.target.startsWith("#");
             Type contextType = isChannel ? Type::Channel : Type::Query;
+            QString returnPath = isChannel ? chatterMsg.target : chatterMsg.prefix;
 
             if (_type == Type::Server) {
                 bool created = false;
-                auto *context = core->createOrGetContext(_ircProtoClient, contextType, chatterMsg.target, &created);
+                auto *context = core->createOrGetContext(_ircProtoClient, contextType, returnPath, &created);
                 if (context == nullptr)
                     throw std::runtime_error("IRCCoreContext: Create-or-get other context failed");
 
@@ -109,7 +110,7 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProtoMessage &msg)
                 break;
             }
 
-            if (_type != contextType || chatterMsg.target != _outgoingTarget)
+            if (_type != contextType || returnPath != _outgoingTarget)
                 break;
 
             QString sourceTyped = (isNotice ? "-" : "<") + chatterMsg.prefix + (isNotice ? "-" : ">");
