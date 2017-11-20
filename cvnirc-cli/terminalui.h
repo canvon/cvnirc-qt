@@ -15,9 +15,16 @@ class TerminalUI : public QObject
     QTextStream in, out;
     QSocketNotifier inNotify;
 public:
+    enum class UserInputState {
+        General,
+        Host, Port, User, Nick,
+    };
+    Q_ENUM(UserInputState)
+
     explicit TerminalUI(FILE *inFileC, FILE *outFileC, QObject *parent = 0);
 
     void promptConnect();
+    UserInputState userinputState();
 
 signals:
 
@@ -32,6 +39,11 @@ private slots:
 
     void handle_irc_connectionStateChanged();
     void handle_irc_receivedMessage(IRCProtoMessage &msg);
+
+private:
+    UserInputState _userInputState = UserInputState::General;
+
+    void _setUserInputState(UserInputState newState);
 };
 
 #endif // TERMINALUI_H

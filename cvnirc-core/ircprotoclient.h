@@ -39,6 +39,10 @@ public:
     const QString &portRequested();
     const QString &userRequested();
     const QString &nickRequested();
+    void setHostRequested(const QString &host);
+    void setPortRequested(const QString &port);
+    void setUserRequested(const QString &user);
+    void setNickRequested(const QString &nick);
 
 signals:
     void notifyUser(const QString &msg);

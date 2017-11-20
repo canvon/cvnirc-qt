@@ -23,25 +23,91 @@ TerminalUI::TerminalUI(FILE *inFileC, FILE *outFileC, QObject *parent) :
 
     out << "Welcome to cvnirc-qt-cli." << endl;
 
-    promptConnect();
+    // (Don't do this. The readline callback function will be registered
+    // only *after* the ctor (to ensure that the global pointer is set
+    // to an(/the) instance), which would overwrite the readline prompt
+    // set by promptConnect() -> _setUserInputState()...)
+    //promptConnect();
 }
 
 void TerminalUI::promptConnect()
 {
-    QString host, port, user, nick;
+    _setUserInputState(UserInputState::Host);
+}
 
-    out << "Server: "; out.flush(); in >> host;
-    out << "Port: ";   out.flush(); in >> port;
-    out << "User: ";   out.flush(); in >> user;
-    out << "Nick: ";   out.flush(); in >> nick;
+TerminalUI::UserInputState TerminalUI::userinputState()
+{
+    return _userInputState;
+}
 
-    out << "Connecting..." << endl;
-    irc.connectToIRCServer(host, port, user, nick);
+void TerminalUI::_setUserInputState(UserInputState newState)
+{
+    switch (newState) {
+    case UserInputState::General:
+        rl_set_prompt("cvnirc> ");
+        break;
+    case UserInputState::Host:
+        rl_set_prompt("Server: ");
+        break;
+    case UserInputState::Port:
+        rl_set_prompt("Port: ");
+        break;
+    case UserInputState::User:
+        rl_set_prompt("User: ");
+        break;
+    case UserInputState::Nick:
+        rl_set_prompt("Nick: ");
+        break;
+    }
+
+    _userInputState = newState;
+    rl_redisplay();
 }
 
 void TerminalUI::userInput(const QString &line)
 {
-    irc.sendRaw(line);
+    switch (userinputState()) {
+    case UserInputState::Host:
+        if (line.isEmpty()) {
+            out << "Host stays at \"" << irc.hostRequested() << "\"." << endl;
+        }
+        else {
+            irc.setHostRequested(line);
+        }
+        _setUserInputState(UserInputState::Port);
+        break;
+    case UserInputState::Port:
+        if (line.isEmpty()) {
+            out << "Port stays at \"" << irc.portRequested() << "\"." << endl;
+        }
+        else {
+            irc.setPortRequested(line);
+        }
+        _setUserInputState(UserInputState::User);
+        break;
+    case UserInputState::User:
+        if (line.isEmpty()) {
+            out << "User stays at \"" << irc.userRequested() << "\"." << endl;
+        }
+        else {
+            irc.setUserRequested(line);
+        }
+        _setUserInputState(UserInputState::Nick);
+        break;
+    case UserInputState::Nick:
+        if (line.isEmpty()) {
+            out << "Nick stays at \"" << irc.nickRequested() << "\"." << endl;
+        }
+        else {
+            irc.setNickRequested(line);
+        }
+        _setUserInputState(UserInputState::General);
+        irc.reconnectToIRCServer();
+        break;
+    case UserInputState::General:
+        irc.sendRaw(line);
+        break;
+    }
 }
 
 void TerminalUI::outLine(const QString &line)

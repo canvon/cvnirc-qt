@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
     pUI = &ui;
 
     rl_callback_handler_install("cvnirc> ", cb_linehandler);
+    ui.promptConnect();
 
     return a.exec();
 }

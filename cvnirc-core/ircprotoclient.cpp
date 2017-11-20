@@ -321,6 +321,26 @@ const QString &IRCProtoClient::nickRequested()
     return _nickRequested;
 }
 
+void IRCProtoClient::setHostRequested(const QString &host)
+{
+    _hostRequested = host;
+}
+
+void IRCProtoClient::setPortRequested(const QString &port)
+{
+    _portRequested = port;
+}
+
+void IRCProtoClient::setUserRequested(const QString &user)
+{
+    _userRequested = user;
+}
+
+void IRCProtoClient::setNickRequested(const QString &nick)
+{
+    _nickRequested = nick;
+}
+
 void IRCProtoClient::_setConnectionState(ConnectionState newState)
 {
     if (_connectionState == newState)
