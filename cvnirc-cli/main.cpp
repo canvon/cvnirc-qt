@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include "terminalui.h"
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <readline/readline.h>
 
@@ -8,12 +9,18 @@ TerminalUI *pUI;
 
 static void cb_linehandler(char *lineC)
 {
-    if (lineC == nullptr) {
+    QString line(lineC);
+    if (lineC != nullptr) {
+        free(lineC);
+        lineC = nullptr;
+    }
+
+    if (line.isNull()) {
         rl_callback_handler_remove();
         return qApp->exit();
     }
 
-    pUI->userInput(lineC);
+    pUI->userInput(line);
 }
 
 int main(int argc, char *argv[])
