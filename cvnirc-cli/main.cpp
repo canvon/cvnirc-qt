@@ -21,7 +21,7 @@ static void cb_linehandler(char *lineC)
         return qApp->exit();
     }
 
-    pUI->userInput(line);
+    pUI->queueUserInput(line);
 }
 
 int main(int argc, char *argv[])

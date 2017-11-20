@@ -29,6 +29,7 @@ public:
 signals:
 
 public slots:
+    void queueUserInput(const QString &line);
     void userInput(const QString &line);
     void outLine(const QString &line);
     void outSendingLine(const QString &rawLine);
@@ -41,6 +42,7 @@ private slots:
     void handle_irc_receivedMessage(IRCProtoMessage &msg);
 
 private:
+    QStringList _userInputQueue;
     UserInputState _userInputState = UserInputState::General;
 
     void _setUserInputState(UserInputState newState);

@@ -64,12 +64,17 @@ void TerminalUI::_setUserInputState(UserInputState newState)
     rl_redisplay();
 }
 
+void TerminalUI::queueUserInput(const QString &line)
+{
+    _userInputQueue.append(line);
+}
+
 void TerminalUI::userInput(const QString &line)
 {
     switch (userinputState()) {
     case UserInputState::Host:
         if (line.isEmpty()) {
-            out << "Host stays at \"" << irc.hostRequested() << "\"." << endl;
+            outLine("Server stays at \"" + irc.hostRequested() + "\".");
         }
         else {
             irc.setHostRequested(line);
@@ -78,7 +83,7 @@ void TerminalUI::userInput(const QString &line)
         break;
     case UserInputState::Port:
         if (line.isEmpty()) {
-            out << "Port stays at \"" << irc.portRequested() << "\"." << endl;
+            outLine("Port stays at \"" + irc.portRequested() + "\".");
         }
         else {
             irc.setPortRequested(line);
@@ -87,7 +92,7 @@ void TerminalUI::userInput(const QString &line)
         break;
     case UserInputState::User:
         if (line.isEmpty()) {
-            out << "User stays at \"" << irc.userRequested() << "\"." << endl;
+            outLine("User stays at \"" + irc.userRequested() + "\".");
         }
         else {
             irc.setUserRequested(line);
@@ -96,7 +101,7 @@ void TerminalUI::userInput(const QString &line)
         break;
     case UserInputState::Nick:
         if (line.isEmpty()) {
-            out << "Nick stays at \"" << irc.nickRequested() << "\"." << endl;
+            outLine("Nick stays at \"" + irc.nickRequested() + "\".");
         }
         else {
             irc.setNickRequested(line);
@@ -137,7 +142,22 @@ void TerminalUI::handle_inNotify_activated(int socket)
     }
     */
 
+    // Call readline.
+    //
+    // This will call a callback when a line is complete.
+    // There previously was a problem of readline reacting differently
+    // when its functions were called from the callback or normally.
+    // So let the callback just queue lines to later process
+    // from outside the callback.
     rl_callback_read_char();
+
+    // Process the input lines possibly queued by the callback.
+    while (_userInputQueue.length() > 0) {
+        QString line = _userInputQueue.front();
+        _userInputQueue.pop_front();
+
+        userInput(line);
+    }
 }
 
 void TerminalUI::handle_irc_connectionStateChanged()
