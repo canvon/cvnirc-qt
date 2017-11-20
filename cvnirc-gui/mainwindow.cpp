@@ -97,7 +97,26 @@ QWidget *MainWindow::openTabForContext(IRCCoreContext *context)
         auto *logBuf = new LogBuffer();
         logBuf->addContext(context);
         w = logBuf;
-        ui->tabWidget->addTab(w, context->outgoingTarget());
+
+        QString tabName = context->outgoingTarget();
+        if (tabName.isEmpty()) {
+            switch (context->type()) {
+            case IRCCoreContext::Type::Server:
+                {
+                    QString host = context->ircProtoClient()->hostRequested();
+                    if (host.isEmpty())
+                        tabName = "(Disconnected server)";
+                    else
+                        tabName = "Server " + host;
+                }
+                break;
+            default:
+                tabName = "???";
+                break;
+            }
+        }
+
+        ui->tabWidget->addTab(w, tabName);
     }
     return w;
 }
