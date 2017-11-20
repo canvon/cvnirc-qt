@@ -71,6 +71,7 @@ public:
     ChatterIRCProtoMessage(const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,
                            MsgType msgType, QString target, QString chatterData);
 
+    // FIXME: PRIVMSGs can have multiple targets, too!
     QString target;
     QString chatterData;
 };
