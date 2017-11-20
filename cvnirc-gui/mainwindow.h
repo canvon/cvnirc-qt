@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 
-#include "ircprotoclient.h"
+#include "irccore.h"
 
 namespace Ui {
 class MainWindow;
@@ -18,20 +18,23 @@ public:
     ~MainWindow();
 
     void updateState();
-    QWidget *findTabWidgetForElement(const QString &elem);
-    QWidget *openTabForElement(const QString &elem);
+    QWidget *findTabWidgetForContext(IRCCoreContext *context);
+    QWidget *openTabForContext(IRCCoreContext *context);
+    IRCCoreContext *contextFromUI();
 
-    IRCProtoClient irc;
+    IRCCore irc;
 
 private slots:
     void on_action_Quit_triggered();
-
     void on_action_Connect_triggered();
+    void on_action_Reconnect_triggered();
+    void on_action_Disconnect_triggered();
 
     void on_pushButtonUserInput_clicked();
 
-    void handle_irc_receivedMessage(IRCProtoMessage &msg);
-    void handle_irc_connectionStateChanged();
+    void handle_irc_createdContext(IRCCoreContext *context);
+    //void handle_irc_receivedMessage(IRCProtoMessage &msg);
+    void handle_ircContext_connectionStateChanged(IRCCoreContext *context);
 
 private:
     Ui::MainWindow *ui;

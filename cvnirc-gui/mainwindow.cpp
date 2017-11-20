@@ -11,15 +11,18 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(&irc, &IRCProtoClient::notifyUser, ui->logBufferMain, &LogBuffer::appendLine);
-    connect(&irc, &IRCProtoClient::sendingLine, ui->logBufferProto, &LogBuffer::appendSendingLine);
-    connect(&irc, &IRCProtoClient::receivedLine, ui->logBufferProto, &LogBuffer::appendReceivedLine);
-    connect(&irc, &IRCProtoClient::receivedMessage, this, &MainWindow::handle_irc_receivedMessage);
-    connect(&irc, &IRCProtoClient::connectionStateChanged, this, &MainWindow::handle_irc_connectionStateChanged);
+    ui->logBufferProto->setType(LogBuffer::Type::Protocol);
 
-    connect(ui->action_Reconnect, &QAction::triggered, &irc, &IRCProtoClient::reconnectToIRCServer);
-    connect(ui->action_Disconnect, &QAction::triggered,
-            &irc, static_cast<void (IRCProtoClient::*)()>(&IRCProtoClient::disconnectFromIRCServer));
+    connect(&irc, &IRCCore::createdContext, this, &MainWindow::handle_irc_createdContext);
+    //connect(&irc, &IRCProtoClient::notifyUser, ui->logBufferMain, &LogBuffer::appendLine);
+    //connect(&irc, &IRCProtoClient::sendingLine, ui->logBufferProto, &LogBuffer::appendSendingLine);
+    //connect(&irc, &IRCProtoClient::receivedLine, ui->logBufferProto, &LogBuffer::appendReceivedLine);
+    //connect(&irc, &IRCProtoClient::receivedMessage, this, &MainWindow::handle_irc_receivedMessage);
+    //connect(&irc, &IRCProtoClient::connectionStateChanged, this, &MainWindow::handle_irc_connectionStateChanged);
+
+    //connect(ui->action_Reconnect, &QAction::triggered, &irc, &IRCProtoClient::reconnectToIRCServer);
+    //connect(ui->action_Disconnect, &QAction::triggered,
+    //        &irc, static_cast<void (IRCProtoClient::*)()>(&IRCProtoClient::disconnectFromIRCServer));
     // ^ The cast is necessary to select one of the overloaded methods.
 
     // Immediately let the user type commands.
@@ -35,23 +38,40 @@ MainWindow::~MainWindow()
 
 void MainWindow::updateState()
 {
-    switch (irc.connectionState()) {
-    case IRCProtoClient::ConnectionState::Disconnected:
-        setWindowTitle(baseWindowTitle);
+    auto &clients(irc.ircProtoClients());
+
+    int len = clients.length();
+    switch (len) {
+    case 0:
+        setWindowTitle(baseWindowTitle + " (Disconnected)");
         break;
-    case IRCProtoClient::ConnectionState::Connecting:
-        setWindowTitle(irc.hostRequested() + " - " + baseWindowTitle + " (Connecting...)");
+    case 1:
+        {
+            auto &client(*clients.front());
+
+            switch (client.connectionState()) {
+            case IRCProtoClient::ConnectionState::Disconnected:
+                setWindowTitle(baseWindowTitle + " (Disconnected)");
+                break;
+            case IRCProtoClient::ConnectionState::Connecting:
+                setWindowTitle(client.hostRequested() + " - " + baseWindowTitle + " (Connecting...)");
+                break;
+            case IRCProtoClient::ConnectionState::Registering:
+                setWindowTitle(client.hostRequested() + " - " + baseWindowTitle + " (Registering...)");
+                break;
+            case IRCProtoClient::ConnectionState::Connected:
+                setWindowTitle(client.hostRequested() + " - " + baseWindowTitle + " (Connected)");
+                break;
+            }
+        }
         break;
-    case IRCProtoClient::ConnectionState::Registering:
-        setWindowTitle(irc.hostRequested() + " - " + baseWindowTitle + " (Registering...)");
-        break;
-    case IRCProtoClient::ConnectionState::Connected:
-        setWindowTitle(irc.hostRequested() + " - " + baseWindowTitle + " (Connected)");
+    default:
+        setWindowTitle(baseWindowTitle + " (" + QString::number(len) + " clients)");
         break;
     }
 }
 
-QWidget *MainWindow::findTabWidgetForElement(const QString &elem)
+QWidget *MainWindow::findTabWidgetForContext(IRCCoreContext *context)
 {
     // (Start at index 1 to skip main logbuffer.)
     for (int i = 1; i < ui->tabWidget->count(); i++) {
@@ -60,23 +80,46 @@ QWidget *MainWindow::findTabWidgetForElement(const QString &elem)
         if (logBuf == nullptr)
             continue;
 
-        if (logBuf->associatedElements.contains(elem))
+        if (logBuf->contexts().contains(context))
             return w;
     }
 
     return nullptr;
 }
 
-QWidget *MainWindow::openTabForElement(const QString &elem)
+QWidget *MainWindow::openTabForContext(IRCCoreContext *context)
 {
-    QWidget *w = findTabWidgetForElement(elem);
+    if (context == nullptr)
+        throw new std::runtime_error("MainWindow::openTabForContext(): Got null pointer, which is invalid here");
+
+    QWidget *w = findTabWidgetForContext(context);
     if (w == nullptr) {
         auto *logBuf = new LogBuffer();
-        logBuf->associatedElements.append(elem);
+        logBuf->addContext(context);
         w = logBuf;
-        ui->tabWidget->addTab(w, elem);
+        ui->tabWidget->addTab(w, context->outgoingTarget());
     }
     return w;
+}
+
+// Find out what's the current context.
+IRCCoreContext *MainWindow::contextFromUI()
+{
+    QWidget *w = ui->tabWidget->currentWidget();
+
+    auto *logBuf = dynamic_cast<LogBuffer *>(w);
+    if (logBuf == nullptr)
+        return nullptr;
+
+    auto &logBufContexts(logBuf->contexts());
+    if (!(logBufContexts.count() > 0))
+        return nullptr;
+
+    auto *context = logBufContexts.front();
+    if (context == nullptr)
+        throw std::runtime_error("MainWindow::contextFromUI(): Got context that is a null pointer, which is invalid here");
+
+    return context;
 }
 
 void MainWindow::on_action_Quit_triggered()
@@ -94,6 +137,28 @@ void MainWindow::on_action_Connect_triggered()
         return;
 
     irc.connectToIRCServer(dialog.host(), dialog.port(), dialog.user(), dialog.nick());
+}
+
+void MainWindow::on_action_Reconnect_triggered()
+{
+    IRCCoreContext *context = contextFromUI();
+    if (context == nullptr) {
+        ui->logBufferMain->appendLine("No active context. Can't reconnect; please use File->Connect dialog instead.");
+        return;
+    }
+
+    context->ircProtoClient()->reconnectToIRCServer();
+}
+
+void MainWindow::on_action_Disconnect_triggered()
+{
+    IRCCoreContext *context = contextFromUI();
+    if (context == nullptr) {
+        ui->logBufferMain->appendLine("No active context. Can't disconnect; please go to a tab of the connection you want to disconnect and try again.");
+        return;
+    }
+
+    context->ircProtoClient()->disconnectFromIRCServer();
 }
 
 void MainWindow::on_pushButtonUserInput_clicked()
@@ -116,80 +181,41 @@ void MainWindow::on_pushButtonUserInput_clicked()
         }
     }
 
-    if (!isCommand) {
-        // Build and send a PRIVMSG message.
-        QWidget *w = ui->tabWidget->currentWidget();
-        auto *logBuf = dynamic_cast<LogBuffer *>(w);
-        if (logBuf == nullptr || !(logBuf->associatedElements.count() > 0)) {
-            ui->logBufferMain->appendLine("Don't know to where I should send!");
-            return;
-        }
-        QString target = logBuf->associatedElements[0];
+    IRCCoreContext *context = contextFromUI();
+    if (context == nullptr) {
+        ui->logBufferMain->appendLine("Error getting context. Don't know to where I should send!");
+        return;
+    }
 
-        logBuf->appendLine(target + "> " + line);
-        irc.sendRaw("PRIVMSG " + target + " :" + line);
+    if (!isCommand) {
+        context->sendChatMessage(line);
     }
     else {
         // TODO: Pre-parse as a command, to have local meanings as well.
-        irc.sendRaw(line);
+        context->ircProtoClient()->sendRaw(line);
     }
 
     ui->lineEditUserInput->setText("");
 }
 
-void MainWindow::handle_irc_receivedMessage(IRCProtoMessage &msg)
+void MainWindow::handle_irc_createdContext(IRCCoreContext *context)
 {
-    switch (msg.msgType) {
-    case IRCProtoMessage::MsgType::Join:
-        {
-            auto &joinMsg(static_cast<JoinIRCProtoMessage &>(msg));
+    if (context == nullptr)
+        throw std::runtime_error("MainWindow, handle IRCCore created context: Got context that is a null pointer, which is invalid here");
 
-            for (QString channel : joinMsg.channels) {
-                QWidget *w = openTabForElement(channel);
+    // Create our GUI representation of IRCCore's contexts.
+    openTabForContext(context);
 
-                auto *logBuf = dynamic_cast<LogBuffer *>(w);
-                if (logBuf == nullptr) {
-                    ui->logBufferMain->appendLine("Error: Widget is not a LogBuffer. Can't handle join to channel " + channel);
-                    continue;
-                }
+    // Is this a server/~connection context?
+    if (context->type() == IRCCoreContext::Type::Server) {
+        // Wire up the protocol logbuffer.
+        ui->logBufferProto->addContext(context);
 
-                logBuf->appendLine("Joined channel " + channel +
-                                   (joinMsg.prefix.count() > 0 ? ": " + joinMsg.prefix : ""));
-            }
-
-            joinMsg.handled = true;
-        }
-        break;
-    case IRCProtoMessage::MsgType::PrivMsg:
-    case IRCProtoMessage::MsgType::Notice:
-        {
-            auto &chatterMsg(static_cast<ChatterIRCProtoMessage &>(msg));
-            bool isNotice = chatterMsg.msgType == IRCProtoMessage::MsgType::Notice;
-
-            QWidget *w = findTabWidgetForElement(chatterMsg.target);
-            QString sourceTyped = (isNotice ? "-" : "<") + chatterMsg.prefix + (isNotice ? "-" : ">");
-
-            auto *logBuf = dynamic_cast<LogBuffer *>(w);
-            if (logBuf == nullptr)
-                logBuf = ui->logBufferMain;
-
-            logBuf->appendLine(chatterMsg.target + " " + sourceTyped + " " + chatterMsg.chatterData);
-            chatterMsg.handled = true;
-        }
-        break;
-    default:
-        break;
+        connect(context, &IRCCoreContext::connectionStateChanged, this, &MainWindow::handle_ircContext_connectionStateChanged);
     }
 }
 
-void MainWindow::handle_irc_connectionStateChanged()
+void MainWindow::handle_ircContext_connectionStateChanged(IRCCoreContext *context)
 {
-    auto state = irc.connectionState();
-    ui->logBufferProto->appendLine(QString("Connection state changed to ") +
-        QString::number((int)state) + QString(": ") +
-        // Translate to human-readable.
-        QMetaEnum::fromType<IRCProtoClient::ConnectionState>().valueToKey((int)state)
-    );
-
     updateState();
 }

@@ -26,12 +26,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += irccore.cpp \
     ircprotoclient.cpp \
-    ircprotomessage.cpp
+    ircprotomessage.cpp \
+    irccorecontext.cpp
 
 HEADERS += irccore.h\
     ircprotoclient.h \
     ircprotomessage.h \
-    cvnirc-core_global.h
+    cvnirc-core_global.h \
+    irccorecontext.h
 
 unix {
     target.path = /usr/lib
