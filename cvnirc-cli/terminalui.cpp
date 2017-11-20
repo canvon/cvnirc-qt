@@ -86,10 +86,17 @@ void TerminalUI::queueUserInput(const QString &line)
 
 void TerminalUI::userInput(const QString &line)
 {
+    QString prevValue;
+
     switch (userinputState()) {
     case UserInputState::Host:
-        if (line.isEmpty()) {
-            outLine("Server stays at \"" + irc.hostRequested() + "\".");
+        prevValue = irc.hostRequested();
+        if (prevValue.isEmpty() && line.isEmpty()) {
+            outLine("Error: There is no previous value set.");
+            return;
+        }
+        else if (line.isEmpty()) {
+            outLine("Server stays at \"" + prevValue + "\".");
         }
         else {
             irc.setHostRequested(line);
@@ -97,8 +104,13 @@ void TerminalUI::userInput(const QString &line)
         _setUserInputState(UserInputState::Port);
         break;
     case UserInputState::Port:
-        if (line.isEmpty()) {
-            outLine("Port stays at \"" + irc.portRequested() + "\".");
+        prevValue = irc.portRequested();
+        if (prevValue.isEmpty() && line.isEmpty()) {
+            outLine("Error: There is no previous value set.");
+            return;
+        }
+        else if (line.isEmpty()) {
+            outLine("Port stays at \"" + prevValue + "\".");
         }
         else {
             irc.setPortRequested(line);
@@ -106,8 +118,13 @@ void TerminalUI::userInput(const QString &line)
         _setUserInputState(UserInputState::User);
         break;
     case UserInputState::User:
-        if (line.isEmpty()) {
-            outLine("User stays at \"" + irc.userRequested() + "\".");
+        prevValue = irc.userRequested();
+        if (prevValue.isEmpty() && line.isEmpty()) {
+            outLine("Error: There is no previous value set.");
+            return;
+        }
+        else if (line.isEmpty()) {
+            outLine("User stays at \"" + prevValue + "\".");
         }
         else {
             irc.setUserRequested(line);
@@ -115,8 +132,13 @@ void TerminalUI::userInput(const QString &line)
         _setUserInputState(UserInputState::Nick);
         break;
     case UserInputState::Nick:
-        if (line.isEmpty()) {
-            outLine("Nick stays at \"" + irc.nickRequested() + "\".");
+        prevValue = irc.nickRequested();
+        if (prevValue.isEmpty() && line.isEmpty()) {
+            outLine("Error: There is no previous value set.");
+            return;
+        }
+        else if (line.isEmpty()) {
+            outLine("Nick stays at \"" + prevValue + "\".");
         }
         else {
             irc.setNickRequested(line);
