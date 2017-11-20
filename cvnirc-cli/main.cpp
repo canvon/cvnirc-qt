@@ -16,6 +16,7 @@ static void cb_linehandler(char *lineC)
     }
 
     if (line.isNull()) {
+        printf("\n");
         rl_callback_handler_remove();
         return qApp->exit();
     }

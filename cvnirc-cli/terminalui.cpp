@@ -46,17 +46,20 @@ void TerminalUI::userInput(const QString &line)
 
 void TerminalUI::outLine(const QString &line)
 {
+    rl_clear_visible_line();
     out << line << endl;
+    rl_on_new_line();
+    rl_redisplay();
 }
 
 void TerminalUI::outSendingLine(const QString &rawLine)
 {
-    out << "< " << rawLine << endl;
+    outLine("< " + rawLine);
 }
 
 void TerminalUI::outReceivedLine(const QString &rawLine)
 {
-    out << "> " << rawLine << endl;
+    outLine("> " + rawLine);
 }
 
 void TerminalUI::handle_inNotify_activated(int socket)
