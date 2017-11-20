@@ -42,20 +42,26 @@ TerminalUI::UserInputState TerminalUI::userinputState()
 
 void TerminalUI::_setUserInputState(UserInputState newState)
 {
+    QString helpStr("Enter an empty line for the setting to stay the same.");
+
     switch (newState) {
     case UserInputState::General:
         rl_set_prompt("cvnirc> ");
         break;
     case UserInputState::Host:
+        outLine("Server requested is set to \"" + irc.hostRequested() + "\". " + helpStr);
         rl_set_prompt("Server: ");
         break;
     case UserInputState::Port:
+        outLine("Port requested is set to \"" + irc.portRequested() + "\". " + helpStr);
         rl_set_prompt("Port: ");
         break;
     case UserInputState::User:
+        outLine("User requested is set to \"" + irc.userRequested() + "\". " + helpStr);
         rl_set_prompt("User: ");
         break;
     case UserInputState::Nick:
+        outLine("Nick requested is set to \"" + irc.nickRequested() + "\". " + helpStr);
         rl_set_prompt("Nick: ");
         break;
     }

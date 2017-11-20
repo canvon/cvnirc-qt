@@ -323,21 +323,25 @@ const QString &IRCProtoClient::nickRequested()
 
 void IRCProtoClient::setHostRequested(const QString &host)
 {
+    notifyUser("Setting host to \"" + host + "\".");
     _hostRequested = host;
 }
 
 void IRCProtoClient::setPortRequested(const QString &port)
 {
+    notifyUser("Setting port to \"" + port + "\".");
     _portRequested = port;
 }
 
 void IRCProtoClient::setUserRequested(const QString &user)
 {
+    notifyUser("Setting user to \"" + user + "\".");
     _userRequested = user;
 }
 
 void IRCProtoClient::setNickRequested(const QString &nick)
 {
+    notifyUser("Setting nick to \"" + nick + "\".");
     _nickRequested = nick;
 }
 
