@@ -42,6 +42,7 @@ TerminalUI::UserInputState TerminalUI::userinputState()
 
 void TerminalUI::_setUserInputState(UserInputState newState)
 {
+    QString prevValue;
     QString helpStr("Enter an empty line for the setting to stay the same.");
 
     switch (newState) {
@@ -49,19 +50,27 @@ void TerminalUI::_setUserInputState(UserInputState newState)
         rl_set_prompt("cvnirc> ");
         break;
     case UserInputState::Host:
-        outLine("Server requested is set to \"" + irc.hostRequested() + "\". " + helpStr);
+        prevValue = irc.hostRequested();
+        if (!prevValue.isEmpty())
+            outLine("Previous server was \"" + prevValue + "\". " + helpStr);
         rl_set_prompt("Server: ");
         break;
     case UserInputState::Port:
-        outLine("Port requested is set to \"" + irc.portRequested() + "\". " + helpStr);
+        prevValue = irc.portRequested();
+        if (!prevValue.isEmpty())
+            outLine("Previous port was \"" + prevValue + "\". " + helpStr);
         rl_set_prompt("Port: ");
         break;
     case UserInputState::User:
-        outLine("User requested is set to \"" + irc.userRequested() + "\". " + helpStr);
+        prevValue = irc.userRequested();
+        if (!prevValue.isEmpty())
+            outLine("Previous user was \"" + prevValue + "\". " + helpStr);
         rl_set_prompt("User: ");
         break;
     case UserInputState::Nick:
-        outLine("Nick requested is set to \"" + irc.nickRequested() + "\". " + helpStr);
+        prevValue = irc.nickRequested();
+        if (!prevValue.isEmpty())
+            outLine("Previous nick was \"" + prevValue + "\". " + helpStr);
         rl_set_prompt("Nick: ");
         break;
     }
