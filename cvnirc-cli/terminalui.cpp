@@ -171,7 +171,7 @@ void TerminalUI::outReceivedLine(const QString &rawLine)
     outLine("> " + rawLine);
 }
 
-void TerminalUI::handle_inNotify_activated(int socket)
+void TerminalUI::handle_inNotify_activated(int /* socket */)
 {
     /*
     QString line;
