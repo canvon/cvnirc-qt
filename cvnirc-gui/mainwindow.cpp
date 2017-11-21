@@ -6,6 +6,7 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
+    irc(this),
     ui(new Ui::MainWindow),
     baseWindowTitle("cvnirc-qt")
 {

@@ -7,10 +7,11 @@
 
 TerminalUI::TerminalUI(FILE *inFileC, FILE *outFileC, QObject *parent) :
     QObject(parent),
-    inFile(), outFile(),
+    irc(this),
+    inFile(this), outFile(this),
     in((inFile.open(inFileC, QIODevice::ReadOnly), &inFile)),
     out((outFile.open(outFileC, QIODevice::WriteOnly), &outFile)),
-    inNotify(inFile.handle(), QSocketNotifier::Read)
+    inNotify(inFile.handle(), QSocketNotifier::Read, this)
 {
     connect(&inNotify, &QSocketNotifier::activated, this, &TerminalUI::handle_inNotify_activated);
 
