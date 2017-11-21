@@ -1,7 +1,32 @@
 TODO ideas for cvnirc-qt by canvon
 ==================================
 
+ * Have some output in the Main tab again (on a really high level); like
+   creation/deletion of IRCProtoClient instances, contexts or the like.
+   Perhaps also connection states without all the raw or partially-parsed
+   lines in-between.
+   (2017-11-20/-21)
+
  * Carry unique connection tag, so that the protocol buffer contents
    with two time the same/similar server connected will be meaningful.
+   (2017-11-20/-21)
+
+ * Further test/improve the multi-server support.
+   (2017-11-20/-21)
+
+ * Modify cvnirc-cli, too, to use the multi-server supporting machinery.
+   (2017-11-20/-21)
+
+ * Collect MOTD lines and pass the full MOTD as a multi-line text object,
+   perhaps to be displayed in its own window tab.
+   (2017-11-20/-21)
+
+ * Save & restore settings, e.g., host/port/user/nick.
+   (2017-11-20/-21)
+
+ * Implement logging?
+   (2017-11-20/-21)
+
+ * Implement scriptability, perhaps via dbus-connected script servers.
    (2017-11-20/-21)
 
