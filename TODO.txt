@@ -21,6 +21,10 @@ TODO ideas for cvnirc-qt by canvon
    perhaps to be displayed in its own window tab.
    (2017-11-20/-21)
 
+ * Have client-side interpreted user commands. (Like, /window close,
+   perhaps? Or a /quit that exits the application... (?))
+   (2017-11-20/-21)
+
  * Save & restore settings, e.g., host/port/user/nick.
    (2017-11-20/-21)
 
