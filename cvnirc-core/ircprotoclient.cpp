@@ -353,3 +353,18 @@ void IRCProtoClient::_setConnectionState(ConnectionState newState)
     _connectionState = newState;
     connectionStateChanged();
 }
+
+QString IRCProtoClient::nickUserHost2nick(const QString &nickUserHost)
+{
+    QString tmp = nickUserHost;
+    int posBang = tmp.indexOf('!', 1);
+    int posAt   = tmp.indexOf('@', posBang > 0 ? posBang  + 1 : 1);
+    int truncLen = posAt > 0 ? posAt : 0;
+    if (posBang > 0 && posBang < truncLen)
+        truncLen = posBang;
+    if (truncLen < 1)
+        // Failed. Just use the full information.
+        return tmp;
+    tmp.truncate(truncLen);
+    return tmp;
+}

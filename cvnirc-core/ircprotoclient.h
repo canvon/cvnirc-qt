@@ -44,6 +44,8 @@ public:
     void setUserRequested(const QString &user);
     void setNickRequested(const QString &nick);
 
+    static QString nickUserHost2nick(const QString &nickUserHost);
+
 signals:
     void notifyUser(const QString &msg);
     void sendingLine(const QString &rawLine);

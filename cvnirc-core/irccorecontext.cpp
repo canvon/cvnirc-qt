@@ -92,11 +92,12 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProtoMessage &msg)
         {
             auto &chatterMsg(static_cast<ChatterIRCProtoMessage &>(msg));
             bool isNotice = chatterMsg.msgType == IRCProtoMessage::MsgType::Notice;
+            QString senderNick = IRCProtoClient::nickUserHost2nick(chatterMsg.prefix);
 
             // TODO: Recognize other types of channels.
             bool isChannel = chatterMsg.target.startsWith("#");
             Type contextType = isChannel ? Type::Channel : Type::Query;
-            QString returnPath = isChannel ? chatterMsg.target : chatterMsg.prefix;
+            QString returnPath = isChannel ? chatterMsg.target : senderNick;
 
             if (_type == Type::Server) {
                 bool created = false;
@@ -113,7 +114,7 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProtoMessage &msg)
             if (_type != contextType || returnPath != _outgoingTarget)
                 break;
 
-            QString sourceTyped = (isNotice ? "-" : "<") + chatterMsg.prefix + (isNotice ? "-" : ">");
+            QString sourceTyped = (isNotice ? "-" : "<") + senderNick + (isNotice ? "-" : ">");
 
             notifyUser(this, sourceTyped + " " + chatterMsg.chatterData);
             chatterMsg.handled = true;
