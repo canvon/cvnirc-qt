@@ -16,7 +16,7 @@ class CVNIRCCORESHARED_EXPORT IRCCore : public QObject
     QList<IRCProtoClient *> _ircProtoClients;
     QList<IRCCoreContext *> _contexts;
 public:
-    IRCCore(QObject *parent = 0);
+    explicit IRCCore(QObject *parent = 0);
 
     const QList<IRCProtoClient *> &ircProtoClients();
     const QList<IRCCoreContext *> &contexts();
