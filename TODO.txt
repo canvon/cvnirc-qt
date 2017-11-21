@@ -44,3 +44,10 @@ TODO ideas for cvnirc-qt by canvon
  * Implement scriptability, perhaps via dbus-connected script servers.
    (2017-11-20/-21)
 
+
+cvnirc-cli:
+-----------
+
+ * Add custom completer to GNU readline UI.
+   (2017-11-21/-22)
+
