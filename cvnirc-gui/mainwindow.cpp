@@ -234,7 +234,7 @@ void MainWindow::handle_irc_createdContext(IRCCoreContext *context)
     }
 }
 
-void MainWindow::handle_ircContext_connectionStateChanged(IRCCoreContext *context)
+void MainWindow::handle_ircContext_connectionStateChanged(IRCCoreContext * /* context */)
 {
     updateState();
 }
