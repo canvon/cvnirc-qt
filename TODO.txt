@@ -1,0 +1,6 @@
+TODO ideas for cvnirc-qt by canvon
+==================================
+
+ * Carry unique connection tag, so that the protocol buffer contents
+   with two time the same/similar server connected will be meaningful.
+
