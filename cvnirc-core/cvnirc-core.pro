@@ -8,6 +8,8 @@ QT       += network
 
 QT       -= gui
 
+CONFIG += c++11
+
 TARGET = cvnirc-core
 TEMPLATE = lib
 
