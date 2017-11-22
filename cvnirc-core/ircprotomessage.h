@@ -19,7 +19,9 @@ public:
         Join,
         PrivMsg, Notice,
     };
+#ifdef CVN_HAVE_Q_ENUM
     Q_ENUM(MsgType)
+#endif
 
     typedef std::vector<QString> tokens_type;
 

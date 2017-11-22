@@ -93,7 +93,11 @@ void IRCProtoClient::handle_socket_connected()
 void IRCProtoClient::handle_socket_error(QAbstractSocket::SocketError err)
 {
     notifyUser(QString("Socket error ") +
+#ifdef CVN_HAVE_Q_ENUM
                QMetaEnum::fromType<QAbstractSocket::SocketError>().valueToKey(err) +
+#else
+               QString::number(err) +
+#endif
                ": " + socket->errorString());
     _setConnectionState(ConnectionState::Disconnected);
 }
@@ -263,7 +267,9 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
 
         if (!msg->handled)
             notifyUser("Unhandled IRC protocol message (type " + QString::number((int)msg->msgType) +
+#ifdef CVN_HAVE_Q_ENUM
                        ": " + QMetaEnum::fromType<IRCProtoMessage::MsgType>().valueToKey((int)msg->msgType) +
+#endif
                        "): " + msg->mainTokens[0]);
 
         delete msg;
