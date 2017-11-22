@@ -51,27 +51,27 @@ void TerminalUI::_setUserInputState(UserInputState newState)
         rl_set_prompt("cvnirc> ");
         break;
     case UserInputState::Host:
-        prevValue = irc.hostRequested();
+        prevValue = irc.hostRequestNext();
         if (!prevValue.isEmpty())
-            outLine("Previous server was \"" + prevValue + "\". " + helpStr);
+            outLine("Previous server to request next was \"" + prevValue + "\". " + helpStr);
         rl_set_prompt("Server: ");
         break;
     case UserInputState::Port:
-        prevValue = irc.portRequested();
+        prevValue = irc.portRequestNext();
         if (!prevValue.isEmpty())
-            outLine("Previous port was \"" + prevValue + "\". " + helpStr);
+            outLine("Previous port to request next was \"" + prevValue + "\". " + helpStr);
         rl_set_prompt("Port: ");
         break;
     case UserInputState::User:
-        prevValue = irc.userRequested();
+        prevValue = irc.userRequestNext();
         if (!prevValue.isEmpty())
-            outLine("Previous user was \"" + prevValue + "\". " + helpStr);
+            outLine("Previous user to request next was \"" + prevValue + "\". " + helpStr);
         rl_set_prompt("User: ");
         break;
     case UserInputState::Nick:
-        prevValue = irc.nickRequested();
+        prevValue = irc.nickRequestNext();
         if (!prevValue.isEmpty())
-            outLine("Previous nick was \"" + prevValue + "\". " + helpStr);
+            outLine("Previous nick to request next was \"" + prevValue + "\". " + helpStr);
         rl_set_prompt("Nick: ");
         break;
     }
@@ -91,58 +91,58 @@ void TerminalUI::userInput(const QString &line)
 
     switch (userinputState()) {
     case UserInputState::Host:
-        prevValue = irc.hostRequested();
+        prevValue = irc.hostRequestNext();
         if (prevValue.isEmpty() && line.isEmpty()) {
             outLine("Error: There is no previous value set.");
             return;
         }
         else if (line.isEmpty()) {
-            outLine("Server stays at \"" + prevValue + "\".");
+            outLine("Server to request next stays at \"" + prevValue + "\".");
         }
         else {
-            irc.setHostRequested(line);
+            irc.setHostRequestNext(line);
         }
         _setUserInputState(UserInputState::Port);
         break;
     case UserInputState::Port:
-        prevValue = irc.portRequested();
+        prevValue = irc.portRequestNext();
         if (prevValue.isEmpty() && line.isEmpty()) {
             outLine("Error: There is no previous value set.");
             return;
         }
         else if (line.isEmpty()) {
-            outLine("Port stays at \"" + prevValue + "\".");
+            outLine("Port to request next stays at \"" + prevValue + "\".");
         }
         else {
-            irc.setPortRequested(line);
+            irc.setPortRequestNext(line);
         }
         _setUserInputState(UserInputState::User);
         break;
     case UserInputState::User:
-        prevValue = irc.userRequested();
+        prevValue = irc.userRequestNext();
         if (prevValue.isEmpty() && line.isEmpty()) {
             outLine("Error: There is no previous value set.");
             return;
         }
         else if (line.isEmpty()) {
-            outLine("User stays at \"" + prevValue + "\".");
+            outLine("User to request next stays at \"" + prevValue + "\".");
         }
         else {
-            irc.setUserRequested(line);
+            irc.setUserRequestNext(line);
         }
         _setUserInputState(UserInputState::Nick);
         break;
     case UserInputState::Nick:
-        prevValue = irc.nickRequested();
+        prevValue = irc.nickRequestNext();
         if (prevValue.isEmpty() && line.isEmpty()) {
             outLine("Error: There is no previous value set.");
             return;
         }
         else if (line.isEmpty()) {
-            outLine("Nick stays at \"" + prevValue + "\".");
+            outLine("Nick to request next stays at \"" + prevValue + "\".");
         }
         else {
-            irc.setNickRequested(line);
+            irc.setNickRequestNext(line);
         }
         _setUserInputState(UserInputState::General);
         irc.reconnectToIRCServer();

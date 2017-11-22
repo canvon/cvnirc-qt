@@ -55,13 +55,13 @@ void MainWindow::updateState()
                 setWindowTitle(baseWindowTitle + " (Disconnected)");
                 break;
             case IRCProtoClient::ConnectionState::Connecting:
-                setWindowTitle(client.hostRequested() + " - " + baseWindowTitle + " (Connecting...)");
+                setWindowTitle(client.hostRequestedLast() + " - " + baseWindowTitle + " (Connecting...)");
                 break;
             case IRCProtoClient::ConnectionState::Registering:
-                setWindowTitle(client.hostRequested() + " - " + baseWindowTitle + " (Registering...)");
+                setWindowTitle(client.hostRequestedLast() + " - " + baseWindowTitle + " (Registering...)");
                 break;
             case IRCProtoClient::ConnectionState::Connected:
-                setWindowTitle(client.hostRequested() + " - " + baseWindowTitle + " (Connected)");
+                setWindowTitle(client.hostRequestedLast() + " - " + baseWindowTitle + " (Connected)");
                 break;
             }
         }
@@ -104,7 +104,7 @@ QWidget *MainWindow::openTabForContext(IRCCoreContext *context)
             switch (context->type()) {
             case IRCCoreContext::Type::Server:
                 {
-                    QString host = context->ircProtoClient()->hostRequested();
+                    QString host = context->ircProtoClient()->hostRequestedLast();
                     if (host.isEmpty())
                         tabName = "(Disconnected server)";
                     else

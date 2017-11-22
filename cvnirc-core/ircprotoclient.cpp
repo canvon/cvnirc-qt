@@ -57,12 +57,12 @@ void IRCProtoClient::connectToIRCServer(const QString &host, const QString &port
     if (connectionState() != ConnectionState::Disconnected)
         disconnectFromIRCServer();
 
-    notifyUser("Changing requested host:port to " + host + ":" + port +
+    notifyUser("Setting host:port to request next to " + host + ":" + port +
                ", user to " + user + ", nick to " + nick + ".");
-    _hostRequested = host;
-    _portRequested = port;
-    _userRequested = user;
-    _nickRequested = nick;
+    _hostRequestNext = host;
+    _portRequestNext = port;
+    _userRequestNext = user;
+    _nickRequestNext = nick;
 
     reconnectToIRCServer();
 }
@@ -72,22 +72,32 @@ void IRCProtoClient::reconnectToIRCServer()
     if (connectionState() != ConnectionState::Disconnected)
         disconnectFromIRCServer();
 
-    notifyUser("(Re)Connecting to " + _hostRequested + ":" + _portRequested);
-    socket->connectToHost(_hostRequested, _portRequested.toShort());
+    QString host = _hostRequestNext, port = _portRequestNext;
+    notifyUser("(Re)Connecting to " + host + ":" + port);
     _setConnectionState(ConnectionState::Connecting);
+    socket->connectToHost(host, port.toShort());
+    _hostRequestedLast = host;
+    _portRequestedLast = port;
+    hostPortRequestedLastChanged();
 }
 
 void IRCProtoClient::handle_socket_connected()
 {
     _setConnectionState(ConnectionState::Registering);
 
-    notifyUser("Registering as user " + _userRequested + "...");
+    QString user = _userRequestNext;
+    notifyUser("Registering as user " + user + "...");
     // "USER" USERNAME HOSTNAME SERVERNAME REALNAME
     // TODO: Allow setting realname.
-    sendRaw("USER " + _userRequested + " * * :a cvnirc-qt user");
+    sendRaw("USER " + user + " * * :a cvnirc-qt user");
+    _userRequestedLast = user;
+    userRequestedLastChanged();
 
-    notifyUser("Requesting nick " + _nickRequested + "...");
-    sendRaw("NICK " + _nickRequested);
+    QString nick = _nickRequestNext;
+    notifyUser("Requesting nick " + nick + "...");
+    sendRaw("NICK " + nick);
+    _nickRequestedLast = nick;
+    nickRequestedLastChanged();
 }
 
 void IRCProtoClient::handle_socket_error(QAbstractSocket::SocketError err)
@@ -301,48 +311,67 @@ IRCProtoClient::ConnectionState IRCProtoClient::connectionState() const
     return _connectionState;
 }
 
-const QString &IRCProtoClient::hostRequested() const
+const QString &IRCProtoClient::hostRequestedLast() const
 {
-    return _hostRequested;
+    return _hostRequestedLast;
 }
 
-const QString &IRCProtoClient::portRequested() const
+const QString &IRCProtoClient::portRequestedLast() const
 {
-    return _portRequested;
+    return _portRequestedLast;
 }
 
-const QString &IRCProtoClient::userRequested() const
+const QString &IRCProtoClient::userRequestedLast() const
 {
-    return _userRequested;
+    return _userRequestedLast;
 }
 
-const QString &IRCProtoClient::nickRequested() const
+const QString &IRCProtoClient::nickRequestedLast() const
 {
-    return _nickRequested;
+    return _nickRequestedLast;
+}
+const QString &IRCProtoClient::hostRequestNext() const
+{
+    return _hostRequestNext;
 }
 
-void IRCProtoClient::setHostRequested(const QString &host)
+const QString &IRCProtoClient::portRequestNext() const
 {
-    notifyUser("Setting host to \"" + host + "\".");
-    _hostRequested = host;
+    return _portRequestNext;
 }
 
-void IRCProtoClient::setPortRequested(const QString &port)
+const QString &IRCProtoClient::userRequestNext() const
 {
-    notifyUser("Setting port to \"" + port + "\".");
-    _portRequested = port;
+    return _userRequestNext;
 }
 
-void IRCProtoClient::setUserRequested(const QString &user)
+const QString &IRCProtoClient::nickRequestNext() const
 {
-    notifyUser("Setting user to \"" + user + "\".");
-    _userRequested = user;
+    return _nickRequestNext;
 }
 
-void IRCProtoClient::setNickRequested(const QString &nick)
+void IRCProtoClient::setHostRequestNext(const QString &host)
 {
-    notifyUser("Setting nick to \"" + nick + "\".");
-    _nickRequested = nick;
+    notifyUser("Setting host to request next to \"" + host + "\".");
+    _hostRequestNext = host;
+}
+
+void IRCProtoClient::setPortRequestNext(const QString &port)
+{
+    notifyUser("Setting port to request next to \"" + port + "\".");
+    _portRequestNext = port;
+}
+
+void IRCProtoClient::setUserRequestNext(const QString &user)
+{
+    notifyUser("Setting user to request next to \"" + user + "\".");
+    _userRequestNext = user;
+}
+
+void IRCProtoClient::setNickRequestNext(const QString &nick)
+{
+    notifyUser("Setting nick to request next to \"" + nick + "\".");
+    _nickRequestNext = nick;
 }
 
 void IRCProtoClient::_setConnectionState(ConnectionState newState)

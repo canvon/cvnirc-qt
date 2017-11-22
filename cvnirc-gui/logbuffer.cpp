@@ -102,7 +102,7 @@ QString LogBuffer::_contextToStr(const IRCCoreContext *context)
         return "";
 
     // Describe context.
-    QString desc = "[" + context->ircProtoClient()->hostRequested() + "] ";
+    QString desc = "[" + context->ircProtoClient()->hostRequestedLast() + "] ";
     switch (context->type()) {
     case IRCCoreContext::Type::Server:
         desc += "(Server) ";

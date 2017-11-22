@@ -132,7 +132,9 @@ void IRCCoreContext::sendChatMessage(const QString &line)
         return;
     }
 
-    notifyUser(this, "<" + _ircProtoClient->nickRequested() + "> " + line);
+    // TODO: Use nick *taken* last, when we have support to track this.
+    //
+    notifyUser(this, "<" + _ircProtoClient->nickRequestedLast() + "> " + line);
     _ircProtoClient->sendRaw("PRIVMSG " + _outgoingTarget + " :" + line);
 }
 

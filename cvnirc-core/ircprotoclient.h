@@ -35,14 +35,18 @@ public:
     void receivedMessageAutonomous(IRCProtoMessage &msg);
 
     ConnectionState connectionState() const;
-    const QString &hostRequested() const;
-    const QString &portRequested() const;
-    const QString &userRequested() const;
-    const QString &nickRequested() const;
-    void setHostRequested(const QString &host);
-    void setPortRequested(const QString &port);
-    void setUserRequested(const QString &user);
-    void setNickRequested(const QString &nick);
+    const QString &hostRequestedLast() const;
+    const QString &portRequestedLast() const;
+    const QString &userRequestedLast() const;
+    const QString &nickRequestedLast() const;
+    const QString &hostRequestNext() const;
+    const QString &portRequestNext() const;
+    const QString &userRequestNext() const;
+    const QString &nickRequestNext() const;
+    void setHostRequestNext(const QString &host);
+    void setPortRequestNext(const QString &port);
+    void setUserRequestNext(const QString &user);
+    void setNickRequestNext(const QString &nick);
 
     static QString nickUserHost2nick(const QString &nickUserHost);
 
@@ -52,6 +56,9 @@ signals:
     void receivedLine(const QString &rawLine);
     void receivedMessage(IRCProtoMessage &msg);
     void connectionStateChanged();
+    void hostPortRequestedLastChanged();
+    void userRequestedLastChanged();
+    void nickRequestedLastChanged();
 
 public slots:
     void reconnectToIRCServer();
@@ -73,9 +80,13 @@ private:
 
     std::deque<QString> sendQueue;
 
-    QString _hostRequested, _portRequested;
-    QString _userRequested;
-    QString _nickRequested;
+    QString _hostRequestedLast, _portRequestedLast;
+    QString _userRequestedLast;
+    QString _nickRequestedLast;
+
+    QString _hostRequestNext, _portRequestNext;
+    QString _userRequestNext;
+    QString _nickRequestNext;
 
     ConnectionState _connectionState;
     void _setConnectionState(ConnectionState newState);
