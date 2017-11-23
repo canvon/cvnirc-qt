@@ -52,6 +52,12 @@ TODO ideas for cvnirc-qt by canvon
  * Implement scriptability, perhaps via dbus-connected script servers.
    (2017-11-20/-21)
 
+ * Build and run on Mac? on Windows?
+   (2017-11-23)
+
+ * Have Continuous Integration builds for ~each commit?
+   (2017-11-23)
+
 
 cvnirc-gui:
 -----------
