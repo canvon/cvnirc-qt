@@ -21,6 +21,10 @@ TODO ideas for cvnirc-qt by canvon
  * Modify cvnirc-cli, too, to use the multi-server supporting machinery.
    (2017-11-20/-21)
 
+ * Have/support shorter timestamps, but this will likely require
+   some kind of timer that outputs "day changed" messages now and then. ...
+   (2017-11-23)
+
  * Automatic reconnects on disconnect.
    (2017-11-20/-21)
  
