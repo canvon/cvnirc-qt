@@ -231,6 +231,9 @@ void MainWindow::handle_irc_createdContext(IRCCoreContext *context)
         // Wire up the protocol logbuffer.
         ui->logBufferProto->addContext(context);
 
-        connect(context, &IRCCoreContext::connectionStateChanged, this, &MainWindow::updateState);
+        connect(context->ircProtoClient(), &IRCProtoClient::connectionStateChanged,
+                this, &MainWindow::updateState);
+        connect(context->ircProtoClient(), &IRCProtoClient::hostPortRequestedLastChanged,
+                this, &MainWindow::updateState);
     }
 }
