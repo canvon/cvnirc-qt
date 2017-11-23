@@ -4,9 +4,8 @@
 #
 #-------------------------------------------------
 
-QT       += network
-
-QT       -= gui
+QT += network
+QT -= gui
 
 CONFIG += c++11
 
@@ -32,10 +31,10 @@ SOURCES += irccore.cpp \
     ircprotomessage.cpp \
     irccorecontext.cpp
 
-HEADERS += irccore.h\
+HEADERS += cvnirc-core_global.h \
+    irccore.h \
     ircprotoclient.h \
     ircprotomessage.h \
-    cvnirc-core_global.h \
     irccorecontext.h
 
 unix {
