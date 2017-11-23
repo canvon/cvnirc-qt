@@ -202,9 +202,12 @@ void TerminalUI::handle_irc_connectionStateChanged()
 {
     auto state = irc.connectionState();
     outLine(QString("Connection state changed to ") +
-        QString::number((int)state) + QString(": ") +
+        QString::number((int)state)
+#ifdef CVN_HAVE_Q_ENUM
+        + QString(": ")
         // Translate to human-readable.
-        QMetaEnum::fromType<IRCProtoClient::ConnectionState>().valueToKey((int)state)
+        + QMetaEnum::fromType<IRCProtoClient::ConnectionState>().valueToKey((int)state)
+#endif
     );
 }
 
