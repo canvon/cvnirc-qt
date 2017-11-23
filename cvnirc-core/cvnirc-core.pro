@@ -10,8 +10,9 @@ QT       -= gui
 
 CONFIG += c++11
 
-TARGET = cvnirc-core
 TEMPLATE = lib
+TARGET = cvnirc-core
+VERSION = 0.5.0
 
 DEFINES += CVNIRCCORE_LIBRARY
 
