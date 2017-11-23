@@ -17,7 +17,7 @@ LogBuffer::~LogBuffer()
     delete ui;
 }
 
-const QList<IRCCoreContext *> &LogBuffer::contexts()
+const QList<IRCCoreContext *> &LogBuffer::contexts() const
 {
     return _contexts;
 }

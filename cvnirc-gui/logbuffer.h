@@ -29,7 +29,7 @@ public:
     explicit LogBuffer(QWidget *parent = 0);
     ~LogBuffer();
 
-    const QList<IRCCoreContext *> &contexts();
+    const QList<IRCCoreContext *> &contexts() const;
     void addContext(IRCCoreContext *context);
     void removeContext(IRCCoreContext *context);
     void setType(Type newType);
