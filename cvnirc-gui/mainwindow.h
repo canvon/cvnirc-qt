@@ -17,12 +17,14 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void updateState();
     QWidget *findTabWidgetForContext(IRCCoreContext *context);
     QWidget *openTabForContext(IRCCoreContext *context);
     IRCCoreContext *contextFromUI();
 
     IRCCore irc;
+
+public slots:
+    void updateState();
 
 private slots:
     void on_action_Quit_triggered();
@@ -34,7 +36,6 @@ private slots:
 
     void handle_irc_createdContext(IRCCoreContext *context);
     //void handle_irc_receivedMessage(IRCProtoMessage &msg);
-    void handle_ircContext_connectionStateChanged(IRCCoreContext *context);
 
 private:
     Ui::MainWindow *ui;
