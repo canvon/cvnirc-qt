@@ -49,19 +49,21 @@ void MainWindow::updateState()
     case 1:
         {
             auto &client(*clients.front());
+            QString host = client.hostRequestedLast();
+            QString connectionInfo = host.isNull() ? "N.A." : host;
 
             switch (client.connectionState()) {
             case IRCProtoClient::ConnectionState::Disconnected:
                 setWindowTitle(baseWindowTitle + " (Disconnected)");
                 break;
             case IRCProtoClient::ConnectionState::Connecting:
-                setWindowTitle(client.hostRequestedLast() + " - " + baseWindowTitle + " (Connecting...)");
+                setWindowTitle(connectionInfo + " - " + baseWindowTitle + " (Connecting...)");
                 break;
             case IRCProtoClient::ConnectionState::Registering:
-                setWindowTitle(client.hostRequestedLast() + " - " + baseWindowTitle + " (Registering...)");
+                setWindowTitle(connectionInfo + " - " + baseWindowTitle + " (Registering...)");
                 break;
             case IRCProtoClient::ConnectionState::Connected:
-                setWindowTitle(client.hostRequestedLast() + " - " + baseWindowTitle + " (Connected)");
+                setWindowTitle(connectionInfo + " - " + baseWindowTitle + " (Connected)");
                 break;
             }
         }

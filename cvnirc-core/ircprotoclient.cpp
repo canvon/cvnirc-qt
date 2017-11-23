@@ -73,9 +73,15 @@ void IRCProtoClient::reconnectToIRCServer()
         disconnectFromIRCServer();
 
     QString host = _hostRequestNext, port = _portRequestNext;
+    // Clear these to avoid suggesting wrong destination
+    // to signal connectionStateChanged handlers.
+    _hostRequestedLast.clear();
+    _portRequestedLast.clear();
     notifyUser("(Re)Connecting to " + host + ":" + port);
     _setConnectionState(ConnectionState::Connecting);
     socket->connectToHost(host, port.toShort());
+    // Now that we are actually connecting to there,
+    // update these again and emit signal about it.
     _hostRequestedLast = host;
     _portRequestedLast = port;
     hostPortRequestedLastChanged();
