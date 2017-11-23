@@ -54,7 +54,7 @@ void MainWindow::updateState()
 
             switch (client.connectionState()) {
             case IRCProtoClient::ConnectionState::Disconnected:
-                setWindowTitle(baseWindowTitle + " (Disconnected)");
+                setWindowTitle(connectionInfo + " - " + baseWindowTitle + " (Disconnected)");
                 break;
             case IRCProtoClient::ConnectionState::Connecting:
                 setWindowTitle(connectionInfo + " - " + baseWindowTitle + " (Connecting...)");
