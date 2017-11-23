@@ -11,6 +11,10 @@ TODO ideas for cvnirc-qt by canvon
    with two time the same/similar server connected will be meaningful.
    (2017-11-20/-21)
 
+ * Have close tabs support. (Remove contexts? Have I refcounting for them?
+   Skip Main tab (index 0).)
+   (2017-11-23)
+
  * Further test/improve the multi-server support.
    (2017-11-20/-21)
 
@@ -47,6 +51,17 @@ TODO ideas for cvnirc-qt by canvon
 
 cvnirc-cli:
 -----------
+
+ * Implement "chat support", that is, the ability to write a line of text
+   and it being submitted automatically with some command to some target.
+   Before, the cli is ~useless! ... Perhaps it can be done while integrating
+   multi-server support...
+   (2017-11-23)
+
+ * Have a more helpful replacement for the missing readline7 function?
+   Perhaps clear the line by outputting \r + spaces x (terminal width - 1)
+   + \r?
+   (2017-11-23)
 
  * Add custom completer to GNU readline UI.
    (2017-11-21/-22)
