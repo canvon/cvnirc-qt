@@ -101,25 +101,8 @@ QWidget *MainWindow::openTabForContext(IRCCoreContext *context)
         logBuf->addContext(context);
         w = logBuf;
 
-        QString tabName = context->outgoingTarget();
-        if (tabName.isEmpty()) {
-            switch (context->type()) {
-            case IRCCoreContext::Type::Server:
-                {
-                    QString host = context->ircProtoClient()->hostRequestedLast();
-                    if (host.isEmpty())
-                        tabName = "(Disconnected server)";
-                    else
-                        tabName = "Server " + host;
-                }
-                break;
-            default:
-                tabName = "???";
-                break;
-            }
-        }
-
-        ui->tabWidget->addTab(w, tabName);
+        ui->tabWidget->addTab(w, "New tab");
+        applyTabNameComponents(logBuf, tabNameComponents(*logBuf));
     }
     return w;
 }
@@ -142,6 +125,71 @@ IRCCoreContext *MainWindow::contextFromUI()
         throw std::runtime_error("MainWindow::contextFromUI(): Got context that is a null pointer, which is invalid here");
 
     return context;
+}
+
+QStringList MainWindow::tabNameComponents(const LogBuffer &logBuf)
+{
+    QStringList ret;
+    bool needConnectionDisambiguation = irc.ircProtoClients().length() > 1;
+
+    for (IRCCoreContext *context : logBuf.contexts()) {
+        if (context == nullptr)
+            throw std::runtime_error("MainWindow::tabNameComponents(): Got context that is a null pointer, which is invalid here");
+
+        QString tabName = context->outgoingTarget();
+        if (tabName.isEmpty()) {
+            switch (context->type()) {
+            case IRCCoreContext::Type::Server:
+                tabName = "Server";
+                break;
+            default:
+                tabName = "???";
+                break;
+            }
+        }
+
+        if (needConnectionDisambiguation) {
+            // TODO: Change to connection tag later when we have them.
+            // Otherwise, two connections to the same server
+            // will look the same, that is, will not be disambiguated.
+            QString serverName = context->ircProtoClient()->hostRequestedLast();
+            if (serverName.isEmpty())
+                serverName = "???";
+            tabName.prepend("[" + serverName + "]");
+        }
+
+        ret.append(tabName);
+    }
+
+    return ret;
+}
+
+void MainWindow::applyTabNameComponents(LogBuffer *logBuf, const QStringList &components)
+{
+    int index = ui->tabWidget->indexOf(logBuf);
+    if (index < 0) {
+        qDebug() << Q_FUNC_INFO << "Tab not found";
+        return;
+    }
+
+    QString tabText, tabToolTip;
+    switch (components.length()) {
+    case 0:
+        tabText = "(empty)";
+        tabToolTip.clear();
+        break;
+    case 1:
+        tabText = components.front();
+        tabToolTip.clear();
+        break;
+    default:
+        tabText = components.front() + ",...";
+        tabToolTip = components.join(',');
+        break;
+    }
+
+    ui->tabWidget->setTabText(index, tabText);
+    ui->tabWidget->setTabToolTip(index, tabToolTip);
 }
 
 void MainWindow::on_action_Quit_triggered()

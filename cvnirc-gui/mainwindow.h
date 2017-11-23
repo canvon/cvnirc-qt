@@ -2,12 +2,15 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QStringList>
 
 #include "irccore.h"
 
 namespace Ui {
 class MainWindow;
 }
+
+class LogBuffer;
 
 class MainWindow : public QMainWindow
 {
@@ -20,6 +23,9 @@ public:
     QWidget *findTabWidgetForContext(IRCCoreContext *context);
     QWidget *openTabForContext(IRCCoreContext *context);
     IRCCoreContext *contextFromUI();
+
+    QStringList tabNameComponents(const LogBuffer &logBuf);
+    void applyTabNameComponents(LogBuffer *logBuf, const QStringList &components);
 
     IRCCore irc;
 
