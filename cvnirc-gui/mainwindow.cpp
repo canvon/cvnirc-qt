@@ -41,6 +41,7 @@ void MainWindow::updateState()
 {
     auto &clients(irc.ircProtoClients());
 
+    // Update window title.
     int len = clients.length();
     switch (len) {
     case 0:
@@ -71,6 +72,19 @@ void MainWindow::updateState()
     default:
         setWindowTitle(baseWindowTitle + " (" + QString::number(len) + " clients)");
         break;
+    }
+
+    // Update tab names.
+    // N.B.: Skip Main tab.
+    for (int i = 1; i < ui->tabWidget->count(); i++) {
+        QWidget *w = ui->tabWidget->widget(i);
+        auto *logBuf = dynamic_cast<LogBuffer *>(w);
+        if (logBuf == nullptr) {
+            qDebug() << Q_FUNC_INFO << i << "This tab is not a LogBuffer!";
+            continue;
+        }
+
+        applyTabNameComponents(logBuf, tabNameComponents(*logBuf));
     }
 }
 
