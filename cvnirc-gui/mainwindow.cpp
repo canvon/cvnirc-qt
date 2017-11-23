@@ -155,7 +155,7 @@ QStringList MainWindow::tabNameComponents(const LogBuffer &logBuf)
             QString serverName = context->ircProtoClient()->hostRequestedLast();
             if (serverName.isEmpty())
                 serverName = "???";
-            tabName.prepend("[" + serverName + "]");
+            tabName.prepend(serverName + "/");
         }
 
         ret.append(tabName);
