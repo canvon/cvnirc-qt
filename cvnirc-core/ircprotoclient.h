@@ -24,7 +24,9 @@ public:
         Registering,
         Connected
     };
+#ifdef CVN_HAVE_Q_ENUM
     Q_ENUM(ConnectionState)
+#endif
 
 
     explicit IRCProtoClient(QObject *parent = 0);

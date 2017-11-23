@@ -142,8 +142,11 @@ void LogBuffer::handle_ircContext_connectionStateChanged(IRCCoreContext *context
 
     auto state = context->ircProtoClient()->connectionState();
     appendContextLine(context, QString("Connection state changed to ") +
-        QString::number((int)state) + QString(": ") +
+        QString::number((int)state)
+#ifdef CVN_HAVE_Q_ENUM
+        + QString(": ")
         // Translate to human-readable.
-        QMetaEnum::fromType<IRCProtoClient::ConnectionState>().valueToKey((int)state)
+        + QMetaEnum::fromType<IRCProtoClient::ConnectionState>().valueToKey((int)state)
+#endif
     );
 }

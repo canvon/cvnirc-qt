@@ -19,7 +19,9 @@ public:
         General,
         Host, Port, User, Nick,
     };
+#ifdef CVN_HAVE_Q_ENUM
     Q_ENUM(UserInputState)
+#endif
 
     explicit TerminalUI(FILE *inFileC, FILE *outFileC, QObject *parent = 0);
 

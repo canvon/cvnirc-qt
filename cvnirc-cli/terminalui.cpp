@@ -155,7 +155,14 @@ void TerminalUI::userInput(const QString &line)
 
 void TerminalUI::outLine(const QString &line)
 {
+#if RL_VERSION_MAJOR < 7
+#warning "Your GNU readline library is too old, will have to do without rl_clear_visible_line()..."
+    // Just leave the prompt + partial input line where it is,
+    // but enter a new line so that output will look sane.
+    out << endl;
+#else
     rl_clear_visible_line();
+#endif
     out << line << endl;
     rl_on_new_line();
     rl_redisplay();
@@ -202,9 +209,12 @@ void TerminalUI::handle_irc_connectionStateChanged()
 {
     auto state = irc.connectionState();
     outLine(QString("Connection state changed to ") +
-        QString::number((int)state) + QString(": ") +
+        QString::number((int)state)
+#ifdef CVN_HAVE_Q_ENUM
+        + QString(": ")
         // Translate to human-readable.
-        QMetaEnum::fromType<IRCProtoClient::ConnectionState>().valueToKey((int)state)
+        + QMetaEnum::fromType<IRCProtoClient::ConnectionState>().valueToKey((int)state)
+#endif
     );
 }
 

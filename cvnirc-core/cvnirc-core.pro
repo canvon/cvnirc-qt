@@ -8,6 +8,8 @@ QT       += network
 
 QT       -= gui
 
+CONFIG += c++11
+
 TARGET = cvnirc-core
 TEMPLATE = lib
 
@@ -39,3 +41,5 @@ unix {
     target.path = /usr/lib
     INSTALLS += target
 }
+
+include(../versioncheck.pro)

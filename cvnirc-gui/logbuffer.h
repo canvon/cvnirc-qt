@@ -20,7 +20,9 @@ public:
         General,
         Protocol,
     };
+#ifdef CVN_HAVE_Q_ENUM
     Q_ENUM(Type)
+#endif
 
 private:
     Type _type = Type::General;

@@ -8,6 +8,8 @@ QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+CONFIG += c++11
+
 TARGET = cvnirc-qt-gui
 TEMPLATE = app
 
@@ -35,6 +37,8 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui \
     connectdialog.ui \
     logbuffer.ui
+
+include(../versioncheck.pro)
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../cvnirc-core/release/ -lcvnirc-core
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../cvnirc-core/debug/ -lcvnirc-core
