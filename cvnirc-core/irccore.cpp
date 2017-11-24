@@ -17,7 +17,7 @@ const QList<IRCCoreContext *> &IRCCore::contexts()
     return _contexts;
 }
 
-IRCCoreContext *IRCCore::connectToIRCServer(const QString &host, const QString &port, const QString &user, const QString &nick)
+IRCCoreContext *IRCCore::createIRCProtoClient()
 {
     auto *client = new IRCProtoClient(this);
     _ircProtoClients.append(client);
@@ -26,7 +26,14 @@ IRCCoreContext *IRCCore::connectToIRCServer(const QString &host, const QString &
     _contexts.append(context);
     createdContext(context);
 
-    client->connectToIRCServer(host, port, user, nick);
+    return context;
+}
+
+IRCCoreContext *IRCCore::connectToIRCServer(const QString &host, const QString &port, const QString &user, const QString &nick)
+{
+    IRCCoreContext *context = createIRCProtoClient();
+
+    context->ircProtoClient()->connectToIRCServer(host, port, user, nick);
 
     return context;
 }

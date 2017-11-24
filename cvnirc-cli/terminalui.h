@@ -2,7 +2,8 @@
 #define TERMINALUI_H
 
 #include <QObject>
-#include "ircprotoclient.h"
+#include "irccore.h"
+#include "commandlayer.h"
 #include <QFile>
 #include <QTextStream>
 #include <QSocketNotifier>
@@ -10,7 +11,9 @@
 class TerminalUI : public QObject
 {
     Q_OBJECT
-    IRCProtoClient irc;
+    IRCCore irc;
+    IRCCoreContext *currentContext = nullptr;
+    CommandLayer cmdLayer;
     QFile inFile, outFile;
     QTextStream in, out;
     QSocketNotifier inNotify;
@@ -33,15 +36,14 @@ signals:
 public slots:
     void queueUserInput(const QString &line);
     void userInput(const QString &line);
-    void outLine(const QString &line);
-    void outSendingLine(const QString &rawLine);
-    void outReceivedLine(const QString &rawLine);
+    void outLine(const QString &line, IRCCoreContext *context = nullptr);
+    void outSendingLine(const QString &rawLine, IRCCoreContext *context = nullptr);
+    void outReceivedLine(const QString &rawLine, IRCCoreContext *context = nullptr);
 
 private slots:
     void handle_inNotify_activated(int socket);
-
-    void handle_irc_connectionStateChanged();
-    void handle_irc_receivedMessage(IRCProtoMessage &msg);
+    void handle_context_connectionStateChanged(IRCCoreContext *context = nullptr);
+    void handle_irc_createdContext(IRCCoreContext *context);
 
 private:
     QStringList _userInputQueue;

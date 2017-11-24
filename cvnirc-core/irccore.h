@@ -21,6 +21,7 @@ public:
     const QList<IRCProtoClient *> &ircProtoClients();
     const QList<IRCCoreContext *> &contexts();
 
+    IRCCoreContext *createIRCProtoClient();
     IRCCoreContext *connectToIRCServer(const QString &host, const QString &port, const QString &user, const QString &nick);
     IRCCoreContext *getContext(IRCProtoClient *ircProtoClient, IRCCoreContext::Type type, const QString &outgoingTarget);
     IRCCoreContext *createOrGetContext(IRCProtoClient *ircProtoClient, IRCCoreContext::Type type, const QString &outgoingTarget, bool *created = nullptr);
