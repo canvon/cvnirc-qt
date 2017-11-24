@@ -7,3 +7,5 @@ SUBDIRS += \
 
 cvnirc-gui.depends = cvnirc-core
 cvnirc-cli.depends = cvnirc-core
+
+VERSION = 0.5.3
