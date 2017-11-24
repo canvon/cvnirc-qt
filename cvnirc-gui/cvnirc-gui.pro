@@ -41,6 +41,10 @@ FORMS += mainwindow.ui \
 RESOURCES += \
     cvnirc-gui.qrc
 
+DISTFILES += \
+    ../README.txt \
+    ../TODO.txt
+
 include(../versioncheck.pro)
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../cvnirc-core/release/ -lcvnirc-core

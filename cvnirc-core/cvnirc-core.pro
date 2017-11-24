@@ -37,6 +37,10 @@ HEADERS += cvnirc-core_global.h \
     ircprotomessage.h \
     irccorecontext.h
 
+DISTFILES += \
+    ../README.txt \
+    ../TODO.txt
+
 unix {
     target.path = /usr/lib
     INSTALLS += target
