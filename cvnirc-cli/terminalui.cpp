@@ -85,6 +85,12 @@ void TerminalUI::_setUserInputState(UserInputState newState)
     QString prevValue;
     QString helpStr("Enter an empty line for the setting to stay the same.");
 
+    // (Set early so that invoked handling code will "see" the new value.
+    // Not doing so already got us a bug with the readline prompt
+    // not being updated after the "Nick: " input, as updateGeneralPrompt()
+    // didn't think it was competent to change the prompt at that time...)
+    _userInputState = newState;
+
     switch (newState) {
     case UserInputState::General:
         updateGeneralPrompt();
@@ -115,7 +121,6 @@ void TerminalUI::_setUserInputState(UserInputState newState)
         break;
     }
 
-    _userInputState = newState;
     rl_redisplay();
 }
 
