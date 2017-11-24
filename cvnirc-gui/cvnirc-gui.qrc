@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/icons">
+    <qresource prefix="/">
         <file>icons/32px-quit.png</file>
         <file>icons/32px-connect.png</file>
         <file>icons/32px-reconnect.png</file>
