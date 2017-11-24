@@ -38,6 +38,9 @@ FORMS += mainwindow.ui \
     connectdialog.ui \
     logbuffer.ui
 
+RESOURCES += \
+    cvnirc-gui.qrc
+
 include(../versioncheck.pro)
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../cvnirc-core/release/ -lcvnirc-core
