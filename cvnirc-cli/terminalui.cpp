@@ -232,49 +232,48 @@ bool TerminalUI::cycleCurrentContext(int count)
 
     if (count == 0) {
         currentContext = start;
-        updateGeneralPrompt();
-        rl_redisplay();
-        return true;
     }
-
-    auto clBegin = contextList.begin();
-    auto clEnd   = contextList.end();
-    auto iter = clBegin;
-    for (; iter < clEnd; iter++) {
-        if (*iter == start)
-            break;
-    }
-    if (iter == clEnd) {
-        outLine("Cycle current context: Current context not found!");
-        return false;
-    }
-
-    if (count > 0) {
-        while (count-- > 0) {
-            if (++iter == clEnd)
-                iter = clBegin;
+    else {
+        auto clBegin = contextList.begin();
+        auto clEnd   = contextList.end();
+        auto iter = clBegin;
+        for (; iter < clEnd; iter++) {
+            if (*iter == start)
+                break;
         }
-    }
-    else if (count < 0) {
-        while (count++ < 0) {
-            if (iter == clBegin) {
-                iter = clEnd;
-                iter--;
-            }
-            else {
-                iter--;
+        if (iter == clEnd) {
+            outLine("Cycle current context: Current context not found!");
+            return false;
+        }
+
+        if (count > 0) {
+            while (count-- > 0) {
+                if (++iter == clEnd)
+                    iter = clBegin;
             }
         }
-    }
-    else
-        throw std::runtime_error("Cycle current context: Internal error, code path should not have been taken #2");
+        else if (count < 0) {
+            while (count++ < 0) {
+                if (iter == clBegin) {
+                    iter = clEnd;
+                    iter--;
+                }
+                else {
+                    iter--;
+                }
+            }
+        }
+        else
+            throw std::runtime_error("Cycle current context: Internal error, code path should not have been taken #2");
 
-    if (!(clBegin <= iter && iter < clEnd)) {
-        outLine("Cycle current context: Iterator out of range after cycling... Aborting update.");
-        return false;
+        if (!(clBegin <= iter && iter < clEnd)) {
+            outLine("Cycle current context: Iterator out of range after cycling... Aborting update.");
+            return false;
+        }
+
+        currentContext = *iter;
     }
 
-    currentContext = *iter;
     updateGeneralPrompt();
     rl_redisplay();
     return true;
