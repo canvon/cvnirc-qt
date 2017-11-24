@@ -47,7 +47,9 @@ int main(int argc, char *argv[])
     rl_bind_key('\t', rl_insert);
     //
     // Allow easy current context switching.
-    rl_bind_key(24 /* ^X */, cycle_context);
+    // Note: ^X did not work, but ^O does, on my system.
+    //rl_bind_key(24 /* ^X */, cycle_context);
+    rl_bind_key(15 /* ^O */, cycle_context);
 
     // Start prompting for connection information.
     ui.promptConnect();
