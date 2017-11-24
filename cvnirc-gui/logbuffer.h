@@ -41,12 +41,12 @@ public slots:
     void appendSendingLine(const QString &rawLine);
     void appendReceivedLine(const QString &rawLine);
 
-    void appendContextLine(IRCCoreContext *context, const QString &line);
-    void appendContextSendingLine(IRCCoreContext *context, const QString &rawLine);
-    void appendContextReceivedLine(IRCCoreContext *context, const QString &rawLine);
+    void appendContextLine(const QString &line, IRCCoreContext *context = nullptr);
+    void appendContextSendingLine(const QString &rawLine, IRCCoreContext *context = nullptr);
+    void appendContextReceivedLine(const QString &rawLine, IRCCoreContext *context = nullptr);
 
 private slots:
-    void handle_ircContext_connectionStateChanged(IRCCoreContext *context);
+    void handle_ircContext_connectionStateChanged(IRCCoreContext *context = nullptr);
 
 private:
     Ui::LogBuffer *ui;

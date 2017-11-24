@@ -77,8 +77,9 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProtoMessage &msg)
                         context->receiveIRCProtoMessage(msg);
                 }
                 else if (_type == Type::Channel && channel == _outgoingTarget) {
-                    notifyUser(this, "Joined channel " + channel +
-                               (joinMsg.prefix.count() > 0 ? ": " + joinMsg.prefix : ""));
+                    notifyUser("Joined channel " + channel +
+                               (joinMsg.prefix.count() > 0 ? ": " + joinMsg.prefix : ""),
+                               this);
                 }
             }
 
@@ -116,7 +117,7 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProtoMessage &msg)
 
             QString sourceTyped = (isNotice ? "-" : "<") + senderNick + (isNotice ? "-" : ">");
 
-            notifyUser(this, sourceTyped + " " + chatterMsg.chatterData);
+            notifyUser(sourceTyped + " " + chatterMsg.chatterData, this);
             chatterMsg.handled = true;
         }
         break;
@@ -128,13 +129,13 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProtoMessage &msg)
 void IRCCoreContext::sendChatMessage(const QString &line)
 {
     if (_outgoingTarget.isEmpty()) {
-        notifyUser(this, "Error: This context does not have an outgoing target. Can't send a chat message here!");
+        notifyUser("Error: This context does not have an outgoing target. Can't send a chat message here!", this);
         return;
     }
 
     // TODO: Use nick *taken* last, when we have support to track this.
     //
-    notifyUser(this, "<" + _ircProtoClient->nickRequestedLast() + "> " + line);
+    notifyUser("<" + _ircProtoClient->nickRequestedLast() + "> " + line, this);
     _ircProtoClient->sendRaw("PRIVMSG " + _outgoingTarget + " :" + line);
 }
 
@@ -145,15 +146,15 @@ void IRCCoreContext::handle_connectionStateChanged()
 
 void IRCCoreContext::handle_notifyUser(const QString &line)
 {
-    notifyUser(this, line);
+    notifyUser(line, this);
 }
 
 void IRCCoreContext::handle_sendingLine(const QString &rawLine)
 {
-    sendingLine(this, rawLine);
+    sendingLine(rawLine, this);
 }
 
 void IRCCoreContext::handle_receivedLine(const QString &rawLine)
 {
-    receivedLine(this, rawLine);
+    receivedLine(rawLine, this);
 }

@@ -77,17 +77,17 @@ void LogBuffer::setType(LogBuffer::Type newType)
 
 void LogBuffer::appendLine(const QString &line)
 {
-    return appendContextLine(nullptr, line);
+    return appendContextLine(line);
 }
 
 void LogBuffer::appendSendingLine(const QString &rawLine)
 {
-    return appendContextSendingLine(nullptr, rawLine);
+    return appendContextSendingLine(rawLine);
 }
 
 void LogBuffer::appendReceivedLine(const QString &rawLine)
 {
-    return appendContextReceivedLine(nullptr, rawLine);
+    return appendContextReceivedLine(rawLine);
 }
 
 QString LogBuffer::_contextToStr(const IRCCoreContext *context)
@@ -118,21 +118,21 @@ QString LogBuffer::_contextToStr(const IRCCoreContext *context)
     return desc;
 }
 
-void LogBuffer::appendContextLine(IRCCoreContext *context, const QString &line)
+void LogBuffer::appendContextLine(const QString &line, IRCCoreContext *context)
 {
     // Prepend timestamp and context information, and append to logbuffer.
     QDateTime ts = QDateTime::currentDateTime();
     ui->textEdit->append("[" + ts.toString() + "] " + _contextToStr(context) + line);
 }
 
-void LogBuffer::appendContextSendingLine(IRCCoreContext *context, const QString &rawLine)
+void LogBuffer::appendContextSendingLine(const QString &rawLine, IRCCoreContext *context)
 {
-    return appendContextLine(context, "< " + rawLine);
+    return appendContextLine("< " + rawLine, context);
 }
 
-void LogBuffer::appendContextReceivedLine(IRCCoreContext *context, const QString &rawLine)
+void LogBuffer::appendContextReceivedLine(const QString &rawLine, IRCCoreContext *context)
 {
-    return appendContextLine(context, "> " + rawLine);
+    return appendContextLine("> " + rawLine, context);
 }
 
 void LogBuffer::handle_ircContext_connectionStateChanged(IRCCoreContext *context)
@@ -141,12 +141,13 @@ void LogBuffer::handle_ircContext_connectionStateChanged(IRCCoreContext *context
         throw std::runtime_error("LogBuffer, handle IRCCoreContext connection state changed: Got context which is a null pointer, which is invalid here");
 
     auto state = context->ircProtoClient()->connectionState();
-    appendContextLine(context, QString("Connection state changed to ") +
+    appendContextLine(QString("Connection state changed to ") +
         QString::number((int)state)
 #ifdef CVN_HAVE_Q_ENUM
         + QString(": ")
         // Translate to human-readable.
         + QMetaEnum::fromType<IRCProtoClient::ConnectionState>().valueToKey((int)state)
 #endif
+        , context
     );
 }
