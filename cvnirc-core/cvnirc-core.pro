@@ -46,4 +46,4 @@ unix {
     INSTALLS += target
 }
 
-include(../versioncheck.pro)
+include(../include/versioncheck.pro)

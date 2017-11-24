@@ -45,14 +45,14 @@ DISTFILES += \
     ../README.txt \
     ../TODO.txt
 
-include(../versioncheck.pro)
+include(../include/versioncheck.pro)
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../cvnirc-core/release/ -lcvnirc-core
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../cvnirc-core/debug/ -lcvnirc-core
 else:unix {
     LIBS += -L$$OUT_PWD/../cvnirc-core/ -lcvnirc-core
 
-    include(../rpath.pro)
+    include(../include/rpath.pro)
 }
 
 INCLUDEPATH += $$PWD/../cvnirc-core
