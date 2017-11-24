@@ -15,6 +15,10 @@ TODO ideas for cvnirc-qt by canvon
    Skip Main tab (index 0).)
    (2017-11-23)
 
+ * Have differently colored tabs depending on what input arrived there
+   since last having a look.
+   (2017-11-24)
+
  * Further test/improve the multi-server support.
    (2017-11-20/-21)
 
@@ -39,6 +43,9 @@ TODO ideas for cvnirc-qt by canvon
  * Have client-side interpreted user commands. (Like, /window close,
    perhaps? Or a /quit that exits the application... (?))
    (2017-11-20/-21)
+
+ * Have colored nick names?
+   (2017-11-24)
 
  * Save & restore settings, e.g., host/port/user/nick.
    (2017-11-20/-21)
