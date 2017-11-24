@@ -6,6 +6,10 @@ TODO ideas for cvnirc-qt by canvon
    across all of cvnirc-qt.
    (2017-11-24)
 
+ * Interpret protocol command names case-insensitively? That is,
+   treat PRIVMSG and privmsg the same...
+   (2017-11-24)
+
  * Have some output in the Main tab again (on a really high level); like
    creation/deletion of IRCProtoClient instances, contexts or the like.
    Perhaps also connection states without all the raw or partially-parsed
@@ -88,6 +92,9 @@ cvnirc-cli:
    (2017-11-23)
 
  * Implement changing context via ^X, like Irssi does.
+   (2017-11-24)
+
+ * Dump raw protocol lines only on (to-be-implemented) -v or something?
    (2017-11-24)
 
  * When changing context is supported, automatically switch to new context
