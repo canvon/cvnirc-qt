@@ -129,8 +129,8 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_Quit">
    <property name="icon">
-    <iconset theme="application-exit">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="application-exit" resource="cvnirc-gui.qrc">
+     <normaloff>:/icons/32px-quit.png</normaloff>:/icons/32px-quit.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Quit</string>
@@ -141,8 +141,8 @@
   </action>
   <action name="action_Connect">
    <property name="icon">
-    <iconset theme="network-server">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="network-server" resource="cvnirc-gui.qrc">
+     <normaloff>:/icons/32px-connect.png</normaloff>:/icons/32px-connect.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Connect</string>
@@ -150,8 +150,8 @@
   </action>
   <action name="action_Reconnect">
    <property name="icon">
-    <iconset theme="network-transmit-receive">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="network-transmit-receive" resource="cvnirc-gui.qrc">
+     <normaloff>:/icons/32px-reconnect.png</normaloff>:/icons/32px-reconnect.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Reconnect</string>
@@ -159,8 +159,8 @@
   </action>
   <action name="action_Disconnect">
    <property name="icon">
-    <iconset theme="process-stop">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="process-stop" resource="cvnirc-gui.qrc">
+     <normaloff>:/icons/32px-disconnect.png</normaloff>:/icons/32px-disconnect.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Disconnect</string>
@@ -175,7 +175,9 @@
    <header>logbuffer.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="cvnirc-gui.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>lineEditUserInput</sender>
