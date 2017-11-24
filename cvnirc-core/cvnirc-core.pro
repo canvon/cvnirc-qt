@@ -29,13 +29,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += irccore.cpp \
     ircprotoclient.cpp \
     ircprotomessage.cpp \
-    irccorecontext.cpp
+    irccorecontext.cpp \
+    commandlayer.cpp \
+    command.cpp
 
 HEADERS += cvnirc-core_global.h \
     irccore.h \
     ircprotoclient.h \
     ircprotomessage.h \
-    irccorecontext.h
+    irccorecontext.h \
+    commandlayer.h \
+    command.h
 
 DISTFILES += \
     ../README.txt \
