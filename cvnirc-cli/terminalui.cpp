@@ -288,9 +288,14 @@ void TerminalUI::outLine(const QString &line, IRCCoreContext *context)
 {
 #if RL_VERSION_MAJOR < 7
 #warning "Your GNU readline library is too old, will have to do without rl_clear_visible_line()..."
-    // Just leave the prompt + partial input line where it is,
-    // but enter a new line so that output will look sane.
-    out << endl;
+    // Try to blank the current line on our own.
+    int rows = 0, cols = 0;
+    rl_get_screen_size(&rows, &cols);
+    out << '\r';
+    for (int i = 0; i < cols - 1; i++)
+        out << ' ';
+    out << '\r';
+    out.flush();
 #else
     rl_clear_visible_line();
 #endif
