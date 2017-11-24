@@ -141,7 +141,7 @@
   </action>
   <action name="action_Connect">
    <property name="icon">
-    <iconset theme="network-server" resource="cvnirc-gui.qrc">
+    <iconset resource="cvnirc-gui.qrc">
      <normaloff>:/icons/32px-connect.png</normaloff>:/icons/32px-connect.png</iconset>
    </property>
    <property name="text">
@@ -150,7 +150,7 @@
   </action>
   <action name="action_Reconnect">
    <property name="icon">
-    <iconset theme="network-transmit-receive" resource="cvnirc-gui.qrc">
+    <iconset resource="cvnirc-gui.qrc">
      <normaloff>:/icons/32px-reconnect.png</normaloff>:/icons/32px-reconnect.png</iconset>
    </property>
    <property name="text">
@@ -159,7 +159,7 @@
   </action>
   <action name="action_Disconnect">
    <property name="icon">
-    <iconset theme="process-stop" resource="cvnirc-gui.qrc">
+    <iconset resource="cvnirc-gui.qrc">
      <normaloff>:/icons/32px-disconnect.png</normaloff>:/icons/32px-disconnect.png</iconset>
    </property>
    <property name="text">
