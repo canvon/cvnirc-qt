@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QSocketNotifier>
+#include <QByteArray>
 
 class TerminalUI : public QObject
 {
@@ -17,6 +18,7 @@ class TerminalUI : public QObject
     QFile inFile, outFile;
     QTextStream in, out;
     QSocketNotifier inNotify;
+    QByteArray rlPromptHolder;
 public:
     enum class UserInputState {
         General,
@@ -29,6 +31,7 @@ public:
     explicit TerminalUI(FILE *inFileC, FILE *outFileC, QObject *parent = 0);
 
     void promptConnect();
+    void updateGeneralPrompt();
     UserInputState userinputState();
 
 signals:
@@ -36,6 +39,7 @@ signals:
 public slots:
     void queueUserInput(const QString &line);
     void userInput(const QString &line);
+    bool cycleCurrentContext(int count);
     void outLine(const QString &line, IRCCoreContext *context = nullptr);
     void outSendingLine(const QString &rawLine, IRCCoreContext *context = nullptr);
     void outReceivedLine(const QString &rawLine, IRCCoreContext *context = nullptr);

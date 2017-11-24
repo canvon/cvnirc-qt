@@ -34,6 +34,36 @@ void TerminalUI::promptConnect()
     _setUserInputState(UserInputState::Host);
 }
 
+void TerminalUI::updateGeneralPrompt()
+{
+    if (_userInputState != UserInputState::General)
+        return;
+
+    if (currentContext == nullptr) {
+        rl_set_prompt("cvnirc> ");
+    }
+    else {
+        QString info = currentContext->outgoingTarget();
+        if (info.isEmpty()) {
+            switch (currentContext->type()) {
+            case IRCCoreContext::Type::Server:
+                info = "Server";
+                break;
+            default:
+                info = "???";
+                break;
+            }
+        }
+
+        // Prepend server information if multiple IRC protocol clients.
+        if (irc.ircProtoClients().length() > 1)
+            info.prepend(currentContext->ircProtoClient()->hostRequestedLast() + "/");
+
+        rlPromptHolder = ("[" + info + "] ").toUtf8();
+        rl_set_prompt(rlPromptHolder.constData());
+    }
+}
+
 TerminalUI::UserInputState TerminalUI::userinputState()
 {
     return _userInputState;
@@ -57,7 +87,7 @@ void TerminalUI::_setUserInputState(UserInputState newState)
 
     switch (newState) {
     case UserInputState::General:
-        rl_set_prompt("cvnirc> ");
+        updateGeneralPrompt();
         break;
     case UserInputState::Host:
         prevValue = client->hostRequestNext();
@@ -171,6 +201,83 @@ void TerminalUI::userInput(const QString &line)
         cmdLayer.processUserInput(line, currentContext);
         break;
     }
+}
+
+bool TerminalUI::cycleCurrentContext(int count)
+{
+    // Request for zero cyclings?
+    if (count == 0)
+        // Ignore.
+        return true;
+
+    auto &contextList(irc.contexts());
+    if (contextList.isEmpty()) {
+        outLine("Cycle current context: No contexts available!");
+        return false;
+    }
+
+    auto start = currentContext;
+    if (start == nullptr) {
+        if (count > 0) {
+            start = contextList.front();
+            count--;
+        }
+        else if (count < 0) {
+            start = contextList.back();
+            count++;
+        }
+        else
+            throw std::runtime_error("Cycle current context: Internal error, code path should not have been taken");
+    }
+
+    if (count == 0) {
+        currentContext = start;
+        updateGeneralPrompt();
+        rl_redisplay();
+        return true;
+    }
+
+    auto clBegin = contextList.begin();
+    auto clEnd   = contextList.end();
+    auto iter = clBegin;
+    for (; iter < clEnd; iter++) {
+        if (*iter == start)
+            break;
+    }
+    if (iter == clEnd) {
+        outLine("Cycle current context: Current context not found!");
+        return false;
+    }
+
+    if (count > 0) {
+        while (count-- > 0) {
+            if (++iter == clEnd)
+                iter = clBegin;
+        }
+    }
+    else if (count < 0) {
+        while (count++ < 0) {
+            if (iter == clBegin) {
+                iter = clEnd;
+                iter--;
+            }
+            else {
+                iter--;
+            }
+        }
+    }
+    else
+        throw std::runtime_error("Cycle current context: Internal error, code path should not have been taken #2");
+
+    if (!(clBegin <= iter && iter < clEnd)) {
+        outLine("Cycle current context: Iterator out of range after cycling... Aborting update.");
+        return false;
+    }
+
+    currentContext = *iter;
+    updateGeneralPrompt();
+    rl_redisplay();
+    return true;
 }
 
 void TerminalUI::outLine(const QString &line, IRCCoreContext *context)

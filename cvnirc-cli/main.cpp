@@ -24,13 +24,32 @@ static void cb_linehandler(char *lineC)
     pUI->queueUserInput(line);
 }
 
+int cycle_context(int count, int /* key */)
+{
+    if (!pUI->cycleCurrentContext(count))
+        return 1;
+
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
     TerminalUI ui(stdin, stdout);
     pUI = &ui;
 
+    // Set up GNU readline library.
+    //
+    // Use the alternate interface.
     rl_callback_handler_install("cvnirc> ", cb_linehandler);
+    //
+    // Disable tab completion on file names.
+    rl_bind_key('\t', rl_insert);
+    //
+    // Allow easy current context switching.
+    rl_bind_key(24 /* ^X */, cycle_context);
+
+    // Start prompting for connection information.
     ui.promptConnect();
 
     return a.exec();
