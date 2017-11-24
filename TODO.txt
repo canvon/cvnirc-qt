@@ -1,6 +1,11 @@
 TODO ideas for cvnirc-qt by canvon
 ==================================
 
+ * Refactor the context stringification from the GUI to the core,
+   so that the CLI can use it as well, and in a self-consistent way
+   across all of cvnirc-qt.
+   (2017-11-24)
+
  * Have some output in the Main tab again (on a really high level); like
    creation/deletion of IRCProtoClient instances, contexts or the like.
    Perhaps also connection states without all the raw or partially-parsed
@@ -81,6 +86,15 @@ cvnirc-cli:
    Before, the cli is ~useless! ... Perhaps it can be done while integrating
    multi-server support...
    (2017-11-23)
+
+ * Implement changing context via ^X, like Irssi does.
+   (2017-11-24)
+
+ * When changing context is supported, automatically switch to new context
+   when it gets created. This isn't implemented at the moment just because
+   of fear of some query "hijacking" the prompt, with no possibility
+   to go back...
+   (2017-11-24)
 
  * Have a more helpful replacement for the missing readline7 function?
    Perhaps clear the line by outputting \r + spaces x (terminal width - 1)
