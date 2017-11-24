@@ -62,10 +62,6 @@ TODO ideas for cvnirc-qt by canvon
 cvnirc-gui:
 -----------
 
- * Fix missing toolbar icons, on Debian 8?, and/or later if we should
-   build/run on Windows?
-   (2017-11-23)
-
 
 cvnirc-cli:
 -----------
