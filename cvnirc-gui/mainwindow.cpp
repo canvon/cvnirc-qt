@@ -7,6 +7,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     irc(this),
+    cmdLayer(&irc, this),
     ui(new Ui::MainWindow),
     baseWindowTitle("cvnirc-qt")
 {
@@ -248,36 +249,13 @@ void MainWindow::on_action_Disconnect_triggered()
 void MainWindow::on_pushButtonUserInput_clicked()
 {
     QString line = ui->lineEditUserInput->text();
-    if (line.length() < 1)
-        return;
-
-    bool isCommand = false;
-    if (line[0] == '/') {
-        if (line.length() == 1) {
-            line.remove(0, 1);
-        }
-        else if (line[1] == ' ') {
-            line.remove(0, 2);
-        }
-        else {
-            isCommand = true;
-            line.remove(0, 1);
-        }
-    }
-
     IRCCoreContext *context = contextFromUI();
     if (context == nullptr) {
         ui->logBufferMain->appendLine("Error getting context. Don't know to where I should send!");
         return;
     }
 
-    if (!isCommand) {
-        context->sendChatMessage(line);
-    }
-    else {
-        // TODO: Pre-parse as a command, to have local meanings as well.
-        context->ircProtoClient()->sendRaw(line);
-    }
+    cmdLayer.processUserInput(line, context);
 
     ui->lineEditUserInput->setText("");
 }

@@ -5,6 +5,7 @@
 #include <QStringList>
 
 #include "irccore.h"
+#include "commandlayer.h"
 
 namespace Ui {
 class MainWindow;
@@ -28,6 +29,7 @@ public:
     void applyTabNameComponents(LogBuffer *logBuf, const QStringList &components);
 
     IRCCore irc;
+    CommandLayer cmdLayer;
 
 public slots:
     void updateState();
