@@ -32,8 +32,8 @@ void CommandLayer::processCommand(Command *cmd, IRCCoreContext *context)
         throw std::runtime_error("Command layer, process command: Command group \"IRC\" is missing!");
 
     const QString &cmdName(cmd->tokens()[0]);
-    CommandDefinition *cmdDef = group->commandDefinition(cmdName);
-    if (cmdDef == nullptr)
+    CommandGroup::commandDefinition_ptr cmdDef = group->commandDefinition(cmdName);
+    if (!cmdDef)
         throw std::runtime_error(std::string("Command layer, process command: Command \"") + cmdName.toStdString() + "\" not found");
 
     cmdDef->definition()(cmd, context);
