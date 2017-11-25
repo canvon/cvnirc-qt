@@ -65,16 +65,23 @@ QString IRCCoreContext::disambiguator() const
         needConnectionDisambiguation = irc->ircProtoClients().length() > 1;
     }
 
-    QString info = _outgoingTarget;
-    if (info.isEmpty()) {
-        switch (_type) {
-        case IRCCoreContext::Type::Server:
-            info = "Server";
-            break;
-        default:
-            info = "???";
-            break;
-        }
+    QString info;
+    switch (_type) {
+    case IRCCoreContext::Type::Server:
+        info = "(Server)";
+        break;
+    case IRCCoreContext::Type::Channel:
+        if (_outgoingTarget.isEmpty())
+            info = "(Channel unknown)";
+        else
+            info = _outgoingTarget;  // Be compact, as channel name should be starting with a disambiguating character anyhow.
+        break;
+    case IRCCoreContext::Type::Query:
+        if (_outgoingTarget.isEmpty())
+            info = "(Query unknown)";
+        else
+            info = "Q:" + _outgoingTarget;
+        break;
     }
 
     if (needConnectionDisambiguation) {
