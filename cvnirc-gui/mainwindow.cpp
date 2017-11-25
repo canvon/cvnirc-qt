@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->logBufferProto->setType(LogBuffer::Type::Protocol);
 
     // Make some commands available to the user.
-    cmdLayer.rootCommandGroup().addSubGroup(new IRCCoreCommandGroup(irc, "IRC"));
+    cmdLayer.rootCommandGroup().addSubGroup(new IRCCoreCommandGroup(&irc, "IRC"));
     // TODO: Also register UI-specific commands.
 
     connect(&irc, &IRCCore::createdContext, this, &MainWindow::handle_irc_createdContext);
