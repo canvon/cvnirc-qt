@@ -42,8 +42,9 @@ void IRCCoreCommandGroup::cmd_raw(Command *cmd, IRCCoreContext *context)
 
 void IRCCoreCommandGroup::registerAllCommandDefinitions()
 {
+    using namespace std::placeholders;
     registerCommandDefinition({ "raw",
-        &IRCCoreCommandGroup::cmd_raw,
-        &IRCCoreCommandGroup::cmdhelp_raw,
+        std::bind(&IRCCoreCommandGroup::cmd_raw, this, _1, _2),
+        std::bind(&IRCCoreCommandGroup::cmdhelp_raw, this)
     });
 }
