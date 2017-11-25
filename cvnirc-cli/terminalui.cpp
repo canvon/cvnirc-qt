@@ -283,6 +283,8 @@ void TerminalUI::outLine(const QString &line, IRCCoreContext *context)
 #else
     rl_clear_visible_line();
 #endif
+    if (context != nullptr)
+        out << context->disambiguator() << " ";
     out << line << endl;
     rl_on_new_line();
     rl_redisplay();
