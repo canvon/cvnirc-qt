@@ -36,7 +36,12 @@ void IRCCoreCommandGroup::cmd_raw(Command *cmd, IRCCoreContext *context)
     if (context == nullptr)
         throw std::invalid_argument("IRCCore command raw: Context can't be null");
 
-    context->ircProtoClient()->sendRaw(cmd->tokens().join(' '));
+    QStringList msgTokens = cmd->tokens();
+    if (msgTokens.isEmpty())
+        throw std::invalid_argument("IRCCore command raw: Command tokens missing");
+    msgTokens.removeFirst();
+
+    context->ircProtoClient()->sendRaw(msgTokens.join(' '));
 }
 
 
