@@ -21,6 +21,7 @@ private:
     commandMap_type  _commandDefinitions;
     groupMap_type    _subGroups;
 
+protected:
     bool _registeredOnce = false;
 
 public:

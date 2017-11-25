@@ -42,6 +42,7 @@ void CommandGroup::registerAllCommandDefinitionsOnce()
         return;
 
     registerAllCommandDefinitions();
+    // Set here, too, in case the overrider forgets it.
     _registeredOnce = true;
 }
 
@@ -85,4 +86,6 @@ RootCommandGroup::RootCommandGroup(QObject *parent) :
 void RootCommandGroup::registerAllCommandDefinitions()
 {
     // Nothing to be done here.
+
+    _registeredOnce = true;
 }

@@ -47,4 +47,6 @@ void IRCCoreCommandGroup::registerAllCommandDefinitions()
         std::bind(&IRCCoreCommandGroup::cmd_raw, this, _1, _2),
         std::bind(&IRCCoreCommandGroup::cmdhelp_raw, this)
     });
+
+    _registeredOnce = true;
 }
