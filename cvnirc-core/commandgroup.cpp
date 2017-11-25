@@ -16,12 +16,12 @@ const CommandGroup::commandMap_type &CommandGroup::commandDefinitions() const
     return _commandDefinitions;
 }
 
-CommandDefinition *CommandGroup::commandDefinition(const QString &lookupName)
+CommandGroup::commandDefinition_ptr CommandGroup::commandDefinition(const QString &lookupName)
 {
     if (!_commandDefinitions.contains(lookupName))
         return nullptr;
 
-    return &_commandDefinitions.value(lookupName);
+    return _commandDefinitions.value(lookupName);
 }
 
 void CommandGroup::registerCommandDefinition(const CommandDefinition &cmdDef)
@@ -29,7 +29,7 @@ void CommandGroup::registerCommandDefinition(const CommandDefinition &cmdDef)
     // TODO: Have checks whether something already exists?
     // But what to do, then? Surely don't silently crash!
     // So, silently replace, for now. ...
-    _commandDefinitions[cmdDef.name()] = cmdDef;
+    _commandDefinitions[cmdDef.name()] = std::make_shared<CommandDefinition>(cmdDef);
 }
 
 const CommandGroup::groupMap_type &CommandGroup::subGroups() const
