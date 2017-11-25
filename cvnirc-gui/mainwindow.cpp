@@ -1,19 +1,24 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "connectdialog.h"
+#include "irccorecommandgroup.h"
 
 #include <QMetaEnum>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     irc(this),
-    cmdLayer(&irc, this),
+    cmdLayer(this),
     ui(new Ui::MainWindow),
     baseWindowTitle("cvnirc-qt")
 {
     ui->setupUi(this);
 
     ui->logBufferProto->setType(LogBuffer::Type::Protocol);
+
+    // Make some commands available to the user.
+    cmdLayer.rootCommandGroup().addSubGroup(new IRCCoreCommandGroup(irc, "IRC"));
+    // TODO: Also register UI-specific commands.
 
     connect(&irc, &IRCCore::createdContext, this, &MainWindow::handle_irc_createdContext);
     //connect(&irc, &IRCProtoClient::notifyUser, ui->logBufferMain, &LogBuffer::appendLine);
@@ -234,7 +239,13 @@ void MainWindow::on_pushButtonUserInput_clicked()
         return;
     }
 
-    cmdLayer.processUserInput(line, context);
+    try {
+        cmdLayer.processUserInput(line, context);
+    }
+    catch (const std::exception &ex) {
+        context->notifyUser(QString("Error processing user input: ") + ex.what());
+        return;
+    }
 
     ui->lineEditUserInput->setText("");
 }

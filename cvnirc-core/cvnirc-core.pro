@@ -31,7 +31,10 @@ SOURCES += irccore.cpp \
     ircprotomessage.cpp \
     irccorecontext.cpp \
     commandlayer.cpp \
-    command.cpp
+    command.cpp \
+    commandgroup.cpp \
+    commanddefinition.cpp \
+    irccorecommandgroup.cpp
 
 HEADERS += cvnirc-core_global.h \
     irccore.h \
@@ -39,7 +42,10 @@ HEADERS += cvnirc-core_global.h \
     ircprotomessage.h \
     irccorecontext.h \
     commandlayer.h \
-    command.h
+    command.h \
+    commandgroup.h \
+    commanddefinition.h \
+    irccorecommandgroup.h
 
 DISTFILES += \
     ../README.txt \

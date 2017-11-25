@@ -5,6 +5,7 @@
 
 #include <QObject>
 #include "command.h"
+#include "commandgroup.h"
 
 class IRCCore;
 class IRCCoreContext;
@@ -12,17 +13,18 @@ class IRCCoreContext;
 class CVNIRCCORESHARED_EXPORT CommandLayer : public QObject
 {
     Q_OBJECT
-    IRCCore *_irc;
-public:
-    explicit CommandLayer(IRCCore *irc, QObject *parent = 0);
+    CommandGroup _rootCommandGroup;
 
-    IRCCore *irc();
-    const IRCCore *irc() const;
+public:
+    explicit CommandLayer(QObject *parent = 0);
+
+    CommandGroup &rootCommandGroup();
+    const CommandGroup &rootCommandGroup() const;
 
 signals:
 
 public slots:
-    void processCommand(const Command &cmd, IRCCoreContext *context = nullptr);
+    void processCommand(Command *cmd, IRCCoreContext *context = nullptr);
     void processUserInput(const QString &line, IRCCoreContext *context = nullptr);
 };
 

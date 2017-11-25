@@ -1,26 +1,42 @@
 #include "commandlayer.h"
 
 #include "irccorecontext.h"
+#include <stdexcept>
 
-CommandLayer::CommandLayer(IRCCore *irc, QObject *parent) :
-    QObject(parent), _irc(irc)
+CommandLayer::CommandLayer(QObject *parent) :
+    QObject(parent), _rootCommandGroup(QString(), this)
 {
 
 }
 
-IRCCore *CommandLayer::irc()
+CommandGroup &CommandLayer::rootCommandGroup()
 {
-    return _irc;
+    return _rootCommandGroup;
 }
 
-const IRCCore *CommandLayer::irc() const
+const CommandGroup &CommandLayer::rootCommandGroup() const
 {
-    return _irc;
+    return _rootCommandGroup;
 }
 
-void CommandLayer::processCommand(const Command &cmd, IRCCoreContext *context)
+void CommandLayer::processCommand(Command *cmd, IRCCoreContext *context)
 {
+    if (cmd == nullptr)
+        throw std::invalid_argument("Command layer, process command: Command object can't be null");
 
+    if (cmd->tokens().isEmpty())
+        throw std::invalid_argument("Command layer, process command: Command object is invalid: Can't be empty");
+
+    CommandGroup *group = _rootCommandGroup.subGroup("IRC");
+    if (group == nullptr)
+        throw std::runtime_error("Command layer, process command: Command group \"IRC\" is missing!");
+
+    const QString &cmdName(cmd->tokens()[0]);
+    CommandDefinition *cmdDef = group->commandDefinition(cmdName);
+    if (cmdDef == nullptr)
+        throw std::runtime_error(std::string("Command layer, process command: Command \"") + cmdName.toStdString() + "\" not found");
+
+    cmdDef->definition()(cmd, context);
 }
 
 void CommandLayer::processUserInput(const QString &line, IRCCoreContext *context)
@@ -51,6 +67,7 @@ void CommandLayer::processUserInput(const QString &line, IRCCoreContext *context
     }
     else {
         // TODO: Pre-parse as a command, to have local meanings as well.
-        context->ircProtoClient()->sendRaw(lineCopy);
+        Command cmd(lineCopy);
+        processCommand(&cmd, context);
     }
 }
