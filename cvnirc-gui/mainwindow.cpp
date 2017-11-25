@@ -145,33 +145,12 @@ IRCCoreContext *MainWindow::contextFromUI()
 QStringList MainWindow::tabNameComponents(const LogBuffer &logBuf)
 {
     QStringList ret;
-    bool needConnectionDisambiguation = irc.ircProtoClients().length() > 1;
 
     for (IRCCoreContext *context : logBuf.contexts()) {
         if (context == nullptr)
             throw std::runtime_error("MainWindow::tabNameComponents(): Got context that is a null pointer, which is invalid here");
 
-        QString tabName = context->outgoingTarget();
-        if (tabName.isEmpty()) {
-            switch (context->type()) {
-            case IRCCoreContext::Type::Server:
-                tabName = "Server";
-                break;
-            default:
-                tabName = "???";
-                break;
-            }
-        }
-
-        if (needConnectionDisambiguation) {
-            // TODO: Change to connection tag later when we have them.
-            // Otherwise, two connections to the same server
-            // will look the same, that is, will not be disambiguated.
-            QString serverName = context->ircProtoClient()->hostRequestedLast();
-            if (serverName.isEmpty())
-                serverName = "???";
-            tabName.prepend(serverName + "/");
-        }
+        QString tabName = context->disambiguator();
 
         ret.append(tabName);
     }

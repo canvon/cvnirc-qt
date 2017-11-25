@@ -43,23 +43,7 @@ void TerminalUI::updateGeneralPrompt()
         rl_set_prompt("cvnirc> ");
     }
     else {
-        QString info = currentContext->outgoingTarget();
-        if (info.isEmpty()) {
-            switch (currentContext->type()) {
-            case IRCCoreContext::Type::Server:
-                info = "Server";
-                break;
-            default:
-                info = "???";
-                break;
-            }
-        }
-
-        // Prepend server information if multiple IRC protocol clients.
-        if (irc.ircProtoClients().length() > 1)
-            info.prepend(currentContext->ircProtoClient()->hostRequestedLast() + "/");
-
-        rlPromptHolder = ("[" + info + "] ").toUtf8();
+        rlPromptHolder = ("[" + currentContext->disambiguator() + "] ").toUtf8();
         rl_set_prompt(rlPromptHolder.constData());
     }
 }

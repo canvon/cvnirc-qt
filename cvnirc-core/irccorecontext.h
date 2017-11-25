@@ -35,6 +35,8 @@ public:
     Type type() const;
     const QString &outgoingTarget() const;
 
+    QString disambiguator() const;
+
 signals:
     void connectionStateChanged(IRCCoreContext *context = nullptr);
     void notifyUser(const QString &line, IRCCoreContext *context = nullptr);

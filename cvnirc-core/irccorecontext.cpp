@@ -1,11 +1,15 @@
 #include "irccorecontext.h"
 
 #include "irccore.h"
+#include <stdexcept>
 
 
 IRCCoreContext::IRCCoreContext(IRCProtoClient *ircProtoClient, IRCCoreContext::Type type, const QString &outgoingTarget, QObject *parent) :
     QObject(parent), _ircProtoClient(ircProtoClient), _type(type), _outgoingTarget(outgoingTarget)
 {
+    if (_ircProtoClient == nullptr)
+        throw std::invalid_argument("IRCCoreContext ctor: IRC protocol client can't be null");
+
     if (type == Type::Server) {
         connect(ircProtoClient, &IRCProtoClient::connectionStateChanged, this, &IRCCoreContext::handle_connectionStateChanged);
         connect(ircProtoClient, &IRCProtoClient::notifyUser, this, &IRCCoreContext::handle_notifyUser);
@@ -46,6 +50,44 @@ IRCCoreContext::Type IRCCoreContext::type() const
 const QString &IRCCoreContext::outgoingTarget() const
 {
     return _outgoingTarget;
+}
+
+QString IRCCoreContext::disambiguator() const
+{
+    auto *irc = dynamic_cast<IRCCore *>(parent());
+    bool needConnectionDisambiguation;
+    if (irc == nullptr) {
+        qDebug() << Q_FUNC_INFO << "Can't get IRCCore via QObject parent!";
+        needConnectionDisambiguation = true;  // Better safe than sorry.
+    }
+    else {
+        // Only disambiguate connection when we have multiple protocol clients.
+        needConnectionDisambiguation = irc->ircProtoClients().length() > 1;
+    }
+
+    QString info = _outgoingTarget;
+    if (info.isEmpty()) {
+        switch (_type) {
+        case IRCCoreContext::Type::Server:
+            info = "Server";
+            break;
+        default:
+            info = "???";
+            break;
+        }
+    }
+
+    if (needConnectionDisambiguation) {
+        // TODO: Change to connection tag later when we have them.
+        // Otherwise, two connections to the same server
+        // will look the same, that is, will not be disambiguated.
+        QString serverName = _ircProtoClient->hostRequestedLast();
+        if (serverName.isEmpty())
+            serverName = "???";
+        info.prepend(serverName + "/");
+    }
+
+    return info;
 }
 
 void IRCCoreContext::receiveIRCProtoMessage(IRCProtoMessage &msg)
