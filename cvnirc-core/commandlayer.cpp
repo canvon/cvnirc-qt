@@ -4,17 +4,17 @@
 #include <stdexcept>
 
 CommandLayer::CommandLayer(QObject *parent) :
-    QObject(parent), _rootCommandGroup(QString(), this)
+    QObject(parent), _rootCommandGroup(this)
 {
 
 }
 
-CommandGroup &CommandLayer::rootCommandGroup()
+RootCommandGroup &CommandLayer::rootCommandGroup()
 {
     return _rootCommandGroup;
 }
 
-const CommandGroup &CommandLayer::rootCommandGroup() const
+const RootCommandGroup &CommandLayer::rootCommandGroup() const
 {
     return _rootCommandGroup;
 }

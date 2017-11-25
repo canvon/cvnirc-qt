@@ -23,7 +23,7 @@ public:
     QStringList cmdhelp_raw();
     void cmd_raw(Command *cmd, IRCCoreContext *context);
 
-    void registerAllCommandDefinitions();
+    void registerAllCommandDefinitions() override;
 };
 
 #endif // IRCCORECOMMANDGROUP_H

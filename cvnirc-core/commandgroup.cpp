@@ -3,7 +3,11 @@
 CommandGroup::CommandGroup(const QString &groupName, QObject *parent) :
     QObject(parent), _groupName(groupName)
 {
-
+    // This would have been too easy:
+    //registerAllCommandDefinitions();
+    // It turns out that, in the ctor, the final overrider of the ctor's class
+    // is used (which does not exist in this case as it is purely virtual
+    // so fails at link time; but it wouldn't have worked as expected anyhow)...
 }
 
 const QString &CommandGroup::groupName()
@@ -30,6 +34,15 @@ void CommandGroup::registerCommandDefinition(const CommandDefinition &cmdDef)
     // But what to do, then? Surely don't silently crash!
     // So, silently replace, for now. ...
     _commandDefinitions[cmdDef.name()] = std::make_shared<CommandDefinition>(cmdDef);
+}
+
+void CommandGroup::registerAllCommandDefinitionsOnce()
+{
+    if (_registeredOnce)
+        return;
+
+    registerAllCommandDefinitions();
+    _registeredOnce = true;
 }
 
 const CommandGroup::groupMap_type &CommandGroup::subGroups() const
@@ -59,4 +72,17 @@ void CommandGroup::addSubGroup(CommandGroup *group)
     // TODO: Have checks ... (see comment in command registration)
     _subGroups[group->groupName()] = group;
     group->setParent(this);
+    group->registerAllCommandDefinitionsOnce();
+}
+
+
+RootCommandGroup::RootCommandGroup(QObject *parent) :
+    CommandGroup(QString(), parent)
+{
+
+}
+
+void RootCommandGroup::registerAllCommandDefinitions()
+{
+    // Nothing to be done here.
 }

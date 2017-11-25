@@ -21,6 +21,8 @@ private:
     commandMap_type  _commandDefinitions;
     groupMap_type    _subGroups;
 
+    bool _registeredOnce = false;
+
 public:
     explicit CommandGroup(const QString &groupName, QObject *parent = nullptr);
 
@@ -29,6 +31,8 @@ public:
     const commandMap_type &commandDefinitions() const;
     commandDefinition_ptr commandDefinition(const QString &lookupName);
     void registerCommandDefinition(const CommandDefinition &cmdDef);
+    virtual void registerAllCommandDefinitions() = 0;
+    void registerAllCommandDefinitionsOnce();
 
     const groupMap_type &subGroups() const;
     CommandGroup *subGroup(const QString &lookupName);
@@ -37,6 +41,15 @@ public:
 signals:
 
 public slots:
+};
+
+class CVNIRCCORESHARED_EXPORT RootCommandGroup : public CommandGroup
+{
+    Q_OBJECT
+public:
+    explicit RootCommandGroup(QObject *parent = nullptr);
+
+    void registerAllCommandDefinitions() override;
 };
 
 #endif // COMMANDGROUP_H

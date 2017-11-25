@@ -13,13 +13,13 @@ class IRCCoreContext;
 class CVNIRCCORESHARED_EXPORT CommandLayer : public QObject
 {
     Q_OBJECT
-    CommandGroup _rootCommandGroup;
+    RootCommandGroup _rootCommandGroup;
 
 public:
     explicit CommandLayer(QObject *parent = 0);
 
-    CommandGroup &rootCommandGroup();
-    const CommandGroup &rootCommandGroup() const;
+    RootCommandGroup &rootCommandGroup();
+    const RootCommandGroup &rootCommandGroup() const;
 
 signals:
 
