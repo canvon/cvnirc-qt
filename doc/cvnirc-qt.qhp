@@ -16,6 +16,7 @@
             </section>
         </toc>
         <files>
+            <file>style.css</file>
             <file>*.html</file>
         </files>
     </filterSection>

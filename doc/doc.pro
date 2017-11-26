@@ -29,6 +29,7 @@ TEMPLATE = aux
 # Using a "custom compiler"
 QHP_FILES += cvnirc-qt.qhp
 QHP_DEPENDS_SOURCE += \
+    style.css \
     index.html \
     build.html \
     features.html
