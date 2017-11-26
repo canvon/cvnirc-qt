@@ -1,6 +1,7 @@
 #include "terminalui.h"
 
 #include <QMetaEnum>
+#include "irccorecommandgroup.h"
 
 #include <stdio.h>
 #include <readline/readline.h>
@@ -8,7 +9,7 @@
 TerminalUI::TerminalUI(FILE *inFileC, FILE *outFileC, QObject *parent) :
     QObject(parent),
     irc(this),
-    cmdLayer(&irc, this),
+    cmdLayer(this),
     inFile(this), outFile(this),
     in((inFile.open(inFileC, QIODevice::ReadOnly), &inFile)),
     out((outFile.open(outFileC, QIODevice::WriteOnly), &outFile)),
@@ -19,6 +20,10 @@ TerminalUI::TerminalUI(FILE *inFileC, FILE *outFileC, QObject *parent) :
     connect(&irc, &IRCCore::createdContext, this, &TerminalUI::handle_irc_createdContext);
 
     out << "Welcome to cvnirc-qt-cli." << endl;
+
+    // Make some commands available to the user.
+    cmdLayer.rootCommandGroup().addSubGroup(new IRCCoreCommandGroup(&irc, "IRC"));
+    // TODO: Also register UI-specific commands.
 
     currentContext = irc.createIRCProtoClient();
 
@@ -187,7 +192,13 @@ void TerminalUI::userInput(const QString &line)
         client->reconnectToIRCServer();
         break;
     case UserInputState::General:
-        cmdLayer.processUserInput(line, currentContext);
+        try {
+            cmdLayer.processUserInput(line, currentContext);
+        }
+        catch (const std::exception &ex) {
+            outLine(QString("Error processing user input: ") + ex.what(), currentContext);
+            return;
+        }
         break;
     }
 }
