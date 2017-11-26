@@ -1,11 +1,6 @@
 TODO ideas for cvnirc-qt by canvon
 ==================================
 
- * Refactor the context stringification from the GUI to the core,
-   so that the CLI can use it as well, and in a self-consistent way
-   across all of cvnirc-qt.
-   (2017-11-24)
-
  * Interpret protocol command names case-insensitively? That is,
    treat PRIVMSG and privmsg the same...
    (2017-11-24)
@@ -29,9 +24,6 @@ TODO ideas for cvnirc-qt by canvon
    (2017-11-24)
 
  * Further test/improve the multi-server support.
-   (2017-11-20/-21)
-
- * Modify cvnirc-cli, too, to use the multi-server supporting machinery.
    (2017-11-20/-21)
 
  * Have/support shorter timestamps, but this will likely require
@@ -85,12 +77,6 @@ cvnirc-gui:
 cvnirc-cli:
 -----------
 
- * Implement "chat support", that is, the ability to write a line of text
-   and it being submitted automatically with some command to some target.
-   Before, the cli is ~useless! ... Perhaps it can be done while integrating
-   multi-server support...
-   (2017-11-23)
-
  * Implement changing context via ^X, like Irssi does.
    (2017-11-24)
 
@@ -102,11 +88,6 @@ cvnirc-cli:
    of fear of some query "hijacking" the prompt, with no possibility
    to go back...
    (2017-11-24)
-
- * Have a more helpful replacement for the missing readline7 function?
-   Perhaps clear the line by outputting \r + spaces x (terminal width - 1)
-   + \r?
-   (2017-11-23)
 
  * Add custom completer to GNU readline UI.
    (2017-11-21/-22)
