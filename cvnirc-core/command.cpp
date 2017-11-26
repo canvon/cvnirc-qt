@@ -40,12 +40,15 @@ QStringList Command::splitLine(const QString &line)
         else if (c.isSpace()) {
             if (isOnSpace)
                 continue;
+            isOnSpace = true;
 
             ret.append(partialToken);
             partialToken.clear();
-            isOnSpace = true;
+            tokenStarted = false;
         }
         else {
+            isOnSpace = false;
+
             if (c == '"') {
                 isQuote = true;
                 tokenStarted = true;
