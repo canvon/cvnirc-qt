@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QtHelpProject version="1.0">
+    <namespace>de.canvon.cvnirc-qt.0.5</namespace>
+    <virtualFolder>doc</virtualFolder>
+    <customFilter name="cvnirc-qt 0.5">
+        <filterAttribute>cvnirc-qt</filterAttribute>
+        <filterAttribute>0.5</filterAttribute>
+    </customFilter>
+    <filterSection>
+        <filterAttribute>cvnirc-qt</filterAttribute>
+        <filterAttribute>0.5</filterAttribute>
+        <toc>
+            <section title="cvnirc-qt Manual" ref="index.html">
+                <section title="How to build" ref="build.html"/>
+                <section title="Features"     ref="features.html"/>
+            </section>
+        </toc>
+        <files>
+            <file>*.html</file>
+        </files>
+    </filterSection>
+</QtHelpProject>
