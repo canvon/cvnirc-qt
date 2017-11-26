@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <readline/readline.h>
+#include <readline/history.h>
 
 TerminalUI *pUI;
 
@@ -11,6 +12,7 @@ static void cb_linehandler(char *lineC)
 {
     QString line(lineC);
     if (lineC != nullptr) {
+        add_history(lineC);
         free(lineC);
         lineC = nullptr;
     }
