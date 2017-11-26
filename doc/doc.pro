@@ -28,10 +28,13 @@ TEMPLATE = aux
 # The help
 # Using a "custom compiler"
 QHP_FILES += cvnirc-qt.qhp
-QHP_DEPENDS += \
+QHP_DEPENDS_SOURCE += \
     index.html \
     build.html \
     features.html
+for(src, QHP_DEPENDS_SOURCE) {
+    QHP_DEPENDS += $$PWD/$$src
+}
 
 qhp_qhc.input = QHP_FILES
 qhp_qhc.depends = $$QHP_DEPENDS
@@ -40,4 +43,4 @@ qhp_qhc.commands = qhelpgenerator ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
 qhp_qhc.CONFIG = no_link target_predeps
 QMAKE_EXTRA_COMPILERS += qhp_qhc
 
-DISTFILES += $$QHP_DEPENDS
+DISTFILES += $$QHP_DEPENDS_SOURCE
