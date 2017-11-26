@@ -47,6 +47,7 @@ private slots:
 
     void handle_irc_createdContext(IRCCoreContext *context);
     //void handle_irc_receivedMessage(IRCProtoMessage &msg);
+    void handle_helpViewer_errorOccurred(QProcess::ProcessError err);
 
 private:
     Ui::MainWindow *ui;

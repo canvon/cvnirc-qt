@@ -35,6 +35,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //        &irc, static_cast<void (IRCProtoClient::*)()>(&IRCProtoClient::disconnectFromIRCServer));
     // ^ The cast is necessary to select one of the overloaded methods.
 
+    connect(&_helpViewer, &QProcess::errorOccurred, this, &MainWindow::handle_helpViewer_errorOccurred);
+
     // Immediately let the user type commands.
     ui->lineEditUserInput->setFocus();
 
@@ -309,4 +311,16 @@ void MainWindow::on_actionLocalOnlineHelp_triggered()
 
     ui->statusBar->showMessage("Starting help viewer...");
     _helpViewer.start("assistant", { "-collectionFile", helpFileName }, QIODevice::NotOpen);
+}
+
+void MainWindow::handle_helpViewer_errorOccurred(QProcess::ProcessError err)
+{
+    ui->statusBar->showMessage(QString("Help viewer: Process error ")
+#ifdef CVN_HAVE_Q_ENUM
+        + QMetaEnum::fromType<QProcess::ProcessError>().valueToKey(err)
+#else
+        + QString::number(err)
+#endif
+        + ": " + _helpViewer.errorString()
+    );
 }
