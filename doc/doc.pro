@@ -43,4 +43,16 @@ qhp_qhc.commands = qhelpgenerator ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
 qhp_qhc.CONFIG = no_link target_predeps
 QMAKE_EXTRA_COMPILERS += qhp_qhc
 
+# The help collection file
+QHCP_FILES += cvnirc-qt-collection.qhcp
+QHCP_DEPENDS += \
+    cvnirc-qt.qch
+
+qhcp_qhc.input = QHCP_FILES
+qhcp_qhc.depends = $$QHCP_DEPENDS
+qhcp_qhc.output = ${QMAKE_FILE_BASE}.qch
+qhcp_qhc.commands = cp ${QMAKE_FILE_NAME} ${QMAKE_FILE_BASE}.qhcp && qcollectiongenerator ${QMAKE_FILE_BASE}.qhcp -o ${QMAKE_FILE_OUT}
+qhcp_qhc.CONFIG = no_link target_predeps
+QMAKE_EXTRA_COMPILERS += qhcp_qhc
+
 DISTFILES += $$QHP_DEPENDS_SOURCE
