@@ -4,9 +4,12 @@
 #include "irccorecommandgroup.h"
 
 #include <QMetaEnum>
+#include <QFileInfo>
+#include <QProcess>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
+    _helpViewer(this),
     irc(this),
     cmdLayer(this),
     ui(new Ui::MainWindow),
@@ -267,4 +270,43 @@ void MainWindow::handle_irc_createdContext(IRCCoreContext *context)
         connect(context->ircProtoClient(), &IRCProtoClient::hostPortRequestedLastChanged,
                 this, &MainWindow::updateState);
     }
+}
+
+void MainWindow::on_actionLocalOnlineHelp_triggered()
+{
+    if (_helpViewer.state() == QProcess::Running) {
+        ui->statusBar->showMessage("Help viewer already running");
+        return;
+    }
+
+    QString binPath = qApp->applicationDirPath();
+    if (binPath.isEmpty()) {
+        ui->statusBar->showMessage("Can't determine application directory");
+        return;
+    }
+
+    QString helpFileBasename = "cvnirc-qt-collection.qch";
+    QString helpFileName;
+    QStringList locations = {
+        ".",
+        "../doc",
+        "/usr/local/share/cvnirc-qt",
+    };
+
+    for (QString location : locations) {
+        QString fileName = (location.startsWith("/") ? "" : binPath + "/") +
+            location + "/" + helpFileBasename;
+        if (QFileInfo::exists(fileName)) {
+            helpFileName = fileName;
+            break;
+        }
+    }
+
+    if (helpFileName.isEmpty()) {
+        ui->statusBar->showMessage("Help collection file not found");
+        return;
+    }
+
+    ui->statusBar->showMessage("Starting help viewer...");
+    _helpViewer.start("assistant", { "-collectionFile", helpFileName }, QIODevice::NotOpen);
 }

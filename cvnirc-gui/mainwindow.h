@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QStringList>
+#include <QProcess>
 
 #include "irccore.h"
 #include "commandlayer.h"
@@ -16,6 +17,7 @@ class LogBuffer;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+    QProcess _helpViewer;
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -39,6 +41,7 @@ private slots:
     void on_action_Connect_triggered();
     void on_action_Reconnect_triggered();
     void on_action_Disconnect_triggered();
+    void on_actionLocalOnlineHelp_triggered();
 
     void on_pushButtonUserInput_clicked();
 
