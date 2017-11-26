@@ -5,6 +5,7 @@
 
 #include <QMetaEnum>
 #include <QFileInfo>
+#include <QDir>
 #include <QProcess>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -296,7 +297,7 @@ void MainWindow::on_actionLocalOnlineHelp_triggered()
     };
 
     for (QString location : locations) {
-        QString fileName = (location.startsWith("/") ? "" : binPath + "/") +
+        QString fileName = (QDir::isAbsolutePath(location) ? "" : binPath + "/") +
             location + "/" + helpFileBasename;
         if (QFileInfo::exists(fileName)) {
             helpFileName = fileName;
