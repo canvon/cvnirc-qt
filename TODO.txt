@@ -77,9 +77,6 @@ cvnirc-gui:
 cvnirc-cli:
 -----------
 
- * Implement changing context via ^X, like Irssi does.
-   (2017-11-24)
-
  * Dump raw protocol lines only on (to-be-implemented) -v or something?
    (2017-11-24)
 
