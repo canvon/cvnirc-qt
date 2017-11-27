@@ -19,10 +19,6 @@ TODO ideas for cvnirc-qt by canvon
    Skip Main tab (index 0).)
    (2017-11-23)
 
- * Have differently colored tabs depending on what input arrived there
-   since last having a look.
-   (2017-11-24)
-
  * Further test/improve the multi-server support.
    (2017-11-20/-21)
 
