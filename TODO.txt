@@ -80,9 +80,6 @@ cvnirc-gui:
 cvnirc-cli:
 -----------
 
- * Dump raw protocol lines only on (to-be-implemented) -v or something?
-   (2017-11-24)
-
  * When changing context is supported, automatically switch to new context
    when it gets created. This isn't implemented at the moment just because
    of fear of some query "hijacking" the prompt, with no possibility
