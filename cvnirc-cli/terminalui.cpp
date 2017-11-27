@@ -113,6 +113,31 @@ void TerminalUI::_setUserInputState(UserInputState newState)
     rl_redisplay();
 }
 
+int TerminalUI::verboseLevel() const
+{
+    return _verboseLevel;
+}
+
+int TerminalUI::decreaseVerboseLevel()
+{
+    if (_verboseLevel >= 1)
+        outLine("Decreasing verbose level...");
+    _verboseLevel--;
+    if (_verboseLevel >= 1)
+        outLine("New verbose level: " + QString::number(_verboseLevel));
+    return _verboseLevel;
+}
+
+int TerminalUI::increaseVerboseLevel()
+{
+    if (_verboseLevel >= 1)
+        outLine("Increasing verbose level...");
+    _verboseLevel++;
+    if (_verboseLevel >= 1)
+        outLine("New verbose level: " + QString::number(_verboseLevel));
+    return _verboseLevel;
+}
+
 void TerminalUI::queueUserInput(const QString &line)
 {
     _userInputQueue.append(line);
@@ -303,12 +328,14 @@ void TerminalUI::outLine(const QString &line, IRCCoreContext *context)
 
 void TerminalUI::outSendingLine(const QString &rawLine, IRCCoreContext *context)
 {
-    outLine("< " + rawLine, context);
+    if (_verboseLevel >= 0)
+        outLine("< " + rawLine, context);
 }
 
 void TerminalUI::outReceivedLine(const QString &rawLine, IRCCoreContext *context)
 {
-    outLine("> " + rawLine, context);
+    if (_verboseLevel >= 0)
+        outLine("> " + rawLine, context);
 }
 
 void TerminalUI::handle_inNotify_activated(int /* socket */)

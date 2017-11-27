@@ -18,6 +18,7 @@ class TerminalUI : public QObject
     QFile inFile, outFile;
     QTextStream in, out;
     QSocketNotifier inNotify;
+    int _verboseLevel = 0;
     QByteArray rlPromptHolder;
 public:
     enum class UserInputState {
@@ -33,6 +34,10 @@ public:
     void promptConnect();
     void updateGeneralPrompt();
     UserInputState userinputState();
+
+    int verboseLevel() const;
+    int decreaseVerboseLevel();
+    int increaseVerboseLevel();
 
 signals:
 

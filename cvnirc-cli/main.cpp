@@ -1,5 +1,6 @@
 #include <QCoreApplication>
 #include "terminalui.h"
+#include <QCommandLineParser>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -37,8 +38,38 @@ int cycle_context(int count, int /* key */)
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
+    QCommandLineParser parser;
+
+    parser.setApplicationDescription("canvon IRC client built-with-Qt-framework CLI (command-line interface)");
+    parser.addHelpOption();
+    //parser.addVersionOption();  // Conflicts with -v to increase verbose level.
+
+    QCommandLineOption optQuiet({ "q", "quiet" }, "Decrease verbose level.");
+    QCommandLineOption optVerbose({ "v", "verbose" }, "Increase verbose level.");
+    if (!parser.addOptions({ optQuiet, optVerbose })) {
+        fputs("Failed to add options for verbose level\n", stderr);
+        return 1;
+    }
+
+#if 0  // TODO: Implement additional command-line arguments.
+    parser.addPositionalArgument("URLs", "IRC URL(s) to open.", "[irc://SERVER/CHANNEL [...]]");
+    parser.addPositionalArgument("commands", "One or more /COMMAND to execute as if it was typed in.", "[/COMMAND [...]]");
+#endif
+
+    parser.process(a);
+
     TerminalUI ui(stdin, stdout);
     pUI = &ui;
+
+    for (QString optionName : parser.optionNames()) {
+        if (optionName == "q") {
+            ui.decreaseVerboseLevel();
+        }
+        else if (optionName == "v") {
+            ui.increaseVerboseLevel();
+        }
+        //else  // Trust parser.process() that all is fine.
+    }
 
     // Set up GNU readline library.
     //
