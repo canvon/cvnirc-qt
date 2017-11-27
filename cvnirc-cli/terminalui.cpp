@@ -131,10 +131,10 @@ int TerminalUI::verboseLevel() const
 void TerminalUI::setVerboseLevel(int newVerboseLevel)
 {
     if (_verboseLevel >= 2)
-        outLine("Changing overall verbose level from " + QString::number(_verboseLevel) + " to " + QString::number(newVerboseLevel));
+        outLine("Changing terminal user-interface verbose level from " + QString::number(_verboseLevel) + " to " + QString::number(newVerboseLevel));
     _verboseLevel = newVerboseLevel;
     if (_verboseLevel >= 2)
-        outLine("Verbose level generally now is " + QString::number(_verboseLevel));
+        outLine("Verbose level of terminal user-interface now is " + QString::number(_verboseLevel));
 }
 
 void TerminalUI::queueUserInput(const QString &line)
