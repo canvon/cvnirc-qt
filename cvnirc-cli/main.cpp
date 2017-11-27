@@ -46,7 +46,8 @@ int main(int argc, char *argv[])
 
     QCommandLineOption optQuiet({ "q", "quiet" }, "Decrease verbose level.");
     QCommandLineOption optVerbose({ "v", "verbose" }, "Increase verbose level.");
-    if (!parser.addOptions({ optQuiet, optVerbose })) {
+    // N.B.: Debian 8 Qt version 5.3.2 does not seem to have .addOptions() (plural).
+    if (!parser.addOption(optQuiet) || !parser.addOption(optVerbose)) {
         fputs("Failed to add options for verbose level\n", stderr);
         return 1;
     }
