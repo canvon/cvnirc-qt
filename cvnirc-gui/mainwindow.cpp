@@ -197,6 +197,21 @@ void MainWindow::applyTabNameComponents(LogBuffer *logBuf, const QStringList &co
         break;
     }
 
+    // The tab text gets scanned for shortcuts.
+    tabText.replace("&", "&&");
+    if (!components.isEmpty()) {
+        int iAlpha = -1;
+        for (int i = tabText.startsWith("Q:") ? 2 : 0; i < tabText.length(); i++) {
+            if (tabText[i].isLetter()) {
+                iAlpha = i;
+                break;
+            }
+        }
+
+        if (iAlpha > 0)
+            tabText.insert(iAlpha, "&");
+    }
+
     ui->tabWidget->setTabText(index, tabText);
     ui->tabWidget->setTabToolTip(index, tabToolTip);
 }
