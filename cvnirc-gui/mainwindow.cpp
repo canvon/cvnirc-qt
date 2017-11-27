@@ -36,7 +36,11 @@ MainWindow::MainWindow(QWidget *parent) :
     //        &irc, static_cast<void (IRCProtoClient::*)()>(&IRCProtoClient::disconnectFromIRCServer));
     // ^ The cast is necessary to select one of the overloaded methods.
 
+#ifdef CVN_HAVE_QPROCESS_ERROROCCURRED
     connect(&_helpViewer, &QProcess::errorOccurred, this, &MainWindow::handle_helpViewer_errorOccurred);
+#else
+#warning "QProcess signal errorOccurred missing. GUI will not be able to tell when invoking the external help browser has failed."
+#endif
 
     // Immediately let the user type commands.
     ui->lineEditUserInput->setFocus();
