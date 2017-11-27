@@ -73,6 +73,7 @@ void IRCCoreCommandGroup::cmd_join(Command *cmd, IRCCoreContext *context)
 
     IRCCoreContext *newContext = _irc->createOrGetContext(client, IRCCoreContext::Type::Channel, channelName);
     newContext->notifyUser("Requesting to join channel " + channelName + " ...", newContext);
+    newContext->requestFocus();
     client->sendRaw("JOIN " + channelName);
 }
 

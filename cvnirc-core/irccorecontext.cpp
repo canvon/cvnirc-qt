@@ -97,6 +97,11 @@ QString IRCCoreContext::disambiguator() const
     return info;
 }
 
+void IRCCoreContext::requestFocus()
+{
+    focusWanted(this);
+}
+
 void IRCCoreContext::receiveIRCProtoMessage(IRCProtoMessage &msg)
 {
     // TODO: Uncomment again when it's been made sure that

@@ -37,11 +37,15 @@ public:
 
     QString disambiguator() const;
 
+    void requestFocus();
+
 signals:
     void connectionStateChanged(IRCCoreContext *context = nullptr);
     void notifyUser(const QString &line, IRCCoreContext *context = nullptr);
     void sendingLine(const QString &rawLine, IRCCoreContext *context = nullptr);
     void receivedLine(const QString &rawLine, IRCCoreContext *context = nullptr);
+
+    void focusWanted(IRCCoreContext *context = nullptr);
 
 public slots:
     void receiveIRCProtoMessage(IRCProtoMessage &msg);
