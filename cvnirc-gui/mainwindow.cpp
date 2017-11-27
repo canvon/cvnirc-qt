@@ -298,7 +298,6 @@ void MainWindow::handle_irc_createdContext(IRCCoreContext *context)
 
 void MainWindow::handle_logBuffer_activityChanged()
 {
-    // Have colored tabs.
 
     auto *logBuf = dynamic_cast<LogBuffer *>(sender());
     if (logBuf == nullptr) {
@@ -307,8 +306,10 @@ void MainWindow::handle_logBuffer_activityChanged()
     }
 
     int iTab = ui->tabWidget->indexOf(logBuf);
-    if (iTab < 0)
+    if (iTab < 0) {
+        qDebug() << Q_FUNC_INFO << "Sender LogBuffer is not a tab";
         return;
+    }
 
     QColor color;
     color.setNamedColor("brown");
@@ -324,6 +325,7 @@ void MainWindow::handle_logBuffer_activityChanged()
         break;
     }
 
+    // Have colored tabs.
     ui->tabWidget->tabBar()->setTabTextColor(iTab, color);
 }
 
