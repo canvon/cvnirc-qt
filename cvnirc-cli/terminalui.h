@@ -18,7 +18,7 @@ class TerminalUI : public QObject
     QFile inFile, outFile;
     QTextStream in, out;
     QSocketNotifier inNotify;
-    int _verboseLevel = 0;
+    int _verboseLevel = 1;
     QByteArray rlPromptHolder;
 public:
     enum class UserInputState {
@@ -35,9 +35,12 @@ public:
     void updateGeneralPrompt();
     UserInputState userinputState();
 
+    // FIXME: Rename the private field to _irc, so that the getter can be irc().
+    IRCCore &getIRC();
+    const IRCCore &getIRC() const;
+
     int verboseLevel() const;
-    int decreaseVerboseLevel();
-    int increaseVerboseLevel();
+    void setVerboseLevel(int newVerboseLevel);
 
 signals:
 

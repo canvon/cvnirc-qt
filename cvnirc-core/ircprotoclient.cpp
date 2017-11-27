@@ -364,26 +364,44 @@ const QString &IRCProtoClient::nickRequestNext() const
 
 void IRCProtoClient::setHostRequestNext(const QString &host)
 {
-    notifyUser("Setting host to request next to \"" + host + "\".");
+    if (_verboseLevel >= 1)
+        notifyUser("Setting host to request next to \"" + host + "\".");
     _hostRequestNext = host;
 }
 
 void IRCProtoClient::setPortRequestNext(const QString &port)
 {
-    notifyUser("Setting port to request next to \"" + port + "\".");
+    if (_verboseLevel >= 1)
+        notifyUser("Setting port to request next to \"" + port + "\".");
     _portRequestNext = port;
 }
 
 void IRCProtoClient::setUserRequestNext(const QString &user)
 {
-    notifyUser("Setting user to request next to \"" + user + "\".");
+    if (_verboseLevel >= 1)
+        notifyUser("Setting user to request next to \"" + user + "\".");
     _userRequestNext = user;
 }
 
 void IRCProtoClient::setNickRequestNext(const QString &nick)
 {
-    notifyUser("Setting nick to request next to \"" + nick + "\".");
+    if (_verboseLevel >= 1)
+        notifyUser("Setting nick to request next to \"" + nick + "\".");
     _nickRequestNext = nick;
+}
+
+int IRCProtoClient::verboseLevel() const
+{
+    return _verboseLevel;
+}
+
+void IRCProtoClient::setVerboseLevel(int newVerboseLevel)
+{
+    if (_verboseLevel >= 2)
+        notifyUser("Changing IRC protocol client verbose level from " + QString::number(_verboseLevel) + " to " + QString::number(newVerboseLevel));
+    _verboseLevel = newVerboseLevel;
+    if (_verboseLevel >= 2)
+        notifyUser("Verbose level of IRC protocol client now is " + QString::number(_verboseLevel));
 }
 
 void IRCProtoClient::_setConnectionState(ConnectionState newState)

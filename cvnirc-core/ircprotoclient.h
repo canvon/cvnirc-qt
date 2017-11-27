@@ -50,6 +50,9 @@ public:
     void setUserRequestNext(const QString &user);
     void setNickRequestNext(const QString &nick);
 
+    int verboseLevel() const;
+    void setVerboseLevel(int newVerboseLevel);
+
     static QString nickUserHost2nick(const QString &nickUserHost);
 
 signals:
@@ -92,6 +95,8 @@ private:
 
     ConnectionState _connectionState;
     void _setConnectionState(ConnectionState newState);
+
+    int _verboseLevel = 1;
 };
 
 #endif // IRCPROTOCLIENT_H

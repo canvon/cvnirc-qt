@@ -58,18 +58,31 @@ int main(int argc, char *argv[])
 
     parser.process(a);
 
+
+    // Create the user interface.
     TerminalUI ui(stdin, stdout);
     pUI = &ui;
 
+
+    // Determine verbose level.
     for (QString optionName : parser.optionNames()) {
         if (optionName == "q") {
-            ui.decreaseVerboseLevel();
+            ui.setVerboseLevel(ui.verboseLevel() - 1);
         }
         else if (optionName == "v") {
-            ui.increaseVerboseLevel();
+            ui.setVerboseLevel(ui.verboseLevel() + 1);
         }
         //else  // Trust parser.process() that all is fine.
     }
+
+    // Automatically adjust first/single IRC protocol client to match.
+    //
+    // (On subsequent adjusts, both general and per-client verbose level
+    // will need to get adjusted independently of each other, once the command
+    // for that will have been implemented at all.)
+    //
+    ui.getIRC().ircProtoClients().front()->setVerboseLevel(ui.verboseLevel());
+
 
     // Set up GNU readline library.
     //
@@ -84,8 +97,10 @@ int main(int argc, char *argv[])
     //rl_bind_key(24 /* ^X */, cycle_context);
     rl_bind_key(15 /* ^O */, cycle_context);
 
+
     // Start prompting for connection information.
     ui.promptConnect();
+
 
     return a.exec();
 }

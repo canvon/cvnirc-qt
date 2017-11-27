@@ -113,29 +113,28 @@ void TerminalUI::_setUserInputState(UserInputState newState)
     rl_redisplay();
 }
 
+IRCCore &TerminalUI::getIRC()
+{
+    return irc;
+}
+
+const IRCCore &TerminalUI::getIRC() const
+{
+    return irc;
+}
+
 int TerminalUI::verboseLevel() const
 {
     return _verboseLevel;
 }
 
-int TerminalUI::decreaseVerboseLevel()
+void TerminalUI::setVerboseLevel(int newVerboseLevel)
 {
-    if (_verboseLevel >= 1)
-        outLine("Decreasing verbose level...");
-    _verboseLevel--;
-    if (_verboseLevel >= 1)
-        outLine("New verbose level: " + QString::number(_verboseLevel));
-    return _verboseLevel;
-}
-
-int TerminalUI::increaseVerboseLevel()
-{
-    if (_verboseLevel >= 1)
-        outLine("Increasing verbose level...");
-    _verboseLevel++;
-    if (_verboseLevel >= 1)
-        outLine("New verbose level: " + QString::number(_verboseLevel));
-    return _verboseLevel;
+    if (_verboseLevel >= 2)
+        outLine("Changing overall verbose level from " + QString::number(_verboseLevel) + " to " + QString::number(newVerboseLevel));
+    _verboseLevel = newVerboseLevel;
+    if (_verboseLevel >= 2)
+        outLine("Verbose level generally now is " + QString::number(_verboseLevel));
 }
 
 void TerminalUI::queueUserInput(const QString &line)
@@ -328,13 +327,13 @@ void TerminalUI::outLine(const QString &line, IRCCoreContext *context)
 
 void TerminalUI::outSendingLine(const QString &rawLine, IRCCoreContext *context)
 {
-    if (_verboseLevel >= 0)
+    if (_verboseLevel >= 1)
         outLine("< " + rawLine, context);
 }
 
 void TerminalUI::outReceivedLine(const QString &rawLine, IRCCoreContext *context)
 {
-    if (_verboseLevel >= 0)
+    if (_verboseLevel >= 1)
         outLine("> " + rawLine, context);
 }
 
