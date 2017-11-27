@@ -8,6 +8,28 @@
         <h1>Features - cvnirc-qt Manual</h1>
 
         <h2>General features</h2>
+        <ul>
+            <li>
+                <p>
+                    IRC is presented to the user interfaces
+                    (CLI, GUI) in the form of "contexts".
+                    This can be a server context, which emits signals
+                    when something w.r.t. the general IRC protocol connection
+                    happens; or a channel context, which handles channel
+                    messages; or a query context, which handles private
+                    communication with another user.
+                </p>
+                <p>
+                    A context keeps track of what to use as outgoing target
+                    when simply entering text at the user interface's
+                    provision for user input. A context also can be
+                    the basis for /COMMANDs to operate on. As in Irssi,
+                    the IRC client, prefixing a line with "/ " (slash, space)
+                    will make sure it isn't interpreted as a command
+                    even if the rest starts with a slash, too.
+                </p>
+            </li>
+        </ul>
 
         <h2>cvnirc-gui specific features</h2>
         <ul>
