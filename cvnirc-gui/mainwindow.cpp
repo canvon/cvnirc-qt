@@ -36,6 +36,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //        &irc, static_cast<void (IRCProtoClient::*)()>(&IRCProtoClient::disconnectFromIRCServer));
     // ^ The cast is necessary to select one of the overloaded methods.
 
+    connect(ui->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::handle_tabWidget_currentChanged);
+
 #ifdef CVN_HAVE_QPROCESS_ERROROCCURRED
     connect(&_helpViewer, &QProcess::errorOccurred, this, &MainWindow::handle_helpViewer_errorOccurred);
 #else
@@ -296,9 +298,25 @@ void MainWindow::handle_irc_createdContext(IRCCoreContext *context)
     }
 }
 
+void MainWindow::handle_tabWidget_currentChanged(int index)
+{
+    if (index < 0) {
+        qDebug() << Q_FUNC_INFO << "New tab index is invalid";
+        return;
+    }
+
+    auto *logBuf = dynamic_cast<LogBuffer *>(ui->tabWidget->widget(index));
+    if (logBuf == nullptr) {
+        qDebug() << Q_FUNC_INFO << "New tab is not a LogBuffer";
+        return;
+    }
+
+    // Clear tab color when switching to a tab.
+    logBuf->setActivity(LogBuffer::Activity::None);
+}
+
 void MainWindow::handle_logBuffer_activityChanged()
 {
-
     auto *logBuf = dynamic_cast<LogBuffer *>(sender());
     if (logBuf == nullptr) {
         qDebug() << Q_FUNC_INFO << "Sender is not a LogBuffer";
