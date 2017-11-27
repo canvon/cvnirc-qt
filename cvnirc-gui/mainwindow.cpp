@@ -131,6 +131,23 @@ void MainWindow::updateSwitchToTabMenu()
     }
 }
 
+void MainWindow::switchToContextTab(IRCCoreContext *context)
+{
+    if (context == nullptr) {
+        // Switch to Main tab.
+        ui->tabWidget->setCurrentIndex(0);
+        return;
+    }
+
+    auto *tabWidget = findTabWidgetForContext(context);
+    if (tabWidget == nullptr) {
+        ui->logBufferMain->appendLine("Switch to context tab: Can't find associated tab");
+        return;
+    }
+
+    ui->tabWidget->setCurrentWidget(tabWidget);
+}
+
 QWidget *MainWindow::findTabWidgetForContext(IRCCoreContext *context)
 {
     // (Start at index 1 to skip main logbuffer.)
@@ -328,6 +345,9 @@ void MainWindow::handle_irc_createdContext(IRCCoreContext *context)
         connect(context->ircProtoClient(), &IRCProtoClient::hostPortRequestedLastChanged,
                 this, &MainWindow::updateState);
     }
+
+    // Allow the context to request focus.
+    connect(context, &IRCCoreContext::focusWanted, this, &MainWindow::switchToContextTab);
 }
 
 void MainWindow::handle_menuTab_triggered()

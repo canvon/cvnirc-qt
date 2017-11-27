@@ -36,6 +36,7 @@ public:
 public slots:
     void updateState();
     void updateSwitchToTabMenu();
+    void switchToContextTab(IRCCoreContext *context);
 
 private slots:
     void on_action_Quit_triggered();
