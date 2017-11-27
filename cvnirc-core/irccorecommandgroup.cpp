@@ -72,7 +72,7 @@ void IRCCoreCommandGroup::cmd_join(Command *cmd, IRCCoreContext *context)
         throw std::invalid_argument("IRCCore command join: Context's IRC protocol client can't be null");
 
     IRCCoreContext *newContext = _irc->createOrGetContext(client, IRCCoreContext::Type::Channel, channelName);
-    newContext->notifyUser("Joining channel " + channelName, newContext);
+    newContext->notifyUser("Requesting to join channel " + channelName + " ...", newContext);
     client->sendRaw("JOIN " + channelName);
 }
 
