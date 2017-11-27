@@ -118,7 +118,14 @@
     </property>
     <addaction name="actionLocalOnlineHelp"/>
    </widget>
+   <widget class="QMenu" name="menuWindow">
+    <property name="title">
+     <string>&amp;Window</string>
+    </property>
+    <addaction name="actionFocusUserInput"/>
+   </widget>
    <addaction name="menu_File"/>
+   <addaction name="menuWindow"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -176,6 +183,14 @@
   <action name="actionLocalOnlineHelp">
    <property name="text">
     <string>&amp;Local online help</string>
+   </property>
+  </action>
+  <action name="actionFocusUserInput">
+   <property name="text">
+    <string>Focus user &amp;input</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
    </property>
   </action>
  </widget>

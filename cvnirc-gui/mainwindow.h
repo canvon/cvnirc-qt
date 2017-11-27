@@ -41,6 +41,7 @@ private slots:
     void on_action_Connect_triggered();
     void on_action_Reconnect_triggered();
     void on_action_Disconnect_triggered();
+    void on_actionFocusUserInput_triggered();
     void on_actionLocalOnlineHelp_triggered();
 
     void on_pushButtonUserInput_clicked();

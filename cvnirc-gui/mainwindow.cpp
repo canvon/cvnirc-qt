@@ -258,6 +258,11 @@ void MainWindow::on_action_Disconnect_triggered()
     context->ircProtoClient()->disconnectFromIRCServer();
 }
 
+void MainWindow::on_actionFocusUserInput_triggered()
+{
+    ui->lineEditUserInput->setFocus();
+}
+
 void MainWindow::on_pushButtonUserInput_clicked()
 {
     QString line = ui->lineEditUserInput->text();
