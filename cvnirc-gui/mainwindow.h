@@ -35,6 +35,7 @@ public:
 
 public slots:
     void updateState();
+    void updateSwitchToTabMenu();
 
 private slots:
     void on_action_Quit_triggered();
@@ -48,6 +49,7 @@ private slots:
 
     void handle_irc_createdContext(IRCCoreContext *context);
     //void handle_irc_receivedMessage(IRCProtoMessage &msg);
+    void handle_menuTab_triggered();
     void handle_tabWidget_currentChanged(int index);
     void handle_logBuffer_activityChanged();
     void handle_helpViewer_errorOccurred(QProcess::ProcessError err);

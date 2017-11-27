@@ -122,7 +122,14 @@
     <property name="title">
      <string>&amp;Window</string>
     </property>
+    <widget class="QMenu" name="menuSwitchToTab">
+     <property name="title">
+      <string>Switch to &amp;tab</string>
+     </property>
+     <addaction name="actionSwitchToTabMain"/>
+    </widget>
     <addaction name="actionFocusUserInput"/>
+    <addaction name="menuSwitchToTab"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menuWindow"/>
@@ -194,6 +201,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionSwitchToTabMain">
+   <property name="text">
+    <string>&amp;1 - Main</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+1</string>
    </property>
   </action>
  </widget>

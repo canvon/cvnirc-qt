@@ -48,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineEditUserInput->setFocus();
 
     updateState();
+    updateSwitchToTabMenu();
 }
 
 MainWindow::~MainWindow()
@@ -106,6 +107,30 @@ void MainWindow::updateState()
     }
 }
 
+void MainWindow::updateSwitchToTabMenu()
+{
+    auto &menu(*ui->menuSwitchToTab);
+    menu.clear();
+    for (int i = 0; i < ui->tabWidget->count(); i++) {
+        const QString tabName = ui->tabWidget->tabText(i);
+        const int num = i + 1;
+        const QString numStr = QString::number(num);
+        const QString actionText = (num < 10 ? "&" : "") + numStr + " - " + tabName;
+        const QKeySequence shortcut("Alt+" + numStr);
+
+        QAction *action = menu.addAction(actionText,
+            this, &MainWindow::handle_menuTab_triggered,
+            num < 10 ? QKeySequence("Alt+" + numStr)
+                     : num == 10 ? QKeySequence("Alt+0") : 0);
+        if (action == nullptr) {
+            qDebug() << Q_FUNC_INFO << "menu.addAction() failed, ignoring";
+            continue;
+        }
+
+        action->setData(i);
+    }
+}
+
 QWidget *MainWindow::findTabWidgetForContext(IRCCoreContext *context)
 {
     // (Start at index 1 to skip main logbuffer.)
@@ -137,6 +162,8 @@ QWidget *MainWindow::openTabForContext(IRCCoreContext *context)
         applyTabNameComponents(logBuf, tabNameComponents(*logBuf));
 
         connect(logBuf, &LogBuffer::activityChanged, this, &MainWindow::handle_logBuffer_activityChanged);
+
+        updateSwitchToTabMenu();
     }
     return w;
 }
@@ -301,6 +328,30 @@ void MainWindow::handle_irc_createdContext(IRCCoreContext *context)
         connect(context->ircProtoClient(), &IRCProtoClient::hostPortRequestedLastChanged,
                 this, &MainWindow::updateState);
     }
+}
+
+void MainWindow::handle_menuTab_triggered()
+{
+    auto *action = dynamic_cast<QAction *>(sender());
+    if (action == nullptr) {
+        qDebug() << Q_FUNC_INFO << "Sender is not a QAction";
+        return;
+    }
+
+    bool ok = false;
+    int i = action->data().toInt(&ok);
+    if (!ok) {
+        qDebug() << Q_FUNC_INFO << "Action data to int was not ok";
+        return;
+    }
+
+    if (!(i >= 0 && i < ui->tabWidget->count())) {
+        qDebug() << Q_FUNC_INFO << "Action data int is not a valid index";
+        return;
+    }
+
+    // Switch to tab that got selected via dynamically generated menu items.
+    ui->tabWidget->setCurrentIndex(i);
 }
 
 void MainWindow::handle_tabWidget_currentChanged(int index)
