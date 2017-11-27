@@ -70,6 +70,9 @@ TODO ideas for cvnirc-qt by canvon
 cvnirc-gui:
 -----------
 
+ * Interpret IRC colors.
+   (2017-11-27)
+
  * Use the status bar?
    (2017-11-24)
 
@@ -88,4 +91,7 @@ cvnirc-cli:
 
  * Add custom completer to GNU readline UI.
    (2017-11-21/-22)
+
+ * Interpret IRC colors.
+   (2017-11-27)
 
