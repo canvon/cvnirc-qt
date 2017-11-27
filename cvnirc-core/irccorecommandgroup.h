@@ -22,6 +22,8 @@ public:
 
     QStringList cmdhelp_raw();
     void cmd_raw(Command *cmd, IRCCoreContext *context);
+    QStringList cmdhelp_join();
+    void cmd_join(Command *cmd, IRCCoreContext *context);
 
     void registerAllCommandDefinitions() override;
 };
