@@ -184,6 +184,9 @@
    <property name="text">
     <string>&amp;Local online help</string>
    </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
   </action>
   <action name="actionFocusUserInput">
    <property name="text">
