@@ -255,7 +255,7 @@ bool TerminalUI::cycleCurrentContext(int count)
     }
 
     if (count == 0) {
-        currentContext = start;
+        return switchToContext(start);
     }
     else {
         auto clBegin = contextList.begin();
@@ -295,8 +295,18 @@ bool TerminalUI::cycleCurrentContext(int count)
             return false;
         }
 
-        currentContext = *iter;
+        return switchToContext(*iter);
     }
+}
+
+bool TerminalUI::switchToContext(IRCCoreContext *context)
+{
+    if (context == nullptr) {
+        outLine("Switch to context: Context can't be null, ignoring");
+        return false;
+    }
+
+    currentContext = context;
 
     updateGeneralPrompt();
     rl_redisplay();

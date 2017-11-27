@@ -48,6 +48,7 @@ public slots:
     void queueUserInput(const QString &line);
     void userInput(const QString &line);
     bool cycleCurrentContext(int count);
+    bool switchToContext(IRCCoreContext *context);
     void outLine(const QString &line, IRCCoreContext *context = nullptr);
     void outSendingLine(const QString &rawLine, IRCCoreContext *context = nullptr);
     void outReceivedLine(const QString &rawLine, IRCCoreContext *context = nullptr);
