@@ -348,6 +348,11 @@ void MainWindow::handle_logBuffer_activityChanged()
         break;
     }
 
+    // Keep color off for the active tab, or else we'd have to switch
+    // back and forth all the time to clear the color.
+    if (iTab == ui->tabWidget->currentIndex())
+        color.setNamedColor("black");
+
     // Have colored tabs.
     ui->tabWidget->tabBar()->setTabTextColor(iTab, color);
 }
