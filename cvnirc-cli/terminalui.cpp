@@ -394,5 +394,7 @@ void TerminalUI::handle_irc_createdContext(IRCCoreContext *context)
     connect(context, &IRCCoreContext::sendingLine, this, &TerminalUI::outSendingLine);
     connect(context, &IRCCoreContext::receivedLine, this, &TerminalUI::outReceivedLine);
 
+    connect(context, &IRCCoreContext::focusWanted, this, &TerminalUI::switchToContext);
+
     connect(context, &IRCCoreContext::connectionStateChanged, this, &TerminalUI::handle_context_connectionStateChanged);
 }
