@@ -24,8 +24,18 @@ public:
     Q_ENUM(Type)
 #endif
 
+    enum class Activity {
+        None,
+        General,
+        Highlight,
+    };
+#ifdef CVN_HAVE_Q_ENUM
+    Q_ENUM(Activity)
+#endif
+
 private:
     Type _type = Type::General;
+    Activity _activity = Activity::None;
 
 public:
     explicit LogBuffer(QWidget *parent = 0);
@@ -37,6 +47,12 @@ public:
 
     Type type() const;
     void setType(Type newType);
+
+    Activity activity() const;
+    void setActivity(Activity newActivity);
+
+signals:
+    void activityChanged();
 
 public slots:
     void appendLine(const QString &line, IRCCoreContext *context = nullptr);

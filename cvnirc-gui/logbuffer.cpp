@@ -80,6 +80,20 @@ void LogBuffer::setType(LogBuffer::Type newType)
         addContext(context);
 }
 
+LogBuffer::Activity LogBuffer::activity() const
+{
+    return _activity;
+}
+
+void LogBuffer::setActivity(LogBuffer::Activity newActivity)
+{
+    if (_activity == newActivity)
+        return;
+
+    _activity = newActivity;
+    activityChanged();
+}
+
 QString LogBuffer::_contextToStr(const IRCCoreContext *context)
 {
     if (context == nullptr)
@@ -100,6 +114,10 @@ void LogBuffer::appendLine(const QString &line, IRCCoreContext *context)
     // Prepend timestamp and context information, and append to logbuffer.
     QDateTime ts = QDateTime::currentDateTime();
     ui->textEdit->append("[" + ts.toString() + "] " + _contextToStr(context) + line);
+
+    // Support colored tabs.
+    if (_activity < Activity::General)
+        setActivity(Activity::General);
 }
 
 void LogBuffer::appendSendingLine(const QString &rawLine, IRCCoreContext *context)

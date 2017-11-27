@@ -133,6 +133,8 @@ QWidget *MainWindow::openTabForContext(IRCCoreContext *context)
 
         ui->tabWidget->addTab(w, "New tab");
         applyTabNameComponents(logBuf, tabNameComponents(*logBuf));
+
+        connect(logBuf, &LogBuffer::activityChanged, this, &MainWindow::handle_logBuffer_activityChanged);
     }
     return w;
 }
@@ -292,6 +294,37 @@ void MainWindow::handle_irc_createdContext(IRCCoreContext *context)
         connect(context->ircProtoClient(), &IRCProtoClient::hostPortRequestedLastChanged,
                 this, &MainWindow::updateState);
     }
+}
+
+void MainWindow::handle_logBuffer_activityChanged()
+{
+    // Have colored tabs.
+
+    auto *logBuf = dynamic_cast<LogBuffer *>(sender());
+    if (logBuf == nullptr) {
+        qDebug() << Q_FUNC_INFO << "Sender is not a LogBuffer";
+        return;
+    }
+
+    int iTab = ui->tabWidget->indexOf(logBuf);
+    if (iTab < 0)
+        return;
+
+    QColor color;
+    color.setNamedColor("brown");
+    switch (logBuf->activity()) {
+    case LogBuffer::Activity::None:
+        color.setNamedColor("black");
+        break;
+    case LogBuffer::Activity::General:
+        color.setNamedColor("green");
+        break;
+    case LogBuffer::Activity::Highlight:
+        color.setNamedColor("red");
+        break;
+    }
+
+    ui->tabWidget->tabBar()->setTabTextColor(iTab, color);
 }
 
 void MainWindow::on_actionLocalOnlineHelp_triggered()
