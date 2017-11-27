@@ -37,13 +37,9 @@ public:
     void setType(Type newType);
 
 public slots:
-    void appendLine(const QString &line);
-    void appendSendingLine(const QString &rawLine);
-    void appendReceivedLine(const QString &rawLine);
-
-    void appendContextLine(const QString &line, IRCCoreContext *context = nullptr);
-    void appendContextSendingLine(const QString &rawLine, IRCCoreContext *context = nullptr);
-    void appendContextReceivedLine(const QString &rawLine, IRCCoreContext *context = nullptr);
+    void appendLine(const QString &line, IRCCoreContext *context = nullptr);
+    void appendSendingLine(const QString &rawLine, IRCCoreContext *context = nullptr);
+    void appendReceivedLine(const QString &rawLine, IRCCoreContext *context = nullptr);
 
 private slots:
     void handle_ircContext_connectionStateChanged(IRCCoreContext *context = nullptr);

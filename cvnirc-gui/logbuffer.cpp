@@ -33,11 +33,11 @@ void LogBuffer::addContext(IRCCoreContext *context)
     _contexts.append(context);
     switch (_type) {
     case Type::General:
-        connect(context, &IRCCoreContext::notifyUser, this, &LogBuffer::appendContextLine);
+        connect(context, &IRCCoreContext::notifyUser, this, &LogBuffer::appendLine);
         break;
     case Type::Protocol:
-        connect(context, &IRCCoreContext::sendingLine, this, &LogBuffer::appendContextSendingLine);
-        connect(context, &IRCCoreContext::receivedLine, this, &LogBuffer::appendContextReceivedLine);
+        connect(context, &IRCCoreContext::sendingLine, this, &LogBuffer::appendSendingLine);
+        connect(context, &IRCCoreContext::receivedLine, this, &LogBuffer::appendReceivedLine);
         connect(context, &IRCCoreContext::connectionStateChanged, this, &LogBuffer::handle_ircContext_connectionStateChanged);
         break;
     }
@@ -54,11 +54,11 @@ void LogBuffer::removeContext(IRCCoreContext *context)
     switch (_type) {
     case Type::Protocol:
         disconnect(context, &IRCCoreContext::connectionStateChanged, this, &LogBuffer::handle_ircContext_connectionStateChanged);
-        disconnect(context, &IRCCoreContext::receivedLine, this, &LogBuffer::appendContextReceivedLine);
-        disconnect(context, &IRCCoreContext::sendingLine, this, &LogBuffer::appendContextSendingLine);
+        disconnect(context, &IRCCoreContext::receivedLine, this, &LogBuffer::appendReceivedLine);
+        disconnect(context, &IRCCoreContext::sendingLine, this, &LogBuffer::appendSendingLine);
         break;
     case Type::General:
-        disconnect(context, &IRCCoreContext::notifyUser, this, &LogBuffer::appendContextLine);
+        disconnect(context, &IRCCoreContext::notifyUser, this, &LogBuffer::appendLine);
         break;
     }
     _contexts.removeOne(context);
@@ -73,21 +73,6 @@ void LogBuffer::setType(LogBuffer::Type newType)
     _type = newType;
     for (IRCCoreContext *context : list)
         addContext(context);
-}
-
-void LogBuffer::appendLine(const QString &line)
-{
-    return appendContextLine(line);
-}
-
-void LogBuffer::appendSendingLine(const QString &rawLine)
-{
-    return appendContextSendingLine(rawLine);
-}
-
-void LogBuffer::appendReceivedLine(const QString &rawLine)
-{
-    return appendContextReceivedLine(rawLine);
 }
 
 QString LogBuffer::_contextToStr(const IRCCoreContext *context)
@@ -105,21 +90,21 @@ QString LogBuffer::_contextToStr(const IRCCoreContext *context)
     return context->disambiguator() + " ";
 }
 
-void LogBuffer::appendContextLine(const QString &line, IRCCoreContext *context)
+void LogBuffer::appendLine(const QString &line, IRCCoreContext *context)
 {
     // Prepend timestamp and context information, and append to logbuffer.
     QDateTime ts = QDateTime::currentDateTime();
     ui->textEdit->append("[" + ts.toString() + "] " + _contextToStr(context) + line);
 }
 
-void LogBuffer::appendContextSendingLine(const QString &rawLine, IRCCoreContext *context)
+void LogBuffer::appendSendingLine(const QString &rawLine, IRCCoreContext *context)
 {
-    return appendContextLine("< " + rawLine, context);
+    return appendLine("< " + rawLine, context);
 }
 
-void LogBuffer::appendContextReceivedLine(const QString &rawLine, IRCCoreContext *context)
+void LogBuffer::appendReceivedLine(const QString &rawLine, IRCCoreContext *context)
 {
-    return appendContextLine("> " + rawLine, context);
+    return appendLine("> " + rawLine, context);
 }
 
 void LogBuffer::handle_ircContext_connectionStateChanged(IRCCoreContext *context)
@@ -128,7 +113,7 @@ void LogBuffer::handle_ircContext_connectionStateChanged(IRCCoreContext *context
         throw std::runtime_error("LogBuffer, handle IRCCoreContext connection state changed: Got context which is a null pointer, which is invalid here");
 
     auto state = context->ircProtoClient()->connectionState();
-    appendContextLine(QString("Connection state changed to ") +
+    appendLine(QString("Connection state changed to ") +
         QString::number((int)state)
 #ifdef CVN_HAVE_Q_ENUM
         + QString(": ")
