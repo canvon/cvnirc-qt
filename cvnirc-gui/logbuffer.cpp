@@ -64,6 +64,11 @@ void LogBuffer::removeContext(IRCCoreContext *context)
     _contexts.removeOne(context);
 }
 
+LogBuffer::Type LogBuffer::type() const
+{
+    return _type;
+}
+
 void LogBuffer::setType(LogBuffer::Type newType)
 {
     QList<IRCCoreContext *> list(_contexts);

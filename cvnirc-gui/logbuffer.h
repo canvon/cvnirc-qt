@@ -34,6 +34,8 @@ public:
     const QList<IRCCoreContext *> &contexts() const;
     void addContext(IRCCoreContext *context);
     void removeContext(IRCCoreContext *context);
+
+    Type type() const;
     void setType(Type newType);
 
 public slots:
