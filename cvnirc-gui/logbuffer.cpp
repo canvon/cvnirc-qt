@@ -94,7 +94,7 @@ QString LogBuffer::_contextToStr(const IRCCoreContext *context)
 {
     if (context == nullptr)
         // Missing.
-        return QString();
+        return "[No context] ";
 
     // Is that our single context?
     if (_contexts.length() == 1 && *_contexts.front() == *context)
