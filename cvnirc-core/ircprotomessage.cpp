@@ -83,7 +83,7 @@ PingPongIRCProtoMessage::PingPongIRCProtoMessage(
     case MsgType::Pong:
         break;
     default:
-        throw std::runtime_error("PingPongIRCProtoMessage ctor: Invalid msgType " + std::to_string((int)msgType));
+        throw std::invalid_argument("PingPongIRCProtoMessage ctor: Invalid msgType " + std::to_string((int)msgType));
     }
     this->msgType = msgType;
 }
@@ -97,7 +97,7 @@ NumericIRCProtoMessage::NumericIRCProtoMessage(
     this->msgType = msgType;
 
     if (numeric < 0 || numeric > 999)
-        throw std::runtime_error("NumericIRCProtoMessage ctor: Numeric " + std::to_string(numeric) + " out of range");
+        throw std::invalid_argument("NumericIRCProtoMessage ctor: Numeric " + std::to_string(numeric) + " out of range");
 }
 
 JoinIRCProtoMessage::JoinIRCProtoMessage(
@@ -108,7 +108,7 @@ JoinIRCProtoMessage::JoinIRCProtoMessage(
         keys(keys)
 {
     if (msgType != MsgType::Join)
-        throw std::runtime_error("JoinIRCProtoMessage ctor: Invalid msgType " + std::to_string((int)msgType));
+        throw std::invalid_argument("JoinIRCProtoMessage ctor: Invalid msgType " + std::to_string((int)msgType));
     this->msgType = msgType;
 }
 
@@ -124,7 +124,7 @@ ChatterIRCProtoMessage::ChatterIRCProtoMessage(
     case MsgType::Notice:
         break;
     default:
-        throw std::runtime_error("ChatterIRCProtoMessage ctor: Invalid msgType " + std::to_string((int)msgType));
+        throw std::invalid_argument("ChatterIRCProtoMessage ctor: Invalid msgType " + std::to_string((int)msgType));
     }
     this->msgType = msgType;
 }
