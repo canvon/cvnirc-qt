@@ -128,7 +128,14 @@ void IRCProtoClient::sendRaw(const QString &line)
 
 void IRCProtoClient::processOutgoingData()
 {
-    while (sendQueue.size() > 0) {
+    // FIXME: This method has to be invoked by a timer, too!
+    // Or else we risk sending data only at the next read, e.g.,
+    // on the next PING...
+    //
+    // Stop sending queued messages when there is a "traditional"
+    // receive buffer's worth of data already queued
+    // in the Qt write buffer.
+    while (sendQueue.size() > 0 && socket->bytesToWrite() < 512) {
         QString rawLine = sendQueue.front();
         sendingLine(rawLine);
         socket->write((rawLine + "\r\n").toUtf8());
