@@ -121,9 +121,7 @@ void IRCProtoClient::handle_socket_error(QAbstractSocket::SocketError err)
 void IRCProtoClient::sendRaw(const QString &line)
 {
     sendQueue.push_back(line);
-
-    if (socket->state() == QAbstractSocket::ConnectedState)
-        processOutgoingData();
+    processOutgoingData();
 }
 
 void IRCProtoClient::processOutgoingData()
@@ -135,7 +133,10 @@ void IRCProtoClient::processOutgoingData()
     // Stop sending queued messages when there is a "traditional"
     // receive buffer's worth of data already queued
     // in the Qt write buffer.
-    while (sendQueue.size() > 0 && socket->bytesToWrite() < 512) {
+    while (sendQueue.size() > 0 &&
+           socket->state() == QAbstractSocket::ConnectedState &&
+           socket->bytesToWrite() < 512)
+    {
         QString rawLine = sendQueue.front();
         sendingLine(rawLine);
         socket->write((rawLine + "\r\n").toUtf8());
