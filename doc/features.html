@@ -9,14 +9,44 @@
 
         <h2 id="toc">ToC - Table of Contents</h2>
         <ul>
-            <li><a href="#features-general">General features</a></li>
-            <li><a href="#features-gui">cvnirc-gui specific features</a></li>
-            <li><a href="#features-cli">cvnirc-cli specific features</a></li>
+            <li>
+                <a href="#features-general">General features</a>
+                <ul>
+                    <li>
+                        <a href="#features-general-contexts">Introduction to contexts</a>
+                    </li>
+                    <li>
+                        <a href="#features-general-contextgrab">A context can ~grab focus</a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#features-gui">cvnirc-gui specific features</a>
+                <ul>
+                    <li>
+                        <a href="#features-gui-tabcolors">Colored tabs</a>
+                    </li>
+                    <li>
+                        <a href="#features-gui-switchtab">Switching tabs easily, with Alt-1 .. Alt-9, Alt-0 and more</a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#features-cli">cvnirc-cli specific features</a>
+                <ul>
+                    <li>
+                        <a href="#features-cli-switchcontext">Switch context easily, with ^O (aka Ctrl-o)</a>
+                    </li>
+                    <li>
+                        <a href="#features-cli-quietmode"><code>-q</code> aka quiet mode</a>
+                    </li>
+                </ul>
+            </li>
         </ul>
 
         <h2 id="features-general">General features</h2>
         <ul>
-            <li>
+            <li id="features-general-contexts">
                 <p>
                     IRC is presented to the user interfaces
                     (CLI, GUI) in the form of "contexts".
@@ -36,7 +66,7 @@
                     even if the rest starts with a slash, too.
                 </p>
             </li>
-            <li>
+            <li id="features-general-contextgrab">
                 <p>
                     A context can ~grab focus, that is, the implementation
                     of the /join command will see that a suitable context
@@ -52,7 +82,7 @@
 
         <h2 id="features-gui">cvnirc-gui specific features</h2>
         <ul>
-            <li>
+            <li id="features-gui-tabcolors">
                 <p>
                     The user interface is built using tab pages.
                     When lines get appended to the tabs,
@@ -62,7 +92,7 @@
                     red means a highlight has happened.
                 </p>
             </li>
-            <li>
+            <li id="features-gui-switchtab">
                 <p>
                     For switching tabs easily, the shortcuts Alt-1 to Alt-9
                     can be used (like in the Irssi IRC client in the terminal,
@@ -81,7 +111,7 @@
 
         <h2 id="features-cli">cvnirc-cli specific features</h2>
         <ul>
-            <li>
+            <li id="features-cli-switchcontext">
                 <p>
                     For switching channels in the GNU readline-based
                     command-line interface, press ^O (that is, Ctrl-O).
@@ -95,7 +125,7 @@
                 </p>
             </li>
 
-            <li>
+            <li id="features-cli-quietmode">
                 <p>
                     "<code>cvnirc-qt-cli -q</code>" will now omit copying
                     the raw IRC protocol lines sent/received to the terminal.
