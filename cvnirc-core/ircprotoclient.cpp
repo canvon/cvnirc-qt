@@ -161,11 +161,22 @@ void IRCProtoClient::processIncomingData()
                  iter < usedEnd;
                  iter++)
             {
+                if (*iter == '\0') {
+                    notifyUser("Protocol error: Server sent a NUL byte: Aborting connection.");
+                    socket->abort();
+                    return;
+                }
+
                 switch (state) {
                 case 0:
                     if (*iter == '\r') {
                         state++;
                         continue;
+                    }
+                    else if (*iter == '\n') {
+                        notifyUser("Protocol error: Server seems to have broken line-termination! (Stray LF.) Aborting connection.");
+                        socket->abort();
+                        return;
                     }
                     break;
                 case 1:
@@ -173,7 +184,7 @@ void IRCProtoClient::processIncomingData()
                         state++;
                     }
                     else {
-                        notifyUser("Protocol error: Server seems to have broken line-termination! Aborting connection.");
+                        notifyUser("Protocol error: Server seems to have broken line-termination! (CR not followed by LF.) Aborting connection.");
                         socket->abort();
                         return;
                     }
