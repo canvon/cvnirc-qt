@@ -19,7 +19,16 @@
         </toc>
         <files>
             <file>style.css</file>
-            <file>*.html</file>
+            <!-- It's technically possible to include *.html,
+                 but that way the help file generator can't know
+                 what files it *should* see/include, and would not complain
+                 if something is missing. So, rather list things explicitly. -->
+            <file>index.html</file>
+            <file>build.html</file>
+            <file>features.html</file>
+            <!-- Generated: -->
+            <file>README.html</file>
+            <file>TODO.html</file>
         </files>
     </filterSection>
 </QtHelpProject>
