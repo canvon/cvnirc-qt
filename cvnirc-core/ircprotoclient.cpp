@@ -190,6 +190,10 @@ void IRCProtoClient::processIncomingData()
             receivedRaw(rawLine);
         }
 
+        if (socketReadBufUsed == 0)
+            // Skip additional sanity checks, as no buffered data is left.
+            continue;  // Continue with next read attempt.
+
         // Still no complete line after 1 MiB?
         if (socketReadBufUsed >= 1*1024*1024) {
             notifyUser("Protocol error: Server sends data which either is "
@@ -200,13 +204,22 @@ void IRCProtoClient::processIncomingData()
 
         // TODO: Test for: Still buffer contents with no complete line after (some minutes)?
 
+        const QByteArray leftover(socketReadBuf.left(socketReadBufUsed));
+
+        if (leftover.contains('\0')) {
+            notifyUser("Protocol error: Server sent a NUL byte "
+                       "(detected after extracting all lines from buffer): Aborting connection.");
+            socket->abort();
+            return;
+        }
+
         // (A stray '\r' could actually happen when the CR/LF message framing
         // line terminator is split between two reads. But who uses CR alone
         // as line terminator nowadays, anyhow. The perhaps more commonly
         // to be expected case might be a server that sends LF only, which this
         // will then lead to connection abort.)
         //
-        if (/* socketReadBuf.contains('\r') || */ socketReadBuf.contains('\n')) {
+        if (/* leftover.contains('\r') || */ leftover.contains('\n')) {
             notifyUser("Protocol error: Server seems to have broken line-termination! "
                        "(Stray LF found after extracting all lines from buffer.) Aborting connection.");
             socket->abort();
