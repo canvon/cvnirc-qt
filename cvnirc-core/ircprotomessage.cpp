@@ -17,8 +17,7 @@ IRCProtoMessage::tokens_type IRCProtoMessage::splitRawLine(const QString &rawLin
 
         switch (c.toLatin1()) {
         case ' ':
-        case '\t':
-            // White-space.
+            // Space.
             if (token.length() == 0) {
                 // Skip.
                 continue;
