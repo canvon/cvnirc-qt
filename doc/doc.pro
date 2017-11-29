@@ -5,6 +5,17 @@
 
 TEMPLATE = aux
 
+
+# Convert parts of documentation from MarkDown to HTML format
+MD_FILES += ../README.md ../TODO.md
+
+md_html.input = MD_FILES
+md_html.output = ${QMAKE_FILE_BASE}.html
+md_html.commands = markdown ${QMAKE_FILE_NAME} >${QMAKE_FILE_OUT}
+md_html.CONFIG = no_link target_predeps
+QMAKE_EXTRA_COMPILERS += md_html
+
+
 # The following has been taken from [1], then adjusted. Original quoted:
 # [1] http://www.qtcentre.org/threads/22075-QMake-to-Build-Help-Files
 #
@@ -36,6 +47,7 @@ QHP_DEPENDS_SOURCE += \
 for(src, QHP_DEPENDS_SOURCE) {
     QHP_DEPENDS += $$PWD/$$src
 }
+QHP_DEPENDS += README.html TODO.html
 
 qhp_qhc.input = QHP_FILES
 qhp_qhc.depends = $$QHP_DEPENDS

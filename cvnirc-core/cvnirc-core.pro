@@ -47,10 +47,6 @@ HEADERS += cvnirc-core_global.h \
     commanddefinition.h \
     irccorecommandgroup.h
 
-DISTFILES += \
-    ../README.txt \
-    ../TODO.txt
-
 unix {
     target.path = /usr/lib
     INSTALLS += target

@@ -11,8 +11,10 @@
         <filterAttribute>0.5</filterAttribute>
         <toc>
             <section title="cvnirc-qt Manual" ref="index.html">
+                <section title="README"       ref="README.html"/>
                 <section title="How to build" ref="build.html"/>
                 <section title="Features"     ref="features.html"/>
+                <section title="TODO list"    ref="TODO.html"/>
             </section>
         </toc>
         <files>
