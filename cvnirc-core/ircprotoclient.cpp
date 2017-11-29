@@ -5,8 +5,7 @@
 
 IRCProtoClient::IRCProtoClient(QObject *parent) : QObject(parent),
     socket(new QTcpSocket(this)),
-    socketReadBuf(10*1024),
-    socketReadBufUsed(0),
+    socketReadBuf(10*1024, '\0'),
     _connectionState(ConnectionState::Disconnected)
 {
     // Set up signals & slots.
@@ -148,79 +147,70 @@ void IRCProtoClient::processIncomingData()
 {
     processOutgoingData();
 
-    if (socketReadBufUsed >= socketReadBuf.size()) {
-        notifyUser("Socket read buffer size exceeded, aborting connection.");
-        socket->abort();
-        return;
-    }
-
+    // Grow and read into socketReadBuf.
     qint64 ret = 0;
-    while ((ret = socket->read(socketReadBuf.data() + socketReadBufUsed,
+    while (socketReadBuf.resize(socketReadBufUsed + 10*1024),
+           (ret = socket->read(socketReadBuf.data() + socketReadBufUsed,
                                socketReadBuf.size() - socketReadBufUsed)
             ) > 0) {
         socketReadBufUsed += ret;
 
-        while (socketReadBufUsed > 0) {
-            int state = 0;
-            socketReadBuf_type::const_iterator usedEnd = socketReadBuf.cbegin() + socketReadBufUsed;
-            socketReadBuf_type::const_iterator iter;
-
-            for (iter = socketReadBuf.cbegin();
-                 iter < usedEnd;
-                 iter++)
-            {
-                if (*iter == '\0') {
-                    notifyUser("Protocol error: Server sent a NUL byte: Aborting connection.");
-                    socket->abort();
-                    return;
-                }
-
-                switch (state) {
-                case 0:
-                    if (*iter == '\r') {
-                        state++;
-                        continue;
-                    }
-                    else if (*iter == '\n') {
-                        notifyUser("Protocol error: Server seems to have broken line-termination! (Stray LF.) Aborting connection.");
-                        socket->abort();
-                        return;
-                    }
-                    break;
-                case 1:
-                    if (*iter == '\n') {
-                        state++;
-                    }
-                    else {
-                        notifyUser("Protocol error: Server seems to have broken line-termination! (CR not followed by LF.) Aborting connection.");
-                        socket->abort();
-                        return;
-                    }
-                    break;
-                }
-
-                if (state == 2) {
-                    state = 0;
-                    qint64 lineLen = iter - socketReadBuf.cbegin() - 1;
-                    socketReadBuf[lineLen] = '\0';
-                    QString line(socketReadBuf.data());
-
-                    if (socketReadBufUsed >= lineLen + 2) {
-                        socketReadBuf_type::iterator writeIter = socketReadBuf.begin();
-                        socketReadBuf_type::const_iterator readIter = iter + 1;
-                        while (usedEnd - readIter > 0)
-                            *writeIter++ = *readIter++;
-                        socketReadBufUsed -= lineLen + 2;
-                    }
-
-                    // Interpret messages.
-                    receivedRaw(line);
-                    break;
-                }
+        // Look for completely received lines.
+        int iCrLf;
+        while ((iCrLf = socketReadBuf.indexOf("\r\n")) >= 0) {
+            int len = iCrLf + 2;
+            QByteArray rawLineBytesCrLf = socketReadBuf.left(len);  // Extract line.
+            socketReadBuf.remove(0, len);  // Remove line from buffer.
+            socketReadBufUsed -= len;
+            if (socketReadBufUsed < 0) {
+                socketReadBufUsed = 0;
+                notifyUser("Internal error: Socket buffer used had become negative; "
+                           "corrected, but this should not happen!");
+                return;
             }
 
-            if (iter >= usedEnd)
-                break;
+            if (rawLineBytesCrLf.contains('\0')) {
+                notifyUser("Protocol error: Server sent a NUL byte "
+                           "(detected in extracted line): Aborting connection.");
+                socket->abort();
+                return;
+            }
+
+            QByteArray rawLineBytes(rawLineBytesCrLf);
+            rawLineBytes.chop(2);  // Strip CR/LF.
+            if (rawLineBytes.contains('\r') || rawLineBytes.contains('\n')) {
+                notifyUser("Protocol error: Server seems to have broken line-termination! "
+                           "(Stray CR or LF found in extracted line.) Aborting connection.");
+                socket->abort();
+                return;
+            }
+
+            // Interpret message.
+            QString rawLine(rawLineBytes);
+            receivedRaw(rawLine);
+        }
+
+        // Still no complete line after 1 MiB?
+        if (socketReadBufUsed >= 1*1024*1024) {
+            notifyUser("Protocol error: Server sends data which either is "
+                       "an extremely large line, or garbage: Aborting connection.");
+            socket->abort();
+            return;
+        }
+
+        // TODO: Test for: Still buffer contents with no complete line after (some minutes)?
+
+        // (A stray '\r' could actually happen when the CR/LF message framing
+        // line terminator is split between two reads. But who uses CR alone
+        // as line terminator nowadays, anyhow. The perhaps more commonly
+        // to be expected case might be a server that sends LF only, which this
+        // will then lead to connection abort.)
+        //
+        if (/* socketReadBuf.contains('\r') || */ socketReadBuf.contains('\n')) {
+            notifyUser("Protocol error: Server seems to have broken line-termination! "
+                       "(Stray LF found after extracting all lines from buffer.) Aborting connection.");
+            socket->abort();
+            return;
         }
     }
 

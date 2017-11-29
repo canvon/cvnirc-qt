@@ -5,7 +5,7 @@
 
 #include <QObject>
 #include <QAbstractSocket>
-#include <vector>
+#include <QByteArray>
 #include <deque>
 
 #include "ircprotomessage.h"
@@ -78,10 +78,8 @@ private slots:
 
 private:
     QTcpSocket *socket;
-
-    typedef std::vector<char> socketReadBuf_type;
-    socketReadBuf_type socketReadBuf;
-    int socketReadBufUsed;
+    QByteArray  socketReadBuf;
+    qint64      socketReadBufUsed = 0;
 
     std::deque<QString> sendQueue;
 
