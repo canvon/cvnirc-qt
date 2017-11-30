@@ -47,6 +47,7 @@ QHP_INCLUDES_DIST += \
     features.html
 for(src, QHP_INCLUDES_DIST) {
     QHP_INCLUDES_DIST_SRCDIR += $$relative_path($$PWD/$$src, $$OUT_PWD)
+    QHP_INCLUDES_DIST_GENDIR += generated/$$src
     #QHP_INCLUDES += generated/$$src
 }
 #QHP_INCLUDES += generated/README.html generated/TODO.html
@@ -58,6 +59,7 @@ prepare_generated.target = generated/stamp
 prepare_generated.depends = $$QHP_INCLUDES_DIST_SRCDIR
 prepare_generated.commands = mkdir -p generated && cp -t generated $$prepare_generated.depends && touch generated/stamp
 QMAKE_EXTRA_TARGETS += prepare_generated
+QMAKE_CLEAN += $$prepare_generated.target $$QHP_INCLUDES_DIST_GENDIR
 
 qhp_qch.input = QHP_SOURCES
 #qhp_qch.variable_out = QHCP_INCLUDES  # See above.
