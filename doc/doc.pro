@@ -48,11 +48,17 @@ QHP_INCLUDES_DIST += \
 for(src, QHP_INCLUDES_DIST) {
     QHP_INCLUDES_DIST_SRCDIR += $$relative_path($$PWD/$$src, $$OUT_PWD)
     QHP_INCLUDES_DIST_GENDIR += generated/$$src
-    #QHP_INCLUDES += generated/$$src
+    QHP_INCLUDES += generated/$$src
 }
-#QHP_INCLUDES += generated/README.html generated/TODO.html
+QHP_INCLUDES += \
+    generated/README.html \
+    generated/TODO.html
 # ^ Manual QHP_INCLUDES should not be necessary with the new .depend_command
 #   (They led to duplicated dependency listings in the generated Makefile.)
+# ^ Yes, they may well be necessary! The output of a qmake compiler's
+#   .depend_command seems to be filtered to ignore files that don't exist,
+#   apparently without regard for whether they might be buildable by us.
+#   So specify everything explicitly, too, and try to live with the duplicates?
 
 # Prepare "generated" subdirectory
 prepare_generated.target = generated/stamp
@@ -74,7 +80,8 @@ QMAKE_EXTRA_COMPILERS += qhp_qch
 
 # The help collection file
 QHCP_SOURCES += cvnirc-qt-collection.qhcp
-#QHCP_INCLUDES += cvnirc-qt.qch
+QHCP_INCLUDES += \
+    cvnirc-qt.qch
 
 qhcp_qhc.input = QHCP_SOURCES
 #qhcp_qhc.variable_out = INSTALLS
