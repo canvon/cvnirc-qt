@@ -441,7 +441,7 @@ void MainWindow::on_actionLocalOnlineHelp_triggered()
         return;
     }
 
-    QString helpFileBasename = "cvnirc-qt-collection.qch";
+    QString helpFileBasename = "cvnirc-qt-collection.qhc";
     QString helpFileName;
     QStringList locations = {
         ".",
