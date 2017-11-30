@@ -61,11 +61,13 @@ QMAKE_EXTRA_TARGETS += prepare_generated
 
 qhp_qch.input = QHP_SOURCES
 #qhp_qch.variable_out = QHCP_INCLUDES  # See above.
+#qhp_qch.variable_out = TARGET  # This gives make warnings.
+qhp_qch.variable_out = OBJECTS
 qhp_qch.depends = generated/stamp $$QHP_INCLUDES
 qhp_qch.depend_command = sed -n -f ${QMAKE_FILE_IN_PATH}/qhelpxml2files.sed ${QMAKE_FILE_NAME} | sed -e s,^,generated/,
 qhp_qch.output = ${QMAKE_FILE_BASE}.qch
 qhp_qch.commands = cp -t generated ${QMAKE_FILE_NAME} && qhelpgenerator generated/${QMAKE_FILE_BASE}.qhp -o ${QMAKE_FILE_OUT}
-qhp_qch.CONFIG = no_link target_predeps
+qhp_qch.CONFIG = no_link  # target_predeps
 QMAKE_EXTRA_COMPILERS += qhp_qch
 
 # The help collection file
@@ -74,11 +76,13 @@ QHCP_SOURCES += cvnirc-qt-collection.qhcp
 
 qhcp_qhc.input = QHCP_SOURCES
 #qhcp_qhc.variable_out = INSTALLS
+#qhcp_qhc.variable_out = TARGET  # This gives make warnings.
+qhcp_qhc.variable_out = OBJECTS
 qhcp_qhc.depends = $$QHCP_INCLUDES
 qhcp_qhc.depend_command = sed -n -f ${QMAKE_FILE_IN_PATH}/qhelpxml2files.sed ${QMAKE_FILE_NAME}
 qhcp_qhc.output = ${QMAKE_FILE_BASE}.qhc
 qhcp_qhc.commands = cp ${QMAKE_FILE_NAME} ${QMAKE_FILE_BASE}.qhcp ; qcollectiongenerator ${QMAKE_FILE_BASE}.qhcp -o ${QMAKE_FILE_OUT}
-qhcp_qhc.CONFIG = no_link target_predeps
+qhcp_qhc.CONFIG = no_link  # target_predeps
 QMAKE_EXTRA_COMPILERS += qhcp_qhc
 
 DISTFILES += qhelpxml2files.sed
