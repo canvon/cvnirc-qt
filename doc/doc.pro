@@ -7,10 +7,11 @@ TEMPLATE = aux
 
 
 # Convert parts of documentation from MarkDown to HTML format
-MD_FILES += ../README.md ../TODO.md
+MD_SOURCES += ../README.md ../TODO.md
 
-md_html.input = MD_FILES
-md_html.output = ${QMAKE_FILE_BASE}.html
+md_html.input = MD_SOURCES
+md_html.variable_out = MD_GENERATED
+md_html.output = generated/${QMAKE_FILE_BASE}.html
 md_html.commands = markdown ${QMAKE_FILE_NAME} >${QMAKE_FILE_OUT}
 md_html.CONFIG = no_link target_predeps
 QMAKE_EXTRA_COMPILERS += md_html
@@ -38,34 +39,42 @@ QMAKE_EXTRA_COMPILERS += md_html
 
 # The help
 # Using a "custom compiler"
-QHP_FILES += cvnirc-qt.qhp
-QHP_DEPENDS_SOURCE += \
+QHP_SOURCES += cvnirc-qt.qhp
+QHP_INCLUDES_DIST += \
     style.css \
     index.html \
     build.html \
     features.html
-for(src, QHP_DEPENDS_SOURCE) {
-    QHP_DEPENDS += $$PWD/$$src
+for(src, QHP_INCLUDES_DIST) {
+    QHP_INCLUDES_DIST_SRCDIR += $$PWD/$$src
+    QHP_INCLUDES += generated/$$src
 }
-QHP_DEPENDS += README.html TODO.html
+QHP_INCLUDES += $$MD_GENERATED
 
-qhp_qhc.input = QHP_FILES
-qhp_qhc.depends = $$QHP_DEPENDS
+# Prepare "generated" subdirectory
+prepare_generated.target = generated/stamp
+prepare_generated.depends = $$QHP_INCLUDES_DIST_SRCDIR
+prepare_generated.commands = mkdir -p generated && cp -t generated $$prepare_generated.depends && touch generated/stamp
+QMAKE_EXTRA_TARGETS += prepare_generated
+
+qhp_qhc.input = QHP_SOURCES
+qhp_qhc.variable_out = QHP_GENERATED
+qhp_qhc.depends = generated/stamp $$QHP_INCLUDES
 qhp_qhc.output = ${QMAKE_FILE_BASE}.qch
-qhp_qhc.commands = qhelpgenerator ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
+qhp_qhc.commands = cp -t generated ${QMAKE_FILE_NAME} && qhelpgenerator generated/${QMAKE_FILE_BASE}.qhp -o ${QMAKE_FILE_OUT}
 qhp_qhc.CONFIG = no_link target_predeps
 QMAKE_EXTRA_COMPILERS += qhp_qhc
 
 # The help collection file
-QHCP_FILES += cvnirc-qt-collection.qhcp
-QHCP_DEPENDS += \
-    cvnirc-qt.qch
+QHCP_SOURCES += cvnirc-qt-collection.qhcp
+QHCP_INCLUDES += $$QHP_GENERATED
 
-qhcp_qhc.input = QHCP_FILES
-qhcp_qhc.depends = $$QHCP_DEPENDS
+qhcp_qhc.input = QHCP_SOURCES
+qhcp_qhc.variable_out = QHCP_GENERATED
+qhcp_qhc.depends = $$QHCP_INCLUDES
 qhcp_qhc.output = ${QMAKE_FILE_BASE}.qch
 qhcp_qhc.commands = cp ${QMAKE_FILE_NAME} ${QMAKE_FILE_BASE}.qhcp ; qcollectiongenerator ${QMAKE_FILE_BASE}.qhcp -o ${QMAKE_FILE_OUT}
 qhcp_qhc.CONFIG = no_link target_predeps
 QMAKE_EXTRA_COMPILERS += qhcp_qhc
 
-DISTFILES += $$QHP_DEPENDS_SOURCE
+DISTFILES += $$QHP_INCLUDES_DIST
