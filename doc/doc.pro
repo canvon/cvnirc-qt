@@ -75,6 +75,7 @@ qhp_qch.depends = generated/stamp $$QHP_INCLUDES
 qhp_qch.depend_command = sed -n -f ${QMAKE_FILE_IN_PATH}/qhelpxml2files.sed ${QMAKE_FILE_NAME} | sed -e s,^,generated/,
 qhp_qch.output = ${QMAKE_FILE_BASE}.qch
 qhp_qch.commands = cp -t generated ${QMAKE_FILE_NAME} && qhelpgenerator generated/${QMAKE_FILE_BASE}.qhp -o ${QMAKE_FILE_OUT}
+qhp_qch.clean = ${QMAKE_FILE_OUT} generated/${QMAKE_FILE_BASE}.qhp
 qhp_qch.CONFIG = no_link  # target_predeps
 QMAKE_EXTRA_COMPILERS += qhp_qch
 
