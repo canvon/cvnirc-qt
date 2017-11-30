@@ -13,7 +13,7 @@ md_html.input = MD_SOURCES
 #md_html.variable_out = QHP_INCLUDES  # This seems to not work with .depends, as that does not make a variable magic.
 md_html.output = generated/${QMAKE_FILE_BASE}.html
 md_html.commands = markdown ${QMAKE_FILE_NAME} >${QMAKE_FILE_OUT}
-md_html.CONFIG = no_link target_predeps
+md_html.CONFIG = no_link  # target_predeps
 QMAKE_EXTRA_COMPILERS += md_html
 
 
