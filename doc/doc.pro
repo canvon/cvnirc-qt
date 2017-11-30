@@ -10,7 +10,7 @@ TEMPLATE = aux
 MD_SOURCES += ../README.md ../TODO.md
 
 md_html.input = MD_SOURCES
-md_html.variable_out = QHP_INCLUDES
+#md_html.variable_out = QHP_INCLUDES  # This seems to not work with .depends, as that does not make a variable magic.
 md_html.output = generated/${QMAKE_FILE_BASE}.html
 md_html.commands = markdown ${QMAKE_FILE_NAME} >${QMAKE_FILE_OUT}
 md_html.CONFIG = no_link target_predeps
@@ -47,9 +47,11 @@ QHP_INCLUDES_DIST += \
     features.html
 for(src, QHP_INCLUDES_DIST) {
     QHP_INCLUDES_DIST_SRCDIR += $$relative_path($$PWD/$$src, $$OUT_PWD)
-    QHP_INCLUDES += generated/$$src
+    #QHP_INCLUDES += generated/$$src
 }
-#QHP_INCLUDES += $$MD_GENERATED
+#QHP_INCLUDES += generated/README.html generated/TODO.html
+# ^ Manual QHP_INCLUDES should not be necessary with the new .depend_command
+#   (They led to duplicated dependency listings in the generated Makefile.)
 
 # Prepare "generated" subdirectory
 prepare_generated.target = generated/stamp
@@ -58,8 +60,9 @@ prepare_generated.commands = mkdir -p generated && cp -t generated $$prepare_gen
 QMAKE_EXTRA_TARGETS += prepare_generated
 
 qhp_qch.input = QHP_SOURCES
-qhp_qch.variable_out = QHCP_INCLUDES  # QHP_GENERATED
+#qhp_qch.variable_out = QHCP_INCLUDES  # See above.
 qhp_qch.depends = generated/stamp $$QHP_INCLUDES
+qhp_qch.depend_command = sed -n -f ${QMAKE_FILE_IN_PATH}/qhelpxml2files.sed ${QMAKE_FILE_NAME} | sed -e s,^,generated/,
 qhp_qch.output = ${QMAKE_FILE_BASE}.qch
 qhp_qch.commands = cp -t generated ${QMAKE_FILE_NAME} && qhelpgenerator generated/${QMAKE_FILE_BASE}.qhp -o ${QMAKE_FILE_OUT}
 qhp_qch.CONFIG = no_link target_predeps
@@ -67,15 +70,16 @@ QMAKE_EXTRA_COMPILERS += qhp_qch
 
 # The help collection file
 QHCP_SOURCES += cvnirc-qt-collection.qhcp
-#QHCP_INCLUDES += $$QHP_GENERATED
+#QHCP_INCLUDES += cvnirc-qt.qch
 
 qhcp_qhc.input = QHCP_SOURCES
-#qhcp_qhc.variable_out = QHCP_GENERATED
 #qhcp_qhc.variable_out = INSTALLS
 qhcp_qhc.depends = $$QHCP_INCLUDES
+qhcp_qhc.depend_command = sed -n -f ${QMAKE_FILE_IN_PATH}/qhelpxml2files.sed ${QMAKE_FILE_NAME}
 qhcp_qhc.output = ${QMAKE_FILE_BASE}.qhc
 qhcp_qhc.commands = cp ${QMAKE_FILE_NAME} ${QMAKE_FILE_BASE}.qhcp ; qcollectiongenerator ${QMAKE_FILE_BASE}.qhcp -o ${QMAKE_FILE_OUT}
 qhcp_qhc.CONFIG = no_link target_predeps
 QMAKE_EXTRA_COMPILERS += qhcp_qhc
 
+DISTFILES += qhelpxml2files.sed
 DISTFILES += $$QHP_INCLUDES_DIST
