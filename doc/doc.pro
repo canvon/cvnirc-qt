@@ -91,7 +91,8 @@ qhcp_qhc.variable_out = OBJECTS
 qhcp_qhc.depends = $$QHCP_INCLUDES
 qhcp_qhc.depend_command = sed -n -f ${QMAKE_FILE_IN_PATH}/qhelpxml2files.sed ${QMAKE_FILE_NAME}
 qhcp_qhc.output = ${QMAKE_FILE_BASE}.qhc
-qhcp_qhc.commands = cp ${QMAKE_FILE_NAME} ${QMAKE_FILE_BASE}.qhcp ; qcollectiongenerator ${QMAKE_FILE_BASE}.qhcp -o ${QMAKE_FILE_OUT}
+qhcp_qhc.commands = cp ${QMAKE_FILE_NAME} ${QMAKE_FILE_BASE}.build.qhcp && qcollectiongenerator ${QMAKE_FILE_BASE}.build.qhcp -o ${QMAKE_FILE_OUT}
+qhcp_qhc.clean = ${QMAKE_FILE_OUT} ${QMAKE_FILE_BASE}.build.qhcp
 qhcp_qhc.CONFIG = no_link  # target_predeps
 QMAKE_EXTRA_COMPILERS += qhcp_qhc
 
