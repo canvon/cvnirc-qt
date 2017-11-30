@@ -46,7 +46,7 @@ QHP_INCLUDES_DIST += \
     build.html \
     features.html
 for(src, QHP_INCLUDES_DIST) {
-    QHP_INCLUDES_DIST_SRCDIR += $$PWD/$$src
+    QHP_INCLUDES_DIST_SRCDIR += $$relative_path($$PWD/$$src, $$OUT_PWD)
     QHP_INCLUDES += generated/$$src
 }
 QHP_INCLUDES += $$MD_GENERATED
