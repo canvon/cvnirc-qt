@@ -10,7 +10,7 @@ TEMPLATE = aux
 MD_SOURCES += ../README.md ../TODO.md
 
 md_html.input = MD_SOURCES
-md_html.variable_out = MD_GENERATED
+md_html.variable_out = QHP_INCLUDES
 md_html.output = generated/${QMAKE_FILE_BASE}.html
 md_html.commands = markdown ${QMAKE_FILE_NAME} >${QMAKE_FILE_OUT}
 md_html.CONFIG = no_link target_predeps
@@ -49,7 +49,7 @@ for(src, QHP_INCLUDES_DIST) {
     QHP_INCLUDES_DIST_SRCDIR += $$relative_path($$PWD/$$src, $$OUT_PWD)
     QHP_INCLUDES += generated/$$src
 }
-QHP_INCLUDES += $$MD_GENERATED
+#QHP_INCLUDES += $$MD_GENERATED
 
 # Prepare "generated" subdirectory
 prepare_generated.target = generated/stamp
@@ -58,7 +58,7 @@ prepare_generated.commands = mkdir -p generated && cp -t generated $$prepare_gen
 QMAKE_EXTRA_TARGETS += prepare_generated
 
 qhp_qch.input = QHP_SOURCES
-qhp_qch.variable_out = QHP_GENERATED
+qhp_qch.variable_out = QHCP_INCLUDES  # QHP_GENERATED
 qhp_qch.depends = generated/stamp $$QHP_INCLUDES
 qhp_qch.output = ${QMAKE_FILE_BASE}.qch
 qhp_qch.commands = cp -t generated ${QMAKE_FILE_NAME} && qhelpgenerator generated/${QMAKE_FILE_BASE}.qhp -o ${QMAKE_FILE_OUT}
@@ -67,10 +67,11 @@ QMAKE_EXTRA_COMPILERS += qhp_qch
 
 # The help collection file
 QHCP_SOURCES += cvnirc-qt-collection.qhcp
-QHCP_INCLUDES += $$QHP_GENERATED
+#QHCP_INCLUDES += $$QHP_GENERATED
 
 qhcp_qhc.input = QHCP_SOURCES
-qhcp_qhc.variable_out = QHCP_GENERATED
+#qhcp_qhc.variable_out = QHCP_GENERATED
+#qhcp_qhc.variable_out = INSTALLS
 qhcp_qhc.depends = $$QHCP_INCLUDES
 qhcp_qhc.output = ${QMAKE_FILE_BASE}.qhc
 qhcp_qhc.commands = cp ${QMAKE_FILE_NAME} ${QMAKE_FILE_BASE}.qhcp ; qcollectiongenerator ${QMAKE_FILE_BASE}.qhcp -o ${QMAKE_FILE_OUT}
