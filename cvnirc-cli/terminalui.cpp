@@ -113,12 +113,12 @@ void TerminalUI::_setUserInputState(UserInputState newState)
     rl_redisplay();
 }
 
-IRCCore &TerminalUI::getIRC()
+IRCCore &TerminalUI::irc()
 {
     return _irc;
 }
 
-const IRCCore &TerminalUI::getIRC() const
+const IRCCore &TerminalUI::irc() const
 {
     return _irc;
 }

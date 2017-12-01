@@ -36,8 +36,8 @@ public:
     UserInputState userinputState();
 
     // FIXME: Rename the private field to _irc, so that the getter can be irc().
-    IRCCore &getIRC();
-    const IRCCore &getIRC() const;
+    IRCCore &irc();
+    const IRCCore &irc() const;
 
     int verboseLevel() const;
     void setVerboseLevel(int newVerboseLevel);

@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     // will need to get adjusted independently of each other, once the command
     // for that will have been implemented at all.)
     //
-    ui.getIRC().ircProtoClients().front()->setVerboseLevel(ui.verboseLevel());
+    ui.irc().ircProtoClients().front()->setVerboseLevel(ui.verboseLevel());
 
 
     // Set up GNU readline library.
