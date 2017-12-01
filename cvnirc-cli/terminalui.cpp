@@ -8,24 +8,24 @@
 
 TerminalUI::TerminalUI(FILE *inFileC, FILE *outFileC, QObject *parent) :
     QObject(parent),
-    irc(this),
-    cmdLayer(this),
-    inFile(this), outFile(this),
-    in((inFile.open(inFileC, QIODevice::ReadOnly), &inFile)),
-    out((outFile.open(outFileC, QIODevice::WriteOnly), &outFile)),
-    inNotify(inFile.handle(), QSocketNotifier::Read, this)
+    _irc(this),
+    _cmdLayer(this),
+    _inFile(this), _outFile(this),
+    _in((_inFile.open(inFileC, QIODevice::ReadOnly), &_inFile)),
+    _out((_outFile.open(outFileC, QIODevice::WriteOnly), &_outFile)),
+    _inNotify(_inFile.handle(), QSocketNotifier::Read, this)
 {
-    connect(&inNotify, &QSocketNotifier::activated, this, &TerminalUI::handle_inNotify_activated);
+    connect(&_inNotify, &QSocketNotifier::activated, this, &TerminalUI::handle_inNotify_activated);
 
-    connect(&irc, &IRCCore::createdContext, this, &TerminalUI::handle_irc_createdContext);
+    connect(&_irc, &IRCCore::createdContext, this, &TerminalUI::handle_irc_createdContext);
 
-    out << "Welcome to cvnirc-qt-cli." << endl;
+    _out << "Welcome to cvnirc-qt-cli." << endl;
 
     // Make some commands available to the user.
-    cmdLayer.rootCommandGroup().addSubGroup(new IRCCoreCommandGroup(&irc, "IRC"));
+    _cmdLayer.rootCommandGroup().addSubGroup(new IRCCoreCommandGroup(&_irc, "IRC"));
     // TODO: Also register UI-specific commands.
 
-    currentContext = irc.createIRCProtoClient();
+    _currentContext = _irc.createIRCProtoClient();
 
     // (Don't do this. The readline callback function will be registered
     // only *after* the ctor (to ensure that the global pointer is set
@@ -44,12 +44,12 @@ void TerminalUI::updateGeneralPrompt()
     if (_userInputState != UserInputState::General)
         return;
 
-    if (currentContext == nullptr) {
+    if (_currentContext == nullptr) {
         rl_set_prompt("cvnirc> ");
     }
     else {
-        rlPromptHolder = ("[" + currentContext->disambiguator() + "] ").toUtf8();
-        rl_set_prompt(rlPromptHolder.constData());
+        _rlPromptHolder = ("[" + _currentContext->disambiguator() + "] ").toUtf8();
+        rl_set_prompt(_rlPromptHolder.constData());
     }
 }
 
@@ -63,10 +63,10 @@ void TerminalUI::_setUserInputState(UserInputState newState)
     IRCProtoClient *client = nullptr;
 
     if (newState != UserInputState::General) {
-        if (currentContext == nullptr)
+        if (_currentContext == nullptr)
             throw std::runtime_error("TerminalUI UserInputState setter: Current context was not set");
 
-        client = currentContext->ircProtoClient();
+        client = _currentContext->ircProtoClient();
         if (client == nullptr)
             throw std::runtime_error("TerminalUI UserInputState setter: Context's IRC protocol client was not set");
     }
@@ -115,12 +115,12 @@ void TerminalUI::_setUserInputState(UserInputState newState)
 
 IRCCore &TerminalUI::getIRC()
 {
-    return irc;
+    return _irc;
 }
 
 const IRCCore &TerminalUI::getIRC() const
 {
-    return irc;
+    return _irc;
 }
 
 int TerminalUI::verboseLevel() const
@@ -147,10 +147,10 @@ void TerminalUI::userInput(const QString &line)
     IRCProtoClient *client = nullptr;
 
     if (_userInputState != UserInputState::General) {
-        if (currentContext == nullptr)
+        if (_currentContext == nullptr)
             throw std::runtime_error("TerminalUI user input handler: Current context was not set");
 
-        client = currentContext->ircProtoClient();
+        client = _currentContext->ircProtoClient();
         if (client == nullptr)
             throw std::runtime_error("TerminalUI user input handler: Context's IRC protocol client was not set");
     }
@@ -217,10 +217,10 @@ void TerminalUI::userInput(const QString &line)
         break;
     case UserInputState::General:
         try {
-            cmdLayer.processUserInput(line, currentContext);
+            _cmdLayer.processUserInput(line, _currentContext);
         }
         catch (const std::exception &ex) {
-            outLine(QString("Error processing user input: ") + ex.what(), currentContext);
+            outLine(QString("Error processing user input: ") + ex.what(), _currentContext);
             return;
         }
         break;
@@ -234,13 +234,13 @@ bool TerminalUI::cycleCurrentContext(int count)
         // Ignore.
         return true;
 
-    auto &contextList(irc.contexts());
+    auto &contextList(_irc.contexts());
     if (contextList.isEmpty()) {
         outLine("Cycle current context: No contexts available!");
         return false;
     }
 
-    auto start = currentContext;
+    auto start = _currentContext;
     if (start == nullptr) {
         if (count > 0) {
             start = contextList.front();
@@ -306,7 +306,7 @@ bool TerminalUI::switchToContext(IRCCoreContext *context)
         return false;
     }
 
-    currentContext = context;
+    _currentContext = context;
 
     updateGeneralPrompt();
     rl_redisplay();
@@ -329,8 +329,8 @@ void TerminalUI::outLine(const QString &line, IRCCoreContext *context)
     rl_clear_visible_line();
 #endif
     if (context != nullptr)
-        out << context->disambiguator() << " ";
-    out << line << endl;
+        _out << context->disambiguator() << " ";
+    _out << line << endl;
     rl_on_new_line();
     rl_redisplay();
 }

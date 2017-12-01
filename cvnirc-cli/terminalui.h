@@ -12,14 +12,14 @@
 class TerminalUI : public QObject
 {
     Q_OBJECT
-    IRCCore irc;
-    IRCCoreContext *currentContext = nullptr;
-    CommandLayer cmdLayer;
-    QFile inFile, outFile;
-    QTextStream in, out;
-    QSocketNotifier inNotify;
+    IRCCore _irc;
+    IRCCoreContext *_currentContext = nullptr;
+    CommandLayer _cmdLayer;
+    QFile _inFile, _outFile;
+    QTextStream _in, _out;
+    QSocketNotifier _inNotify;
     int _verboseLevel = 1;
-    QByteArray rlPromptHolder;
+    QByteArray _rlPromptHolder;
 public:
     enum class UserInputState {
         General,
