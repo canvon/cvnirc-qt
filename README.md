@@ -46,6 +46,6 @@ or, if you're using, e.g., Debian 8 or similarly older:
 To view the documentation (which is mostly empty as of writing,
 2017-11-26,) you can use:
 
-    build-cvnirc-qt$ assistant -collectionFile doc/cvnirc-qt-collection.qch
+    build-cvnirc-qt$ assistant -collectionFile doc/cvnirc-qt-collection.qhc
 
 That should display the built cvnirc-qt documentation Qt Help file.
