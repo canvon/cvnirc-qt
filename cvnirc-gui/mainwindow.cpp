@@ -10,9 +10,9 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
+    _irc(this),
+    _cmdLayer(this),
     _helpViewer(this),
-    irc(this),
-    cmdLayer(this),
     ui(new Ui::MainWindow),
     baseWindowTitle("cvnirc-qt")
 {
@@ -21,10 +21,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->logBufferProto->setType(LogBuffer::Type::Protocol);
 
     // Make some commands available to the user.
-    cmdLayer.rootCommandGroup().addSubGroup(new IRCCoreCommandGroup(&irc, "IRC"));
+    _cmdLayer.rootCommandGroup().addSubGroup(new IRCCoreCommandGroup(&_irc, "IRC"));
     // TODO: Also register UI-specific commands.
 
-    connect(&irc, &IRCCore::createdContext, this, &MainWindow::handle_irc_createdContext);
+    connect(&_irc, &IRCCore::createdContext, this, &MainWindow::handle_irc_createdContext);
     //connect(&irc, &IRCProtoClient::notifyUser, ui->logBufferMain, &LogBuffer::appendLine);
     //connect(&irc, &IRCProtoClient::sendingLine, ui->logBufferProto, &LogBuffer::appendSendingLine);
     //connect(&irc, &IRCProtoClient::receivedLine, ui->logBufferProto, &LogBuffer::appendReceivedLine);
@@ -56,9 +56,29 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+IRCCore &MainWindow::irc()
+{
+    return _irc;
+}
+
+const IRCCore &MainWindow::irc() const
+{
+    return _irc;
+}
+
+CommandLayer &MainWindow::cmdLayer()
+{
+    return _cmdLayer;
+}
+
+const CommandLayer &MainWindow::cmdLayer() const
+{
+    return _cmdLayer;
+}
+
 void MainWindow::updateState()
 {
-    auto &clients(irc.ircProtoClients());
+    auto &clients(_irc.ircProtoClients());
 
     // Update window title.
     int len = clients.length();
@@ -277,7 +297,7 @@ void MainWindow::on_action_Connect_triggered()
     if (dialog.exec() != QDialog::Accepted)
         return;
 
-    irc.connectToIRCServer(dialog.host(), dialog.port(), dialog.user(), dialog.nick());
+    _irc.connectToIRCServer(dialog.host(), dialog.port(), dialog.user(), dialog.nick());
 }
 
 void MainWindow::on_action_Reconnect_triggered()
@@ -317,7 +337,7 @@ void MainWindow::on_pushButtonUserInput_clicked()
     }
 
     try {
-        cmdLayer.processUserInput(line, context);
+        _cmdLayer.processUserInput(line, context);
     }
     catch (const std::exception &ex) {
         context->notifyUser(QString("Error processing user input: ") + ex.what());

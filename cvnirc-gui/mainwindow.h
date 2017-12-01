@@ -17,11 +17,18 @@ class LogBuffer;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+    IRCCore _irc;
+    CommandLayer _cmdLayer;
     QProcess _helpViewer;
 
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+    IRCCore &irc();
+    const IRCCore &irc() const;
+    CommandLayer &cmdLayer();
+    const CommandLayer &cmdLayer() const;
 
     QWidget *findTabWidgetForContext(IRCCoreContext *context);
     QWidget *openTabForContext(IRCCoreContext *context);
@@ -29,9 +36,6 @@ public:
 
     QStringList tabNameComponents(const LogBuffer &logBuf);
     void applyTabNameComponents(LogBuffer *logBuf, const QStringList &components);
-
-    IRCCore irc;
-    CommandLayer cmdLayer;
 
 public slots:
     void updateState();
