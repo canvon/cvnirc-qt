@@ -41,6 +41,11 @@ FORMS += mainwindow.ui \
 RESOURCES += \
     cvnirc-gui.qrc
 
+unix {
+    target.path = /usr/local/bin
+    INSTALLS += target
+}
+
 include(../include/versioncheck.pro)
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../cvnirc-core/release/ -lcvnirc-core

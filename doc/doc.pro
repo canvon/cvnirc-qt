@@ -98,3 +98,11 @@ QMAKE_EXTRA_COMPILERS += qhcp_qhc
 
 DISTFILES += qhelpxml2files.sed
 DISTFILES += $$QHP_INCLUDES_DIST
+
+unix {
+    target.path = /usr/local/lib/cvnirc-qt
+    target.files += \
+        cvnirc-qt.qch \
+        cvnirc-qt-collection.qhc
+    INSTALLS += target
+}

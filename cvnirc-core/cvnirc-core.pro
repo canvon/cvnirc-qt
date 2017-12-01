@@ -48,7 +48,7 @@ HEADERS += cvnirc-core_global.h \
     irccorecommandgroup.h
 
 unix {
-    target.path = /usr/lib
+    target.path = /usr/local/lib
     INSTALLS += target
 }
 

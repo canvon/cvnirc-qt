@@ -16,6 +16,11 @@ SOURCES += main.cpp \
 HEADERS += \
     terminalui.h
 
+unix {
+    target.path = /usr/local/bin
+    INSTALLS += target
+}
+
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the

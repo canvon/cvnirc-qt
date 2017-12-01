@@ -446,7 +446,7 @@ void MainWindow::on_actionLocalOnlineHelp_triggered()
     QStringList locations = {
         ".",
         "../doc",
-        "/usr/local/share/cvnirc-qt",
+        "/usr/local/lib/cvnirc-qt",
     };
 
     for (QString location : locations) {
