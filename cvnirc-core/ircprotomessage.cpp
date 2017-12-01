@@ -2,20 +2,30 @@
 
 #include <stdexcept>
 
-IRCProtoMessage::tokens_type IRCProtoMessage::splitRawLine(const QString &rawLine)
+namespace cvnirc   {
+namespace core     {  // cvnirc::core
+namespace IRCProto {  // cvnirc::core::IRCProto
+
+MessageAsTokens MessageOnNetwork::parse() const
 {
-    tokens_type ret;
-    QString token;
+    QByteArray line(bytes);
+    // Remove message framing (line terminator).
+    // TODO: Make this a requirement! But for a transition period, parse() doesn't throw, so it's optional.
+    if (line.endsWith("\r\n"))
+        line.chop(2);
+
+    QByteArrayList parsedTokens;
+    QByteArray token;
     bool quoteStarted = false;
 
-    for (QChar c : rawLine)
+    for (char c : line)
     {
         if (quoteStarted) {
             token.append(c);
             continue;
         }
 
-        switch (c.toLatin1()) {
+        switch (c) {
         case ' ':
             // Space.
             if (token.length() == 0) {
@@ -24,11 +34,11 @@ IRCProtoMessage::tokens_type IRCProtoMessage::splitRawLine(const QString &rawLin
             }
 
             // Otherwise, break token.
-            ret.push_back(token);
+            parsedTokens.push_back(token);
             token.clear();
             break;
         case ':':
-            if (ret.size() == 0 || token.length() > 0) {
+            if (parsedTokens.size() == 0 || token.length() > 0) {
                 // Append to token.
                 token.append(c);
             }
@@ -46,84 +56,81 @@ IRCProtoMessage::tokens_type IRCProtoMessage::splitRawLine(const QString &rawLin
 
     // Cater for last token.
     if (token.length() > 0 || quoteStarted)
-        ret.push_back(token);
+        parsedTokens.push_back(token);
 
-    return ret;
-}
 
-IRCProtoMessage::IRCProtoMessage(const QString &rawLine) :
-    msgType(MsgType::Unknown),
-    rawLine(rawLine)
-{
-    mainTokens = splitRawLine(rawLine);
-    if (mainTokens.size() >= 1 && mainTokens[0].length() >= 1 && mainTokens[0][0] == ':') {
-        prefix = mainTokens[0];
-        mainTokens.erase(mainTokens.begin());
+    QByteArray prefix;
+
+    if (!parsedTokens.isEmpty() && parsedTokens.front().startsWith(':')) {
+        prefix = parsedTokens.front();
+        prefix.remove(0, 1);  // Strip prefix identifier from identified prefix.
+        parsedTokens.pop_front();
     }
+
+    return MessageAsTokens { prefix, parsedTokens };
 }
 
-IRCProtoMessage::IRCProtoMessage(const QString &rawLine, const QString &prefix, const IRCProtoMessage::tokens_type &mainTokens) :
-    msgType(MsgType::Unknown),
-    rawLine(rawLine),
-    prefix(prefix),
-    mainTokens(mainTokens)
+MessageOnNetwork MessageAsTokens::pack() const
+{
+    throw std::logic_error("MessageAsTokens::pack(): Not implemented");
+}
+
+Message::Message() :
+    msgType(MsgType::Unknown)
 {
 
 }
 
-PingPongIRCProtoMessage::PingPongIRCProtoMessage(
-    const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,
-    MsgType msgType, const QString &target) :
-        IRCProtoMessage(rawLine, prefix, mainTokens),
-        target(target)
+Message::Message(Message::MsgType msgType) :
+    msgType(msgType)
+{
+
+}
+
+PingPongMessage::PingPongMessage(MsgType msgType, const QString &target) :
+    Message(msgType),
+    target(target)
 {
     switch (msgType) {
     case MsgType::Ping:
     case MsgType::Pong:
         break;
     default:
-        throw std::invalid_argument("PingPongIRCProtoMessage ctor: Invalid msgType " + std::to_string((int)msgType));
+        throw std::invalid_argument("PingPongMessage ctor: Invalid msgType " + std::to_string((int)msgType));
     }
-    this->msgType = msgType;
 }
 
-NumericIRCProtoMessage::NumericIRCProtoMessage(
-    const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,
-    MsgType msgType, int numeric) :
-        IRCProtoMessage(rawLine, prefix, mainTokens),
-        numeric(numeric)
+NumericMessage::NumericMessage(MsgType msgType, int numeric) :
+    Message(msgType),
+    numeric(numeric)
 {
-    this->msgType = msgType;
-
     if (numeric < 0 || numeric > 999)
-        throw std::invalid_argument("NumericIRCProtoMessage ctor: Numeric " + std::to_string(numeric) + " out of range");
+        throw std::invalid_argument("NumericMessage ctor: Numeric " + std::to_string(numeric) + " out of range");
 }
 
-JoinIRCProtoMessage::JoinIRCProtoMessage(
-    const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,
-    MsgType msgType, channels_type channels, keys_type keys) :
-        IRCProtoMessage(rawLine, prefix, mainTokens),
-        channels(channels),
-        keys(keys)
+JoinMessage::JoinMessage(MsgType msgType, const QStringList &channels, const QStringList &keys) :
+    Message(msgType),
+    channels(channels),
+    keys(keys)
 {
     if (msgType != MsgType::Join)
-        throw std::invalid_argument("JoinIRCProtoMessage ctor: Invalid msgType " + std::to_string((int)msgType));
-    this->msgType = msgType;
+        throw std::invalid_argument("JoinMessage ctor: Invalid msgType " + std::to_string((int)msgType));
 }
 
-ChatterIRCProtoMessage::ChatterIRCProtoMessage(
-    const QString &rawLine, const QString &prefix, const tokens_type &mainTokens,
-    MsgType msgType, QString target, QString chatterData) :
-        IRCProtoMessage(rawLine, prefix, mainTokens),
-        target(target),
-        chatterData(chatterData)
+ChatterMessage::ChatterMessage(MsgType msgType, const QString &target, const QString &chatterData) :
+    Message(msgType),
+    target(target),
+    chatterData(chatterData)
 {
     switch (msgType) {
     case MsgType::PrivMsg:
     case MsgType::Notice:
         break;
     default:
-        throw std::invalid_argument("ChatterIRCProtoMessage ctor: Invalid msgType " + std::to_string((int)msgType));
+        throw std::invalid_argument("ChatterMessage ctor: Invalid msgType " + std::to_string((int)msgType));
     }
-    this->msgType = msgType;
 }
+
+}  // namespace cvnirc::core::IRCProto
+}  // namespace cvnirc::core
+}  // namespace cvnirc
