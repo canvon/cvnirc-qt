@@ -47,6 +47,7 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../cvnirc-core/release
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../cvnirc-core/debug/ -lcvnirc-core
 else:unix {
     LIBS += -L$$OUT_PWD/../cvnirc-core/ -lcvnirc-core
+    PRE_TARGETDEPS += ../cvnirc-core/libcvnirc-core.so*
 
     include(../include/rpath.pro)
 }
