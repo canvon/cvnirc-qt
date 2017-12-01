@@ -3,6 +3,8 @@
 #include <QMetaEnum>
 #include <QtNetwork>
 
+using namespace cvnirc::core::IRCProto;
+
 IRCProtoClient::IRCProtoClient(QObject *parent) : QObject(parent),
     socket(new QTcpSocket(this)),
     socketReadBuf(10*1024, '\0'),
@@ -176,6 +178,8 @@ void IRCProtoClient::processIncomingData()
                 return;
             }
 
+            // TODO: Move this over to parse(), somehow. (?)
+            // N.B.: From the change 2017-12-01 on, rawLineBytes won't be used here anymore after the check!
             QByteArray rawLineBytes(rawLineBytesCrLf);
             rawLineBytes.chop(2);  // Strip CR/LF.
             if (rawLineBytes.contains('\r') || rawLineBytes.contains('\n')) {
@@ -186,8 +190,8 @@ void IRCProtoClient::processIncomingData()
             }
 
             // Interpret message.
-            QString rawLine(rawLineBytes);
-            receivedRaw(rawLine);
+            MessageOnNetwork raw { rawLineBytesCrLf };
+            receivedRaw(raw);
         }
 
         if (socketReadBufUsed == 0)
@@ -234,10 +238,12 @@ void IRCProtoClient::processIncomingData()
     }
 }
 
-void IRCProtoClient::receivedRaw(const QString &rawLine)
+void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
 {
-    receivedLine(rawLine);
+    IRCProto::Incoming in { raw, raw.parse(), nullptr };
+    receivedLine(raw.bytes.toPercentEncoding());  // TODO: Exclude normal printable characters from escaping.
 
+#if 0  // TODO: Ensure the same functionality is provided via parse().
     std::vector<QString> tokens = IRCProtoMessage::splitRawLine(rawLine);
     if (!(tokens.size() >= 1)) {
         notifyUser("Protocol error, disconnecting: Received raw line with no tokens!");
@@ -253,6 +259,17 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
         prefix.remove(0, 1);  // Strip prefix identifier from identified prefix.
         tokens.erase(tokens.begin());
     }
+#endif
+
+    QByteArray     &prefix(in.inTokens->prefix);
+    QByteArrayList &tokens(in.inTokens->mainTokens);
+
+    // TODO: Change functionality: Ignore empty lines.
+    if (prefix.isNull() && tokens.isEmpty()) {
+        notifyUser("Protocol error, disconnecting: Received raw line with no tokens!");
+        disconnectFromIRCServer("Protocol error");
+        return;
+    }
 
     if (!(tokens.size() >= 1)) {
         notifyUser("Protocol error, disconnecting: Received line with a prefix token only!");
@@ -266,10 +283,10 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
             disconnectFromIRCServer("Protocol error");
             return;
         }
-        msg = new PingPongIRCProtoMessage(rawLine, prefix, tokens, IRCProtoMessage::MsgType::Ping, tokens[1]);
+        in.inMessage = new PingPongMessage(Message::MsgType::Ping, tokens[1]);
     }
     else if (tokens[0] == "001") {
-        msg = new NumericIRCProtoMessage(rawLine, prefix, tokens, IRCProtoMessage::MsgType::Welcome, 1);
+        in.inMessage = new NumericMessage(Message::MsgType::Welcome, 1);
     }
     else if (tokens[0] == "JOIN") {
         if (!(tokens.size() >= 2 && tokens.size() <= 3)) {
@@ -277,9 +294,9 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
             return;
         }
 
-        JoinIRCProtoMessage::channels_type channels = tokens[1].split(',');
-        JoinIRCProtoMessage::keys_type keys = tokens.size() >= 3 ? tokens[2].split(',') : QStringList();
-        msg = new JoinIRCProtoMessage(rawLine, prefix, tokens, IRCProtoMessage::MsgType::Join, channels, keys);
+        QByteArrayList channels = tokens[1].split(',');
+        QByteArrayList keys = tokens.size() >= 3 ? tokens[2].split(',') : QByteArrayList();
+        in.inMessage = new JoinMessage(Message::MsgType::Join, channels, keys);
     }
     else if (tokens[0] == "PRIVMSG" || tokens[0] == "NOTICE") {
         if (!(tokens.size() == 3)) {
@@ -293,38 +310,47 @@ void IRCProtoClient::receivedRaw(const QString &rawLine)
         else if (tokens[0] == "NOTICE")
             msgType = IRCProtoMessage::MsgType::Notice;
 
-        msg = new ChatterIRCProtoMessage(rawLine, prefix, tokens, msgType, tokens[1], tokens[2]);
+        in.inMessage = new ChatterMessage(msgType, tokens[1], tokens[2]);
     }
     else {
-        msg = new IRCProtoMessage(rawLine, prefix, tokens);
+        in.inMessage = new Message();
     }
 
-    if (msg != nullptr) {
-        receivedMessageAutonomous(*msg);
-        receivedMessage(*msg);
+    if (in.inMessage) {
+        receivedMessageAutonomous(&in);
+        receivedMessage(&in);
 
-        if (!msg->handled)
-            notifyUser("Unhandled IRC protocol message (type " + QString::number((int)msg->msgType) +
+        if (!in.handled)
+            notifyUser("Unhandled IRC protocol message (type " + QString::number((int)in.inMessage->msgType) +
 #ifdef CVN_HAVE_Q_ENUM
-                       ": " + QMetaEnum::fromType<IRCProtoMessage::MsgType>().valueToKey((int)msg->msgType) +
+                       ": " + QMetaEnum::fromType<Message::MsgType>().valueToKey((int)in.inMessage->msgType) +
 #endif
-                       "): " + msg->mainTokens[0]);
+                       "): " + in.inTokens->mainTokens[0]);
 
-        delete msg;
+        // This should not be necessary anymore, the smart pointers should
+        // take care of everything. (?)
+        //delete msg;
     }
 }
 
-void IRCProtoClient::receivedMessageAutonomous(IRCProtoMessage &msg)
+void IRCProtoClient::receivedMessageAutonomous(Incoming *in)
 {
-    switch (msg.msgType) {
-    case IRCProtoMessage::MsgType::Ping:
+    if (in == nullptr)
+        throw std::invalid_argument("IRC protocol client, receivedMessageAutonomous(): Incoming can't be null");
+
+    std::shared_ptr<Message> msg = in->inMessage;
+    if (!msg)
+        throw std::invalid_argument("IRC protocol client, receivedMessageAutonomous(): Incoming message can't be null");
+
+    switch (msg->msgType) {
+    case Message::MsgType::Ping:
         {
-            auto &pingMsg(static_cast<PingPongIRCProtoMessage &>(msg));
+            auto &pingMsg(static_cast<PingPongMessage &>(*msg));
             sendRaw("PONG :" + pingMsg.target);
-            pingMsg.handled = true;
+            in->handled = true;
         }
         break;
-    case IRCProtoMessage::MsgType::Welcome:
+    case Message::MsgType::Welcome:
         if (connectionState() != ConnectionState::Registering) {
             notifyUser("Protocol error, disconnecting: Got random Welcome/001 message");
             disconnectFromIRCServer("Protocol error");
@@ -333,7 +359,7 @@ void IRCProtoClient::receivedMessageAutonomous(IRCProtoMessage &msg)
 
         notifyUser("Got welcome message; we're connected, now");
         _setConnectionState(ConnectionState::Connected);
-        msg.handled = true;
+        in->handled = true;
         break;
     default:
         break;

@@ -102,8 +102,15 @@ void IRCCoreContext::requestFocus()
     focusWanted(this);
 }
 
-void IRCCoreContext::receiveIRCProtoMessage(IRCProtoMessage &msg)
+void IRCCoreContext::receiveIRCProtoMessage(IRCProto::Incoming *in)
 {
+    if (in == nullptr)
+        throw std::invalid_argument("IRC core context, slot receiveIRCProtoMessage(): Incoming can't be null");
+
+    std::shared_ptr<IRCProto::Message> msg = in->inMessage;
+    if (!msg)
+        throw std::invalid_argument("IRC core context, slot receiveIRCProtoMessage(): Incoming message can't be null");
+
     // TODO: Uncomment again when it's been made sure that
     // multi-target messages are only marked handled
     // if all targets have been handled...
@@ -112,10 +119,10 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProtoMessage &msg)
 
     auto *core = dynamic_cast<IRCCore *>(parent());
 
-    switch (msg.msgType) {
+    switch (msg->msgType) {
     case IRCProtoMessage::MsgType::Join:
         {
-            auto &joinMsg(static_cast<JoinIRCProtoMessage &>(msg));
+            auto &joinMsg(static_cast<JoinMessage &>(msg));
 
             for (QString channel : joinMsg.channels) {
                 if (_type == Type::Server) {
@@ -128,7 +135,7 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProtoMessage &msg)
                         throw std::runtime_error("IRCCoreContext: Create-or-get other context failed");
 
                     if (created)
-                        context->receiveIRCProtoMessage(msg);
+                        context->receiveIRCProtoMessage(in);
                 }
                 else if (_type == Type::Channel && channel == _outgoingTarget) {
                     notifyUser("Joined channel " + channel +
@@ -139,7 +146,7 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProtoMessage &msg)
 
             // TODO: Only mark as handled if all channels have been handled somewhere...
             // (This may have been on another channel context than (if it is one) this one.)
-            joinMsg.handled = true;
+            in->handled = true;
         }
         break;
     case IRCProtoMessage::MsgType::PrivMsg:
@@ -161,7 +168,7 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProtoMessage &msg)
                     throw std::runtime_error("IRCCoreContext: Create-or-get other context failed");
 
                 if (created)
-                    context->receiveIRCProtoMessage(msg);
+                    context->receiveIRCProtoMessage(in);
 
                 break;
             }

@@ -48,7 +48,7 @@ signals:
     void focusWanted(IRCCoreContext *context = nullptr);
 
 public slots:
-    void receiveIRCProtoMessage(IRCProtoMessage &msg);
+    void receiveIRCProtoMessage(IRCProto::Incoming *in);
     void sendChatMessage(const QString &line);
 
 private slots:

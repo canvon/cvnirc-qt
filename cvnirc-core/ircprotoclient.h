@@ -10,6 +10,9 @@
 
 #include "ircprotomessage.h"
 
+// FIXME: Replace by wrapping in namespace.
+namespace IRCProto = cvnirc::core::IRCProto;
+
 class QTcpSocket;
 
 class CVNIRCCORESHARED_EXPORT IRCProtoClient : public QObject
@@ -33,8 +36,8 @@ public:
 
     void connectToIRCServer(const QString &host, const QString &port, const QString &user, const QString &nick);
     void sendRaw(const QString &line);
-    void receivedRaw(const QString &rawLine);
-    void receivedMessageAutonomous(IRCProtoMessage &msg);
+    void receivedRaw(const IRCProto::MessageOnNetwork &raw);
+    void receivedMessageAutonomous(IRCProto::Incoming *in);
 
     ConnectionState connectionState() const;
     const QString &hostRequestedLast() const;
@@ -59,7 +62,7 @@ signals:
     void notifyUser(const QString &msg);
     void sendingLine(const QString &rawLine);
     void receivedLine(const QString &rawLine);
-    void receivedMessage(IRCProtoMessage &msg);
+    void receivedMessage(IRCProto::Incoming *in);
     void connectionStateChanged();
     void hostPortRequestedLastChanged();
     void userRequestedLastChanged();
