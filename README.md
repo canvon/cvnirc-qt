@@ -13,7 +13,7 @@ How to build
 Install dependencies:
 
     # apt-get install qtbase5-dev qt5-default
-    # apt-get install qttools5-dev-tools  # to build subdir doc
+    # apt-get install qttools5-dev-tools markdown  # to build subdir doc
     # apt-get install libreadline6-dev  # on Debian 8
     # apt-get install libreadline-dev   # on Debian 9
 
