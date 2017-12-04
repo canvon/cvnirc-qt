@@ -56,6 +56,9 @@ public:
     int verboseLevel() const;
     void setVerboseLevel(int newVerboseLevel);
 
+    const QByteArray &rawLineWhitelist() const;
+    void setRawLineWhitelist(const QByteArray &newRawLineWhitelist);
+
     static QString nickUserHost2nick(const QString &nickUserHost);
 
 signals:
@@ -98,6 +101,7 @@ private:
     void _setConnectionState(ConnectionState newState);
 
     int _verboseLevel = 1;
+    QByteArray _rawLineWhitelist;
 };
 
 #endif // IRCPROTOCLIENT_H

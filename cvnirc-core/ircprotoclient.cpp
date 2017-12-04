@@ -10,6 +10,12 @@ IRCProtoClient::IRCProtoClient(QObject *parent) : QObject(parent),
     socketReadBuf(10*1024, '\0'),
     _connectionState(ConnectionState::Disconnected)
 {
+    // Exclude normal printable characters from escaping in rawLine signal arguments.
+    for (unsigned char c = 0; c < 128; c++) {
+        if (QChar(c).isPrint())
+            _rawLineWhitelist.append(c);
+    }
+
     // Set up signals & slots.
     connect(socket, &QAbstractSocket::connected,
             this, &IRCProtoClient::handle_socket_connected);
@@ -244,7 +250,7 @@ void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
         std::make_shared<MessageOnNetwork>(raw),
         std::make_shared<MessageAsTokens>(raw.parse())
     );
-    receivedLine(raw.bytes.toPercentEncoding());  // TODO: Exclude normal printable characters from escaping.
+    receivedLine(raw.bytes.toPercentEncoding(_rawLineWhitelist));
 
 #if 0  // TODO: Ensure the same functionality is provided via parse().
     std::vector<QString> tokens = IRCProtoMessage::splitRawLine(rawLine);
@@ -464,6 +470,16 @@ void IRCProtoClient::setVerboseLevel(int newVerboseLevel)
     _verboseLevel = newVerboseLevel;
     if (_verboseLevel >= 2)
         notifyUser("Verbose level of IRC protocol client now is " + QString::number(_verboseLevel));
+}
+
+const QByteArray &IRCProtoClient::rawLineWhitelist() const
+{
+    return _rawLineWhitelist;
+}
+
+void IRCProtoClient::setRawLineWhitelist(const QByteArray &newRawLineWhitelist)
+{
+    _rawLineWhitelist = newRawLineWhitelist;
 }
 
 void IRCProtoClient::_setConnectionState(ConnectionState newState)
