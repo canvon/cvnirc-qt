@@ -270,8 +270,8 @@ void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
     }
 #endif
 
-    QByteArray     &prefix(in.inTokens->prefix);
-    QByteArrayList &tokens(in.inTokens->mainTokens);
+    const QByteArray     &prefix(in.inTokens->prefix);
+    const QByteArrayList &tokens(in.inTokens->mainTokens);
 
     // TODO: Change functionality: Ignore empty lines.
     if (prefix.isNull() && tokens.isEmpty()) {
@@ -286,7 +286,10 @@ void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
         return;
     }
 
-    if (tokens[0] == "PING") {
+    const QByteArray &commandOrig(tokens.front());
+    const QByteArray  commandUpper = commandOrig.toUpper();
+
+    if (commandUpper == "PING") {
         if (!(tokens.size() == 2)) {
             notifyUser("Protocol error, disconnecting: Received PING message with unexpected token count " + QString::number(tokens.size()));
             disconnectFromIRCServer("Protocol error");
@@ -294,10 +297,10 @@ void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
         }
         in.inMessage = std::make_shared<PingPongMessage>(Message::MsgType::Ping, tokens[1]);
     }
-    else if (tokens[0] == "001") {
+    else if (commandUpper == "001") {
         in.inMessage = std::make_shared<NumericMessage>(Message::MsgType::Welcome, 1);
     }
-    else if (tokens[0] == "JOIN") {
+    else if (commandUpper == "JOIN") {
         if (!(tokens.size() >= 2 && tokens.size() <= 3)) {
             notifyUser("Protocol error, ignoring: Received JOIN message with unexpected token count " + QString::number(tokens.size()));
             return;
@@ -318,16 +321,16 @@ void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
 
         in.inMessage = std::make_shared<JoinMessage>(Message::MsgType::Join, channels, keys);
     }
-    else if (tokens[0] == "PRIVMSG" || tokens[0] == "NOTICE") {
+    else if (commandUpper == "PRIVMSG" || commandUpper == "NOTICE") {
         if (!(tokens.size() == 3)) {
-            notifyUser("Protocol error, ignoring: Received " + tokens[0] + " message with unexpected token count " + QString::number(tokens.size()));
+            notifyUser("Protocol error, ignoring: Received " + commandUpper + " message with unexpected token count " + QString::number(tokens.size()));
             return;
         }
 
         auto msgType = IRCProtoMessage::MsgType::Unknown;
-        if (tokens[0] == "PRIVMSG")
+        if (commandUpper == "PRIVMSG")
             msgType = IRCProtoMessage::MsgType::PrivMsg;
-        else if (tokens[0] == "NOTICE")
+        else if (commandUpper == "NOTICE")
             msgType = IRCProtoMessage::MsgType::Notice;
 
         in.inMessage = std::make_shared<ChatterMessage>(msgType, tokens[1], tokens[2]);
@@ -345,7 +348,7 @@ void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
 #ifdef CVN_HAVE_Q_ENUM
                        ": " + QMetaEnum::fromType<Message::MsgType>().valueToKey((int)in.inMessage->msgType) +
 #endif
-                       "): " + in.inTokens->mainTokens[0]);
+                       "): " + commandOrig);
 
         // This should not be necessary anymore, the smart pointers should
         // take care of everything. (?)
