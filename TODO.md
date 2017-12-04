@@ -6,6 +6,34 @@ TODO ideas for cvnirc-qt by canvon
 
    (2017-11-24)
 
+ * Have a command help system.
+
+   (2017-12-04)
+
+    * At a first stage, just the command name + help strings
+      from the cmdhelp_foo() method registered with the cmd_foo()
+      command execution method.
+
+      (2017-12-04)
+
+    * Later, have full command-line parsing for (e.g. long) options, too.
+
+      (2017-12-04)
+
+    * In the GUI, let --help pop up an additional help tab, while -h
+      just shows inline help. (Inspired by git.)
+
+      (2017-12-04)
+
+ * Learn about the server encoding via numeric messages and/or let the user
+   override it. Then, reencode everything from/to the server.
+
+   (2017-12-04)
+
+    * Possibly reencode per target (e.g., nick, channel), too?
+
+      (2017-12-04)
+
  * Have some output in the Main tab again (on a really high level); like
    creation/deletion of IRCProtoClient instances, contexts or the like.
    Perhaps also connection states without all the raw or partially-parsed
@@ -78,6 +106,27 @@ TODO ideas for cvnirc-qt by canvon
  * Have Continuous Integration builds for ~each commit?
 
    (2017-11-23)
+
+
+Source only
+-----------
+
+ * Have some kind of Originator data on Message-s that would be
+   an interpreted prefix. Server, Client or arbitrary prefix.
+
+   (2017-12-04)
+
+ * Wrap into namespaces consistently (like already begun with the
+   IRCProtoMessage -> cvnirc::core::IRCProto::Message reworking).
+
+   (2017-12-04)
+
+ * Have automatic command recognition (via QObject reflection?)
+   so that it won't be possible anymore to forget adding the
+   load-this-as-command code, and that it won't be necessary
+   anymore to spell out the qualified(?) method name.
+
+   (2017-12-04)
 
 
 cvnirc-gui
