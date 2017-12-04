@@ -84,6 +84,10 @@ TODO ideas for cvnirc-qt by canvon
 
    (2017-11-20/-21)
 
+ * Have crude CTCP support, like /me and reply to CTCP VERSION?
+
+   (2017-12-04)
+
  * Have colored nick names?
 
    (2017-11-24)
@@ -103,6 +107,10 @@ TODO ideas for cvnirc-qt by canvon
  * Implement scriptability, perhaps via dbus-connected script servers.
 
    (2017-11-20/-21)
+
+ * Implement CTCP specs?
+
+   (2017-12-04)
 
  * Build and run on Mac? on Windows?
 
