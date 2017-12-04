@@ -273,12 +273,9 @@ void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
     const QByteArray     &prefix(in.inTokens->prefix);
     const QByteArrayList &tokens(in.inTokens->mainTokens);
 
-    // TODO: Change functionality: Ignore empty lines.
-    if (prefix.isNull() && tokens.isEmpty()) {
-        notifyUser("Protocol error, disconnecting: Received raw line with no tokens!");
-        disconnectFromIRCServer("Protocol error");
+    // Ignore empty lines silently.
+    if (prefix.isNull() && tokens.isEmpty())
         return;
-    }
 
     if (!(tokens.size() >= 1)) {
         notifyUser("Protocol error, disconnecting: Received line with a prefix token only!");
