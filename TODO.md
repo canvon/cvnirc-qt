@@ -6,6 +6,11 @@ TODO ideas for cvnirc-qt by canvon
 
    (2017-11-24)
 
+ * Have Outgoing data structure, and check all outgoing message parts
+   for validity before sending.
+
+   (2017-11-24)
+
  * Have a command help system.
 
    (2017-12-04)
