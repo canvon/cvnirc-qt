@@ -39,6 +39,17 @@ TODO ideas for cvnirc-qt by canvon
 
       (2017-12-04)
 
+ * Keep track of bytes sent, and inform the user about queue length
+   and write buffer size... (This is an older idea that I didn't get around
+   to finishing quickly, so at last it gets written to this TODO list.)
+
+   (2017-12-04)
+
+ * Maybe keep track of total bytes sent/received? (And average throughput?)
+   Perhaps for more than just the current connection?
+
+   (2017-12-04)
+
  * Have some output in the Main tab again (on a really high level); like
    creation/deletion of IRCProtoClient instances, contexts or the like.
    Perhaps also connection states without all the raw or partially-parsed
