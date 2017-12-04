@@ -77,10 +77,31 @@ void IRCCoreCommandGroup::cmd_join(Command *cmd, IRCCoreContext *context)
     client->sendRaw("JOIN " + channelName);
 }
 
+QStringList IRCCoreCommandGroup::cmdhelp_reconnect()
+{
+    return {
+        "(Re)connect to IRC server",
+    };
+}
+
+void IRCCoreCommandGroup::cmd_reconnect(Command *cmd, IRCCoreContext *context)
+{
+    if (cmd) {
+        if (cmd->tokens().count() != 1)
+            throw std::invalid_argument("IRCCore command reconnect: Usage: /reconnect");
+    }
+
+    if (context == nullptr)
+        throw std::invalid_argument("IRCCore command reconnect: Context can't be null");
+
+    context->ircProtoClient()->reconnectToIRCServer();
+}
+
 
 void IRCCoreCommandGroup::registerAllCommandDefinitions()
 {
     using namespace std::placeholders;
+
     registerCommandDefinition({ "raw",
         std::bind(&IRCCoreCommandGroup::cmd_raw, this, _1, _2),
         std::bind(&IRCCoreCommandGroup::cmdhelp_raw, this)
@@ -88,6 +109,11 @@ void IRCCoreCommandGroup::registerAllCommandDefinitions()
     registerCommandDefinition({ "join",
         std::bind(&IRCCoreCommandGroup::cmd_join, this, _1, _2),
         std::bind(&IRCCoreCommandGroup::cmdhelp_join, this)
+    });
+
+    registerCommandDefinition({ "reconnect",
+        std::bind(&IRCCoreCommandGroup::cmd_reconnect, this, _1, _2),
+        std::bind(&IRCCoreCommandGroup::cmdhelp_reconnect, this)
     });
 
     _registeredOnce = true;
