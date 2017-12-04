@@ -34,11 +34,17 @@ public:
 class CVNIRCCORESHARED_EXPORT Incoming
 {
 public:
-    std::shared_ptr<MessageOnNetwork>  inRaw;
-    std::shared_ptr<MessageAsTokens>   inTokens;
-    std::shared_ptr<class Message>     inMessage;
+    typedef std::shared_ptr<MessageOnNetwork>  raw_ptr;
+    typedef std::shared_ptr<MessageAsTokens>   tokens_ptr;
+    typedef std::shared_ptr<class Message>     message_ptr;
+
+    raw_ptr      inRaw;
+    tokens_ptr   inTokens;
+    message_ptr  inMessage;
 
     bool handled = false;
+
+    Incoming(raw_ptr inRaw = nullptr, tokens_ptr inTokens = nullptr, message_ptr inMessage = nullptr);
 };
 
 class CVNIRCCORESHARED_EXPORT Message
@@ -59,6 +65,7 @@ public:
     MsgType msgType;
 
     Message();
+    virtual ~Message();
 protected:
     Message(MsgType msgType);
 };

@@ -75,6 +75,14 @@ MessageOnNetwork MessageAsTokens::pack() const
     throw std::logic_error("MessageAsTokens::pack(): Not implemented");
 }
 
+Incoming::Incoming(Incoming::raw_ptr inRaw, Incoming::tokens_ptr inTokens, Incoming::message_ptr inMessage) :
+    inRaw(inRaw),
+    inTokens(inTokens),
+    inMessage(inMessage)
+{
+
+}
+
 Message::Message() :
     msgType(MsgType::Unknown)
 {
@@ -83,6 +91,11 @@ Message::Message() :
 
 Message::Message(Message::MsgType msgType) :
     msgType(msgType)
+{
+
+}
+
+Message::~Message()
 {
 
 }

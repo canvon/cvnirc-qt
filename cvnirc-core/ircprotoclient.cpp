@@ -240,7 +240,10 @@ void IRCProtoClient::processIncomingData()
 
 void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
 {
-    IRCProto::Incoming in { raw, raw.parse(), nullptr };
+    IRCProto::Incoming in(
+        std::make_shared<MessageOnNetwork>(raw),
+        std::make_shared<MessageAsTokens>(raw.parse())
+    );
     receivedLine(raw.bytes.toPercentEncoding());  // TODO: Exclude normal printable characters from escaping.
 
 #if 0  // TODO: Ensure the same functionality is provided via parse().
@@ -283,10 +286,10 @@ void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
             disconnectFromIRCServer("Protocol error");
             return;
         }
-        in.inMessage = new PingPongMessage(Message::MsgType::Ping, tokens[1]);
+        in.inMessage = std::make_shared<PingPongMessage>(Message::MsgType::Ping, tokens[1]);
     }
     else if (tokens[0] == "001") {
-        in.inMessage = new NumericMessage(Message::MsgType::Welcome, 1);
+        in.inMessage = std::make_shared<NumericMessage>(Message::MsgType::Welcome, 1);
     }
     else if (tokens[0] == "JOIN") {
         if (!(tokens.size() >= 2 && tokens.size() <= 3)) {
@@ -294,9 +297,20 @@ void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
             return;
         }
 
-        QByteArrayList channels = tokens[1].split(',');
-        QByteArrayList keys = tokens.size() >= 3 ? tokens[2].split(',') : QByteArrayList();
-        in.inMessage = new JoinMessage(Message::MsgType::Join, channels, keys);
+        QByteArrayList channelsBytes = tokens[1].split(',');
+        QByteArrayList keysBytes = tokens.size() >= 3 ? tokens[2].split(',') : QByteArrayList();
+
+        QStringList channels;
+        for (QByteArray channelBytes : channelsBytes) {
+            channels.append(QString(channelBytes));
+        }
+
+        QStringList keys;
+        for (QByteArray keyBytes : keysBytes) {
+            keys.append(QString(keyBytes));
+        }
+
+        in.inMessage = std::make_shared<JoinMessage>(Message::MsgType::Join, channels, keys);
     }
     else if (tokens[0] == "PRIVMSG" || tokens[0] == "NOTICE") {
         if (!(tokens.size() == 3)) {
@@ -310,10 +324,10 @@ void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
         else if (tokens[0] == "NOTICE")
             msgType = IRCProtoMessage::MsgType::Notice;
 
-        in.inMessage = new ChatterMessage(msgType, tokens[1], tokens[2]);
+        in.inMessage = std::make_shared<ChatterMessage>(msgType, tokens[1], tokens[2]);
     }
     else {
-        in.inMessage = new Message();
+        in.inMessage = std::make_shared<Message>();
     }
 
     if (in.inMessage) {

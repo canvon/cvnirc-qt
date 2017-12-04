@@ -122,9 +122,12 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProto::Incoming *in)
     switch (msg->msgType) {
     case IRCProtoMessage::MsgType::Join:
         {
-            auto &joinMsg(static_cast<JoinMessage &>(msg));
+            //auto &joinMsg(static_cast<IRCProto::JoinMessage &>(msg));
+            auto joinMsg = std::dynamic_pointer_cast<IRCProto::JoinMessage>(msg);
+            if (!joinMsg)
+                throw std::runtime_error("IRC core context, receive IRC proto message: Downcast to IRCProto::JoinMessage failed");
 
-            for (QString channel : joinMsg.channels) {
+            for (QString channel : joinMsg->channels) {
                 if (_type == Type::Server) {
                     if (core == nullptr)
                         throw std::runtime_error("IRCCoreContext: A Server context needs to know its parent!");
@@ -139,7 +142,7 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProto::Incoming *in)
                 }
                 else if (_type == Type::Channel && channel == _outgoingTarget) {
                     notifyUser("Joined channel " + channel +
-                               (joinMsg.prefix.count() > 0 ? ": " + joinMsg.prefix : ""),
+                               (in->inTokens->prefix.count() > 0 ? ": " + in->inTokens->prefix : ""),
                                this);
                 }
             }
@@ -152,14 +155,17 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProto::Incoming *in)
     case IRCProtoMessage::MsgType::PrivMsg:
     case IRCProtoMessage::MsgType::Notice:
         {
-            auto &chatterMsg(static_cast<ChatterIRCProtoMessage &>(msg));
-            bool isNotice = chatterMsg.msgType == IRCProtoMessage::MsgType::Notice;
-            QString senderNick = IRCProtoClient::nickUserHost2nick(chatterMsg.prefix);
+            //auto &chatterMsg(static_cast<IRCProto::ChatterMessage &>(msg));
+            auto chatterMsg = std::dynamic_pointer_cast<IRCProto::ChatterMessage>(msg);
+            if (!chatterMsg)
+                throw std::runtime_error("IRC core context, receive IRC proto message: Downcast to IRCProto::ChatterMessage failed");
+            bool isNotice = chatterMsg->msgType == IRCProtoMessage::MsgType::Notice;
+            QString senderNick = IRCProtoClient::nickUserHost2nick(in->inTokens->prefix);
 
             // TODO: Recognize other types of channels.
-            bool isChannel = chatterMsg.target.startsWith("#");
+            bool isChannel = chatterMsg->target.startsWith("#");
             Type contextType = isChannel ? Type::Channel : Type::Query;
-            QString returnPath = isChannel ? chatterMsg.target : senderNick;
+            QString returnPath = isChannel ? chatterMsg->target : senderNick;
 
             if (_type == Type::Server) {
                 bool created = false;
@@ -178,8 +184,8 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProto::Incoming *in)
 
             QString sourceTyped = (isNotice ? "-" : "<") + senderNick + (isNotice ? "-" : ">");
 
-            notifyUser(sourceTyped + " " + chatterMsg.chatterData, this);
-            chatterMsg.handled = true;
+            notifyUser(sourceTyped + " " + chatterMsg->chatterData, this);
+            in->handled = true;
         }
         break;
     default:
