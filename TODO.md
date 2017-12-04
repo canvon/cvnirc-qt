@@ -1,11 +1,6 @@
 TODO ideas for cvnirc-qt by canvon
 ==================================
 
- * Interpret protocol command names case-insensitively? That is,
-   treat PRIVMSG and privmsg the same...
-
-   (2017-11-24)
-
  * Have Outgoing data structure, and check all outgoing message parts
    for validity before sending.
 
