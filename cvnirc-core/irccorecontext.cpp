@@ -119,6 +119,8 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProto::Incoming *in)
 
     auto *core = dynamic_cast<IRCCore *>(parent());
 
+    // FIXME: Rewrite
+#if 0
     switch (msg->msgType) {
     case IRCProtoMessage::MsgType::Join:
         {
@@ -191,6 +193,7 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProto::Incoming *in)
     default:
         break;
     }
+#endif
 }
 
 void IRCCoreContext::sendChatMessage(const QString &line)

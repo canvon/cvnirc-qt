@@ -102,6 +102,11 @@ private:
 
     int _verboseLevel = 1;
     QByteArray _rawLineWhitelist;
+    IRCProto::MessageArgTypesHolder _msgArgTypesHolder;
+    IRCProto::MessageTypeVocabulary _msgTypeVocabIn;
+
+    void _loadMsgArgTypes();
+    void _loadMsgTypeVocabIn();
 };
 
 #endif // IRCPROTOCLIENT_H
