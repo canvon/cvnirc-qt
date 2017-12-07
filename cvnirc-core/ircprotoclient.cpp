@@ -573,7 +573,7 @@ void IRCProtoClient::_loadMsgArgTypes()
             ));
         }
         return ret;
-});
+    });
 }
 
 void IRCProtoClient::_loadMsgTypeVocabIn()
