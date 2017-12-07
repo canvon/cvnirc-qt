@@ -110,6 +110,7 @@ class CVNIRCCORESHARED_EXPORT ConstMessageArgType : public MessageArgType
 
 public:
     ConstMessageArgType(const QString &name, std::shared_ptr<const MessageArg> constArg, const std::function<fromTokens_fun> &fromTokens_call);
+    ConstMessageArgType(const QString &name, std::shared_ptr<const MessageArg> constArg, const MessageArgType &msgArgType);
 
     std::shared_ptr<const MessageArg> constArg();
     const std::function<fromTokens_fun> &origFromTokens_call() const;

@@ -160,9 +160,17 @@ const std::function<MessageArgType::fromTokens_fun> &MessageArgType::fromTokens_
 
 ConstMessageArgType::ConstMessageArgType(
         const QString &name, std::shared_ptr<const MessageArg> constArg,
-        const std::function<MessageArgType::fromTokens_fun> &fromTokens_call) :
+        const std::function<fromTokens_fun> &fromTokens_call) :
     MessageArgType(name, [this](TokensReader *reader) { return fromTokens(reader); }),
     _constArg(constArg), _origFromTokens_call(fromTokens_call)
+{
+
+}
+
+ConstMessageArgType::ConstMessageArgType(
+        const QString &name, std::shared_ptr<const MessageArg> constArg,
+        const MessageArgType &msgArgType) :
+    ConstMessageArgType(name, constArg, msgArgType.fromTokens_call())
 {
 
 }
