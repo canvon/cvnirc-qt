@@ -555,6 +555,9 @@ void IRCProtoClient::_loadMsgArgTypes()
     _msgArgTypesHolder.commandNameType = std::make_shared<MessageArgType<CommandNameMessageArg>>("command", [](TokensReader *reader) {
         return std::make_shared<CommandNameMessageArg>(QString(reader->takeToken()));
     });
+    _msgArgTypesHolder.numericCommandNameType = std::make_shared<MessageArgType<NumericCommandNameMessageArg>>("numeric", [](TokensReader *reader) {
+        return std::make_shared<NumericCommandNameMessageArg>(QString(reader->takeToken()));
+    });
 
     _msgArgTypesHolder.sourceType = std::make_shared<MessageArgType<SourceMessageArg>>("source", [](TokensReader *reader) {
         return std::make_shared<SourceMessageArg>(QString(reader->takeToken()));
@@ -587,6 +590,12 @@ void IRCProtoClient::_loadMsgTypeVocabIn()
     //argTypes.append(OptionalMessageArgType("[server2]", *_msgArgTypesHolder.FIXME));
     _msgTypeVocabIn.registerMessageType("PING", std::make_shared<MessageType>("PingType", argTypes));
 #endif
+
+    _msgTypeVocabIn.registerMessageType("001", std::make_shared<MessageType>("WelcomeType", QList<std::shared_ptr<MessageArgTypeBase>> {
+        std::make_shared<ConstMessageArgType<MessageArgType<NumericCommandNameMessageArg>>>("WelcomeNumericType",
+            std::make_shared<NumericCommandNameMessageArg>("001"),
+            *_msgArgTypesHolder.numericCommandNameType),
+    }));
 }
 
 QString IRCProtoClient::nickUserHost2nick(const QString &nickUserHost)
