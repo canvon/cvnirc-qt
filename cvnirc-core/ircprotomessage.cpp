@@ -263,6 +263,21 @@ bool ChannelListMessageArg::operator ==(const MessageArg &other) const
     return true;
 }
 
+KeyMessageArg::KeyMessageArg(const QString &key) :
+    key(key)
+{
+
+}
+
+bool KeyMessageArg::operator ==(const MessageArg &other) const
+{
+    const auto *myTypeOther = dynamic_cast<const KeyMessageArg*>(&other);
+    if (myTypeOther == nullptr)
+        return false;
+
+    return key == myTypeOther->key;
+}
+
 MessageType::MessageType(const QString &name, const QList<MessageType::msgArgType_ptr> &argTypes) :
     _name(name), _argTypes(argTypes)
 {

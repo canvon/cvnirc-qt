@@ -321,6 +321,16 @@ public:
     bool operator ==(const MessageArg &other) const override;
 };
 
+class CVNIRCCORESHARED_EXPORT KeyMessageArg : public MessageArg
+{
+public:
+    QString key;
+
+    KeyMessageArg(const QString &key);
+
+    bool operator ==(const MessageArg &other) const override;
+};
+
 template <class A>
 class CVNIRCCORESHARED_EXPORT ListMessageArg : public MessageArg
 {
@@ -384,9 +394,9 @@ public:
         channelType;
     std::shared_ptr<CommaListMessageArgType<MessageArgType<ChannelMessageArg>>>
         channelListType;
-    std::shared_ptr<MessageArgType<ChannelMessageArg>>  // FIXME
+    std::shared_ptr<MessageArgType<KeyMessageArg>>
         keyType;
-    std::shared_ptr<MessageArgType<ChannelListMessageArg>>  // FIXMe
+    std::shared_ptr<CommaListMessageArgType<MessageArgType<KeyMessageArg>>>
         keyListType;
     std::shared_ptr<MessageArgType<SourceMessageArg>>  // FIXME
         targetType;

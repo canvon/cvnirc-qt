@@ -119,39 +119,57 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProto::Incoming *in)
 
     auto *core = dynamic_cast<IRCCore *>(parent());
 
-    // FIXME: Rewrite
+    if (msg->args.isEmpty())
+        throw std::invalid_argument("IRC core context, receive IRC proto message: Incoming message can't miss first argument (the command name)");
+
+    auto commandArg = std::dynamic_pointer_cast<IRCProto::CommandNameMessageArg>(msg->args.front());
+    if (!commandArg)
+        throw std::invalid_argument("IRC core context, receive IRC proto message: Incoming message first argument is not a command name argument");
+
+    // FIXME: Remove remnants
 #if 0
     switch (msg->msgType) {
     case IRCProtoMessage::MsgType::Join:
         {
-            //auto &joinMsg(static_cast<IRCProto::JoinMessage &>(msg));
-            auto joinMsg = std::dynamic_pointer_cast<IRCProto::JoinMessage>(msg);
-            if (!joinMsg)
-                throw std::runtime_error("IRC core context, receive IRC proto message: Downcast to IRCProto::JoinMessage failed");
+#endif
 
-            for (QString channel : joinMsg->channels) {
-                if (_type == Type::Server) {
-                    if (core == nullptr)
-                        throw std::runtime_error("IRCCoreContext: A Server context needs to know its parent!");
+    if (commandArg->commandUpper == "JOIN") {
+        int argCount = msg->args.length();
+        if (!(argCount >= 2 && argCount <= 3))
+            throw std::runtime_error("IRC core context, receive IRC proto message: Invalid argument count after processing (" + QString::number(argCount) + ")");
 
-                    bool created = false;
-                    auto *context = core->createOrGetContext(_ircProtoClient, Type::Channel, channel, &created);
-                    if (context == nullptr)
-                        throw std::runtime_error("IRCCoreContext: Create-or-get other context failed");
+        auto channelsArg = std::dynamic_pointer_cast<IRCProto::ListMessageArg<IRCProto::ChannelMessageArg>>(msg->args[1]);
+        if (!channelsArg)
+            throw std::runtime_error("IRC core context, receive IRC proto message: Invalid argument type at index 1");  // TODO: Give type information if possible.
 
-                    if (created)
-                        context->receiveIRCProtoMessage(in);
-                }
-                else if (_type == Type::Channel && channel == _outgoingTarget) {
-                    notifyUser("Joined channel " + channel +
-                               (in->inTokens->prefix.count() > 0 ? ": " + in->inTokens->prefix : ""),
-                               this);
-                }
+        for (std::shared_ptr<IRCProto::ChannelMessageArg> channelArg : channelsArg->list) {
+            const QString channel = channelArg->channel;
+
+            if (_type == Type::Server) {
+                if (core == nullptr)
+                    throw std::runtime_error("IRCCoreContext: A Server context needs to know its parent!");
+
+                bool created = false;
+                auto *context = core->createOrGetContext(_ircProtoClient, Type::Channel, channel, &created);
+                if (context == nullptr)
+                    throw std::runtime_error("IRCCoreContext: Create-or-get other context failed");
+
+                if (created)
+                    context->receiveIRCProtoMessage(in);
             }
+            else if (_type == Type::Channel && channel == _outgoingTarget) {
+                notifyUser("Joined channel " + channel +
+                           (in->inTokens->prefix.count() > 0 ? ": " + in->inTokens->prefix : ""),
+                           this);
+            }
+        }
 
-            // TODO: Only mark as handled if all channels have been handled somewhere...
-            // (This may have been on another channel context than (if it is one) this one.)
-            in->handled = true;
+        // TODO: Only mark as handled if all channels have been handled somewhere...
+        // (This may have been on another channel context than (if it is one) this one.)
+        in->handled = true;
+    }
+
+#if 0
         }
         break;
     case IRCProtoMessage::MsgType::PrivMsg:
