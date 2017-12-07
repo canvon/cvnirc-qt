@@ -137,88 +137,20 @@ Incoming::Incoming(Incoming::raw_ptr inRaw, Incoming::tokens_ptr inTokens, messa
 }
 
 
-MessageArgType::MessageArgType(const QString &name, const std::function<fromTokens_fun> &fromTokens_call) :
-    _name(name), _fromTokens_call(fromTokens_call)
+MessageArgTypeBase::MessageArgTypeBase(const QString &name) :
+    _name(name)
 {
 
 }
 
-MessageArgType::~MessageArgType()
+MessageArgTypeBase::~MessageArgTypeBase()
 {
 
 }
 
-const QString &MessageArgType::name() const
+const QString &MessageArgTypeBase::name() const
 {
     return _name;
-}
-
-const std::function<MessageArgType::fromTokens_fun> &MessageArgType::fromTokens_call() const
-{
-    return _fromTokens_call;
-}
-
-ConstMessageArgType::ConstMessageArgType(
-        const QString &name, std::shared_ptr<const MessageArg> constArg,
-        const std::function<fromTokens_fun> &fromTokens_call) :
-    MessageArgType(name, [this](TokensReader *reader) { return fromTokens(reader); }),
-    _constArg(constArg), _origFromTokens_call(fromTokens_call)
-{
-
-}
-
-ConstMessageArgType::ConstMessageArgType(
-        const QString &name, std::shared_ptr<const MessageArg> constArg,
-        const MessageArgType &msgArgType) :
-    ConstMessageArgType(name, constArg, msgArgType.fromTokens_call())
-{
-
-}
-
-std::shared_ptr<const MessageArg> ConstMessageArgType::constArg()
-{
-    return _constArg;
-}
-
-const std::function<MessageArgType::fromTokens_fun> &ConstMessageArgType::origFromTokens_call() const
-{
-    return _origFromTokens_call;
-}
-
-MessageArgType::messageArg_ptr ConstMessageArgType::fromTokens(TokensReader *reader) const
-{
-    std::shared_ptr<MessageArg> arg = _origFromTokens_call(reader);
-    if (!(*arg == *_constArg))
-        throw std::runtime_error("Const message arg type: The retrieved message arg isn't equal to the const/reference arg");
-
-    return arg;
-}
-
-OptionalMessageArgType::OptionalMessageArgType(
-        const QString &name, const std::function<fromTokens_fun> &fromTokens_call) :
-    MessageArgType(name, [this](TokensReader *reader) { return fromTokens(reader); }),
-    _origFromTokens_call(fromTokens_call)
-{
-
-}
-
-OptionalMessageArgType::OptionalMessageArgType(const QString &name, const MessageArgType &msgArgType) :
-    OptionalMessageArgType(name, msgArgType.fromTokens_call())
-{
-
-}
-
-const std::function<MessageArgType::fromTokens_fun> &OptionalMessageArgType::origFromTokens_call() const
-{
-    return _origFromTokens_call;
-}
-
-MessageArgType::messageArg_ptr OptionalMessageArgType::fromTokens(TokensReader *reader) const
-{
-    if (reader->atEnd())
-        return nullptr;
-
-    return _origFromTokens_call(reader);
 }
 
 MessageArg::~MessageArg()
@@ -353,8 +285,8 @@ QList<Message::msgArg_ptr> MessageType::argsFromMessageAsTokens(const MessageAsT
     TokensReader reader(msgTokens);
 
     try {
-        for (std::shared_ptr<MessageArgType> argType : _argTypes) {
-            ret.append(argType->fromTokens_call()(&reader));
+        for (std::shared_ptr<MessageArgTypeBase> argType : _argTypes) {
+            ret.append(argType->fromTokensUnsafe_call()(&reader));
         }
     }
     catch (const std::exception &ex) {

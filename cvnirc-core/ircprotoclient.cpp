@@ -552,18 +552,18 @@ void IRCProtoClient::_setConnectionState(ConnectionState newState)
 
 void IRCProtoClient::_loadMsgArgTypes()
 {
-    _msgArgTypesHolder.commandNameType = std::make_shared<MessageArgType>("command", [](TokensReader *reader) {
+    _msgArgTypesHolder.commandNameType = std::make_shared<MessageArgType<CommandNameMessageArg>>("command", [](TokensReader *reader) {
         return std::make_shared<CommandNameMessageArg>(QString(reader->takeToken()));
     });
 
-    _msgArgTypesHolder.sourceType = std::make_shared<MessageArgType>("source", [](TokensReader *reader) {
+    _msgArgTypesHolder.sourceType = std::make_shared<MessageArgType<SourceMessageArg>>("source", [](TokensReader *reader) {
         return std::make_shared<SourceMessageArg>(QString(reader->takeToken()));
     });
 
-    _msgArgTypesHolder.channelType = std::make_shared<MessageArgType>("channel", [](TokensReader *reader) {
+    _msgArgTypesHolder.channelType = std::make_shared<MessageArgType<ChannelMessageArg>>("channel", [](TokensReader *reader) {
         return std::make_shared<ChannelMessageArg>(QString(reader->takeToken()));
     });
-    _msgArgTypesHolder.channelListType = std::make_shared<MessageArgType>("channels", [this](TokensReader *reader) {
+    _msgArgTypesHolder.channelListType = std::make_shared<MessageArgType<ChannelListMessageArg>>("channels", [this](TokensReader *reader) {
         auto ret = std::make_shared<ChannelListMessageArg>();
         QByteArrayList channelsBytes = reader->takeToken().split(',');
         TokensReader innerReader(channelsBytes);
@@ -585,10 +585,11 @@ void IRCProtoClient::_loadMsgTypeVocabIn()
             //OptionalMessageArgType("[server2]", *_msgArgTypesHolder.FIXME),
     }));
 #endif
-    QList<std::shared_ptr<MessageArgType>> argTypes;
-    std::shared_ptr<MessageArgType> commandArg =
-        std::make_shared<ConstMessageArgType>("PingCommandType", std::make_shared<CommandNameMessageArg>("PING"),
-                                              *_msgArgTypesHolder.commandNameType);
+    QList<std::shared_ptr<MessageArgTypeBase>> argTypes;
+    std::shared_ptr<MessageArgType<CommandNameMessageArg>> commandArg =
+        std::make_shared<ConstMessageArgType<MessageArgType<CommandNameMessageArg>>>("PingCommandType",
+            std::make_shared<CommandNameMessageArg>("PING"),
+            *_msgArgTypesHolder.commandNameType);
     argTypes.append(commandArg);
     argTypes.append(_msgArgTypesHolder.sourceType);
     //argTypes.append(OptionalMessageArgType("[server2]", *_msgArgTypesHolder.FIXME));

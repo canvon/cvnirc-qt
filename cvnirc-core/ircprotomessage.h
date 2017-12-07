@@ -86,49 +86,139 @@ public:
 };
 
 class MessageArg;
-class CVNIRCCORESHARED_EXPORT MessageArgType
+class CVNIRCCORESHARED_EXPORT MessageArgTypeBase
 {
     QString _name;
 public:
-    typedef std::shared_ptr<MessageArg>  messageArg_ptr;
+    typedef std::shared_ptr<MessageArg>  messageArgUnsafe_ptr;
+    typedef messageArgUnsafe_ptr (fromTokensUnsafe_fun)(TokensReader *reader);
+private:
+    //std::function<fromTokensUnsafe_fun> _fromTokensUnsafe_call;
+protected:
+    MessageArgTypeBase(const QString &name);
+
+public:
+    //MessageArgTypeBase(const QString &name, const std::function<fromTokensUnsafe_fun> &fromTokensUnsafe_call);
+    virtual ~MessageArgTypeBase();
+
+    const QString &name() const;
+    virtual std::function<fromTokensUnsafe_fun> fromTokensUnsafe_call() const = 0;
+};
+
+template <class A = MessageArg>
+class CVNIRCCORESHARED_EXPORT MessageArgType : public MessageArgTypeBase
+{
+    //QString _name;
+public:
+    typedef A  messageArg_type;
+    typedef std::shared_ptr<A>  messageArg_ptr;
     typedef messageArg_ptr (fromTokens_fun)(TokensReader *reader);
 private:
     std::function<fromTokens_fun> _fromTokens_call;
 
 public:
-    MessageArgType(const QString &name, const std::function<fromTokens_fun> &fromTokens_call);
-    virtual ~MessageArgType();
+    MessageArgType(const QString &name, const std::function<fromTokens_fun> &fromTokens_call) :
+        MessageArgTypeBase(name), _fromTokens_call(fromTokens_call)
+    {
 
-    const QString &name() const;
-    const std::function<fromTokens_fun> &fromTokens_call() const;
+    }
+
+    //virtual ~MessageArgType();
+
+    //const QString &name() const;
+    std::function<fromTokensUnsafe_fun> fromTokensUnsafe_call() const override
+    {
+        return _fromTokens_call;
+    }
+
+    std::function<fromTokens_fun> fromTokens_call() const
+    {
+        return _fromTokens_call;
+    }
 };
 
-class CVNIRCCORESHARED_EXPORT ConstMessageArgType : public MessageArgType
+template <class T = MessageArgType<>>
+class CVNIRCCORESHARED_EXPORT ConstMessageArgType : public T
 {
-    std::shared_ptr<const MessageArg>  _constArg;
-    std::function<fromTokens_fun>      _origFromTokens_call;
-
 public:
-    ConstMessageArgType(const QString &name, std::shared_ptr<const MessageArg> constArg, const std::function<fromTokens_fun> &fromTokens_call);
-    ConstMessageArgType(const QString &name, std::shared_ptr<const MessageArg> constArg, const MessageArgType &msgArgType);
+    using typename T::messageArg_type;
+    using typename T::messageArg_ptr;
+    using typename T::fromTokens_fun;
 
-    std::shared_ptr<const MessageArg> constArg();
-    const std::function<fromTokens_fun> &origFromTokens_call() const;
+    typedef std::shared_ptr<const messageArg_type>  constMessageArg_ptr;
 
-    messageArg_ptr fromTokens(TokensReader *reader) const;
-};
-
-class CVNIRCCORESHARED_EXPORT OptionalMessageArgType : public MessageArgType
-{
+private:
+    constMessageArg_ptr            _constArg;
     std::function<fromTokens_fun>  _origFromTokens_call;
 
 public:
-    OptionalMessageArgType(const QString &name, const std::function<fromTokens_fun> &fromTokens_call);
-    OptionalMessageArgType(const QString &name, const MessageArgType &msgArgType);
+    ConstMessageArgType(const QString &name, constMessageArg_ptr constArg, const std::function<fromTokens_fun> &fromTokens_call) :
+        T(name, [this](TokensReader *reader) { return fromTokens(reader); }),
+        _constArg(constArg), _origFromTokens_call(fromTokens_call)
+    {
 
-    const std::function<fromTokens_fun> &origFromTokens_call() const;
+    }
 
-    messageArg_ptr fromTokens(TokensReader *reader) const;
+    ConstMessageArgType(const QString &name, constMessageArg_ptr constArg, const T &msgArgType) :
+        ConstMessageArgType(name, constArg, msgArgType.fromTokens_call())
+    {
+
+    }
+
+    constMessageArg_ptr constArg()
+    {
+        return _constArg;
+    }
+
+    const std::function<fromTokens_fun> &origFromTokens_call() const
+    {
+        return _origFromTokens_call;
+    }
+
+    messageArg_ptr fromTokens(TokensReader *reader) const
+    {
+        messageArg_ptr arg = _origFromTokens_call(reader);
+        if (!(*arg == *_constArg))
+            throw std::runtime_error("Const message arg type: The retrieved message arg isn't equal to the const/reference arg");
+
+        return arg;
+    }
+};
+
+template <class T = MessageArgType<>>
+class CVNIRCCORESHARED_EXPORT OptionalMessageArgType : public T
+{
+    using typename T::messageArg_ptr;
+    using typename T::fromTokens_fun;
+
+    std::function<fromTokens_fun>  _origFromTokens_call;
+
+public:
+    OptionalMessageArgType(const QString &name, const std::function<fromTokens_fun> &fromTokens_call) :
+        T(name, [this](TokensReader *reader) { return fromTokens(reader); }),
+        _origFromTokens_call(fromTokens_call)
+    {
+
+    }
+
+    OptionalMessageArgType(const QString &name, const T &msgArgType) :
+        OptionalMessageArgType(name, msgArgType.fromTokens_call())
+    {
+
+    }
+
+    const std::function<fromTokens_fun> &origFromTokens_call() const
+    {
+        return _origFromTokens_call;
+    }
+
+    messageArg_ptr fromTokens(TokensReader *reader) const
+    {
+        if (reader->atEnd())
+            return nullptr;
+
+        return _origFromTokens_call(reader);
+    }
 };
 
 class CVNIRCCORESHARED_EXPORT MessageArg
@@ -194,10 +284,24 @@ public:
 class CVNIRCCORESHARED_EXPORT MessageArgTypesHolder
 {
 public:
-    std::shared_ptr<MessageArgType>
-        commandNameType, numericCommandNameType,
-        sourceType, channelType, channelListType, keyType, keyListType,
-        targetType, chatterDataType;
+    std::shared_ptr<MessageArgType<CommandNameMessageArg>>
+        commandNameType;
+    std::shared_ptr<MessageArgType<NumericCommandNameMessageArg>>
+        numericCommandNameType;
+    std::shared_ptr<MessageArgType<SourceMessageArg>>
+        sourceType;
+    std::shared_ptr<MessageArgType<ChannelMessageArg>>
+        channelType;
+    std::shared_ptr<MessageArgType<ChannelListMessageArg>>
+        channelListType;
+    std::shared_ptr<MessageArgType<ChannelMessageArg>>  // FIXME
+        keyType;
+    std::shared_ptr<MessageArgType<ChannelListMessageArg>>  // FIXMe
+        keyListType;
+    std::shared_ptr<MessageArgType<SourceMessageArg>>  // FIXME
+        targetType;
+    std::shared_ptr<MessageArgType<MessageArg>>  // FIXME
+        chatterDataType;
 };
 
 class CVNIRCCORESHARED_EXPORT Message
@@ -235,7 +339,7 @@ class CVNIRCCORESHARED_EXPORT MessageType
 {
     QString _name;
 public:
-    typedef std::shared_ptr<MessageArgType> msgArgType_ptr;
+    typedef std::shared_ptr<MessageArgTypeBase> msgArgType_ptr;
 private:
     QList<msgArgType_ptr> _argTypes;
 
