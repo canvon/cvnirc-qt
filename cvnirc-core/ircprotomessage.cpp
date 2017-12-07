@@ -195,9 +195,15 @@ MessageArgType::messageArg_ptr ConstMessageArgType::fromTokens(TokensReader *rea
 }
 
 OptionalMessageArgType::OptionalMessageArgType(
-        const QString &name, const std::function<MessageArgType::fromTokens_fun> &fromTokens_call) :
+        const QString &name, const std::function<fromTokens_fun> &fromTokens_call) :
     MessageArgType(name, [this](TokensReader *reader) { return fromTokens(reader); }),
     _origFromTokens_call(fromTokens_call)
+{
+
+}
+
+OptionalMessageArgType::OptionalMessageArgType(const QString &name, const MessageArgType &msgArgType) :
+    OptionalMessageArgType(name, msgArgType.fromTokens_call())
 {
 
 }

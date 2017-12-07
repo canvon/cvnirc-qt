@@ -124,6 +124,7 @@ class CVNIRCCORESHARED_EXPORT OptionalMessageArgType : public MessageArgType
 
 public:
     OptionalMessageArgType(const QString &name, const std::function<fromTokens_fun> &fromTokens_call);
+    OptionalMessageArgType(const QString &name, const MessageArgType &msgArgType);
 
     const std::function<fromTokens_fun> &origFromTokens_call() const;
 

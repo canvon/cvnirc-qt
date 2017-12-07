@@ -582,7 +582,7 @@ void IRCProtoClient::_loadMsgTypeVocabIn()
     _msgTypeVocabIn.registerMessageType("PING", std::make_shared<MessageType>("PingType", {
             std::make_shared<ConstMessageArgType>("PingCommandType", std::make_shared<CommandNameMessageArg>("PING"), _msgArgTypesHolder.commandNameType),
             _msgArgTypesHolder.sourceType,
-            //OptionalMessageArgType("[server2]", _msgArgTypesHolder.FIXME->fromTokens_call()),
+            //OptionalMessageArgType("[server2]", _msgArgTypesHolder.FIXME),
     }));
 #endif
     QList<std::shared_ptr<MessageArgType>> argTypes;
@@ -591,7 +591,7 @@ void IRCProtoClient::_loadMsgTypeVocabIn()
                                               *_msgArgTypesHolder.commandNameType);
     argTypes.append(commandArg);
     argTypes.append(_msgArgTypesHolder.sourceType);
-    //argTypes.append(OptionalMessageArgType("[server2]", _msgArgTypesHolder.FIXME->fromTokens_call()));
+    //argTypes.append(OptionalMessageArgType("[server2]", _msgArgTypesHolder.FIXME));
     _msgTypeVocabIn.registerMessageType("PING", std::make_shared<MessageType>("PingType", argTypes));
 }
 
