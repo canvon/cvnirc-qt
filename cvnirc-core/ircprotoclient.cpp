@@ -563,17 +563,7 @@ void IRCProtoClient::_loadMsgArgTypes()
     _msgArgTypesHolder.channelType = std::make_shared<MessageArgType<ChannelMessageArg>>("channel", [](TokensReader *reader) {
         return std::make_shared<ChannelMessageArg>(QString(reader->takeToken()));
     });
-    _msgArgTypesHolder.channelListType = std::make_shared<MessageArgType<ChannelListMessageArg>>("channels", [this](TokensReader *reader) {
-        auto ret = std::make_shared<ChannelListMessageArg>();
-        QByteArrayList channelsBytes = reader->takeToken().split(',');
-        TokensReader innerReader(channelsBytes);
-        while (!innerReader.atEnd()) {
-            ret->channelList.append(std::dynamic_pointer_cast<ChannelMessageArg>(
-                    _msgArgTypesHolder.channelType->fromTokens_call()(&innerReader)
-            ));
-        }
-        return ret;
-    });
+    _msgArgTypesHolder.channelListType = std::make_shared<CommaListMessageArgType<MessageArgType<ChannelMessageArg>>>("channels", *_msgArgTypesHolder.channelType);
 }
 
 void IRCProtoClient::_loadMsgTypeVocabIn()

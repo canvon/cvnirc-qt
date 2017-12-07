@@ -223,6 +223,55 @@ public:
     }
 };
 
+template <class A> class ListMessageArg;
+
+template <class T = MessageArgType<>>
+class CVNIRCCORESHARED_EXPORT CommaListMessageArgType : public MessageArgType<ListMessageArg<typename T::messageArg_type>>
+{
+public:
+    typedef MessageArgType<ListMessageArg<typename T::messageArg_type>>  base_type;
+    typedef typename base_type::messageArg_type  listMsgArg_type;
+    typedef typename base_type::messageArg_ptr   listMsgArg_ptr;
+    typedef typename base_type::fromTokens_fun   listFromTokens_fun;
+    typedef typename T::messageArg_ptr           elementMsgArg_ptr;
+    typedef typename T::fromTokens_fun           elementFromTokens_fun;
+
+private:
+    std::function<elementFromTokens_fun>  _elementFromTokens_call;
+
+public:
+    CommaListMessageArgType(const QString &name, const std::function<elementFromTokens_fun> &elementFromTokens_call) :
+        MessageArgType<listMsgArg_type>(name, [this](TokensReader *reader) { return listFromTokens(reader); }),
+        _elementFromTokens_call(elementFromTokens_call)
+    {
+
+    }
+
+    CommaListMessageArgType(const QString &name, const T &elementMsgArgType) :
+        CommaListMessageArgType(name, elementMsgArgType.fromTokens_call())
+    {
+
+    }
+
+    std::function<elementFromTokens_fun> elementFromTokens_call() const
+    {
+        return _elementFromTokens_call;
+    }
+
+    listMsgArg_ptr listFromTokens(TokensReader *reader) const
+    {
+        auto ret = std::make_shared<listMsgArg_type>();
+        QByteArrayList elementsBytes = reader->takeToken().split(',');
+        TokensReader innerReader(elementsBytes);
+        while (!innerReader.atEnd()) {
+            ret->list.append(
+                _elementFromTokens_call(&innerReader)
+            );
+        }
+        return ret;
+    }
+};
+
 class CVNIRCCORESHARED_EXPORT MessageArg
 {
 public:
@@ -272,6 +321,45 @@ public:
     bool operator ==(const MessageArg &other) const override;
 };
 
+template <class A>
+class CVNIRCCORESHARED_EXPORT ListMessageArg : public MessageArg
+{
+public:
+    typedef A                   elementMsgArg_type;
+    typedef std::shared_ptr<A>  elementMsgArg_ptr;
+
+    QList<elementMsgArg_ptr>  list;
+
+    ListMessageArg()
+    {
+
+    }
+
+    ListMessageArg(const QList<elementMsgArg_ptr> &list) :
+        list(list)
+    {
+
+    }
+
+    bool operator ==(const MessageArg &other) const override
+    {
+        const auto *myTypeOther = dynamic_cast<const ListMessageArg*>(&other);
+        if (myTypeOther == nullptr)
+            return false;
+
+        int len = list.length();
+        int otherLen = myTypeOther->list.length();
+        if (len != otherLen)
+            return false;
+
+        for (int i = 0; i < len; i++) {
+            if (!(*list[i] == *myTypeOther->list[i]))
+                return false;
+        }
+        return true;
+    }
+};
+
 class CVNIRCCORESHARED_EXPORT ChannelListMessageArg : public MessageArg
 {
 public:
@@ -294,7 +382,7 @@ public:
         sourceType;
     std::shared_ptr<MessageArgType<ChannelMessageArg>>
         channelType;
-    std::shared_ptr<MessageArgType<ChannelListMessageArg>>
+    std::shared_ptr<CommaListMessageArgType<MessageArgType<ChannelMessageArg>>>
         channelListType;
     std::shared_ptr<MessageArgType<ChannelMessageArg>>  // FIXME
         keyType;
