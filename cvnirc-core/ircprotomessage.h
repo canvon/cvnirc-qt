@@ -170,7 +170,7 @@ public:
         return _constArg;
     }
 
-    const std::function<fromTokens_fun> &origFromTokens_call() const
+    std::function<fromTokens_fun> origFromTokens_call() const
     {
         return _origFromTokens_call;
     }
@@ -188,9 +188,11 @@ public:
 template <class T = MessageArgType<>>
 class CVNIRCCORESHARED_EXPORT OptionalMessageArgType : public T
 {
+public:
     using typename T::messageArg_ptr;
     using typename T::fromTokens_fun;
 
+private:
     std::function<fromTokens_fun>  _origFromTokens_call;
 
 public:
@@ -207,7 +209,7 @@ public:
 
     }
 
-    const std::function<fromTokens_fun> &origFromTokens_call() const
+    std::function<fromTokens_fun> origFromTokens_call() const
     {
         return _origFromTokens_call;
     }
