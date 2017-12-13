@@ -563,10 +563,10 @@ void IRCProtoClient::_loadMsgArgTypes()
         return std::make_shared<SourceMessageArg>(QString(reader->takeToken()));
     });
 
-    _msgArgTypesHolder.channelType = std::make_shared<MessageArgType<ChannelMessageArg>>("channel", [](TokensReader *reader) {
-        return std::make_shared<ChannelMessageArg>(QString(reader->takeToken()));
+    _msgArgTypesHolder.channelType = std::make_shared<MessageArgType<ChannelTargetMessageArg>>("channel", [](TokensReader *reader) {
+        return std::make_shared<ChannelTargetMessageArg>(QString(reader->takeToken()));
     });
-    _msgArgTypesHolder.channelListType = std::make_shared<CommaListMessageArgType<MessageArgType<ChannelMessageArg>>>("channels", _msgArgTypesHolder.channelType);
+    _msgArgTypesHolder.channelListType = std::make_shared<CommaListMessageArgType<MessageArgType<ChannelTargetMessageArg>>>("channels", _msgArgTypesHolder.channelType);
 
     _msgArgTypesHolder.keyType = std::make_shared<MessageArgType<KeyMessageArg>>("key", [](TokensReader *reader) {
         return std::make_shared<KeyMessageArg>(QString(reader->takeToken()));

@@ -138,11 +138,11 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProto::Incoming *in)
         if (!(argCount >= 2 && argCount <= 3))
             throw std::runtime_error("IRC core context, receive IRC proto message: Invalid argument count after processing (" + std::to_string(argCount) + ")");
 
-        auto channelsArg = std::dynamic_pointer_cast<IRCProto::ListMessageArg<IRCProto::ChannelMessageArg>>(msg->args[1]);
+        auto channelsArg = std::dynamic_pointer_cast<IRCProto::ListMessageArg<IRCProto::ChannelTargetMessageArg>>(msg->args[1]);
         if (!channelsArg)
             throw std::runtime_error("IRC core context, receive IRC proto message: Invalid argument type at index 1");  // TODO: Give type information if possible.
 
-        for (std::shared_ptr<IRCProto::ChannelMessageArg> channelArg : channelsArg->list) {
+        for (std::shared_ptr<IRCProto::ChannelTargetMessageArg> channelArg : channelsArg->list) {
             const QString channel = channelArg->channel;
 
             if (_type == Type::Server) {

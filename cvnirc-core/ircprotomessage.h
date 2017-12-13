@@ -306,13 +306,31 @@ public:
     bool operator ==(const MessageArg &other) const override;
 };
 
-class CVNIRCCORESHARED_EXPORT ChannelMessageArg : public MessageArg
+class CVNIRCCORESHARED_EXPORT TargetMessageArg : public MessageArg
+{
+public:
+    virtual QString targetToString() const = 0;
+};
+
+class CVNIRCCORESHARED_EXPORT ChannelTargetMessageArg : public TargetMessageArg
 {
 public:
     QString channel;
 
-    ChannelMessageArg(const QString &channel);
+    ChannelTargetMessageArg(const QString &channel);
 
+    QString targetToString() const override;
+    bool operator ==(const MessageArg &other) const override;
+};
+
+class CVNIRCCORESHARED_EXPORT NickTargetMessageArg : public TargetMessageArg
+{
+public:
+    QString nick;
+
+    NickTargetMessageArg(const QString &nick);
+
+    QString targetToString() const override;
     bool operator ==(const MessageArg &other) const override;
 };
 
@@ -368,10 +386,10 @@ public:
 class CVNIRCCORESHARED_EXPORT ChannelListMessageArg : public MessageArg
 {
 public:
-    QList<std::shared_ptr<ChannelMessageArg>> channelList;
+    QList<std::shared_ptr<ChannelTargetMessageArg>> channelList;
 
     ChannelListMessageArg();
-    ChannelListMessageArg(const QList<std::shared_ptr<ChannelMessageArg>> &channelList);
+    ChannelListMessageArg(const QList<std::shared_ptr<ChannelTargetMessageArg>> &channelList);
 
     bool operator ==(const MessageArg &other) const override;
 };
@@ -385,15 +403,15 @@ public:
         numericCommandNameType;
     std::shared_ptr<MessageArgType<SourceMessageArg>>
         sourceType;
-    std::shared_ptr<MessageArgType<ChannelMessageArg>>
+    std::shared_ptr<MessageArgType<ChannelTargetMessageArg>>
         channelType;
-    std::shared_ptr<CommaListMessageArgType<MessageArgType<ChannelMessageArg>>>
+    std::shared_ptr<CommaListMessageArgType<MessageArgType<ChannelTargetMessageArg>>>
         channelListType;
     std::shared_ptr<MessageArgType<KeyMessageArg>>
         keyType;
     std::shared_ptr<CommaListMessageArgType<MessageArgType<KeyMessageArg>>>
         keyListType;
-    std::shared_ptr<MessageArgType<SourceMessageArg>>  // FIXME
+    std::shared_ptr<MessageArgType<TargetMessageArg>>
         targetType;
     std::shared_ptr<MessageArgType<MessageArg>>  // FIXME
         chatterDataType;

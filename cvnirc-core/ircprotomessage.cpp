@@ -219,19 +219,44 @@ bool SourceMessageArg::operator ==(const MessageArg &other) const
     return source == myTypeOther->source;
 }
 
-ChannelMessageArg::ChannelMessageArg(const QString &channel) :
+ChannelTargetMessageArg::ChannelTargetMessageArg(const QString &channel) :
     channel(channel)
 {
 
 }
 
-bool ChannelMessageArg::operator ==(const MessageArg &other) const
+QString ChannelTargetMessageArg::targetToString() const
 {
-    const auto *myTypeOther = dynamic_cast<const ChannelMessageArg*>(&other);
+    return channel;
+}
+
+bool ChannelTargetMessageArg::operator ==(const MessageArg &other) const
+{
+    const auto *myTypeOther = dynamic_cast<const ChannelTargetMessageArg*>(&other);
     if (myTypeOther == nullptr)
         return false;
 
     return channel == myTypeOther->channel;
+}
+
+NickTargetMessageArg::NickTargetMessageArg(const QString &nick) :
+    nick(nick)
+{
+
+}
+
+QString NickTargetMessageArg::targetToString() const
+{
+    return nick;
+}
+
+bool NickTargetMessageArg::operator ==(const MessageArg &other) const
+{
+    const auto *myTypeOther = dynamic_cast<const NickTargetMessageArg*>(&other);
+    if (myTypeOther == nullptr)
+        return false;
+
+    return nick == myTypeOther->nick;
 }
 
 ChannelListMessageArg::ChannelListMessageArg()
@@ -239,7 +264,7 @@ ChannelListMessageArg::ChannelListMessageArg()
 
 }
 
-ChannelListMessageArg::ChannelListMessageArg(const QList<std::shared_ptr<ChannelMessageArg> > &channelList) :
+ChannelListMessageArg::ChannelListMessageArg(const QList<std::shared_ptr<ChannelTargetMessageArg> > &channelList) :
     channelList(channelList)
 {
 
