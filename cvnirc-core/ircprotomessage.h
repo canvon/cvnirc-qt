@@ -138,31 +138,33 @@ public:
 };
 
 template <class T = MessageArgType<>>
-class CVNIRCCORESHARED_EXPORT ConstMessageArgType : public T
+class CVNIRCCORESHARED_EXPORT ConstMessageArgType : public MessageArgType<typename T::messageArg_type>
 {
 public:
-    using typename T::messageArg_type;
-    using typename T::messageArg_ptr;
-    using typename T::fromTokens_fun;
+    typedef MessageArgType<typename T::messageArg_type>  base_type;
+    using typename base_type::messageArg_type;
+    using typename base_type::messageArg_ptr;
+    using typename base_type::fromTokens_fun;
 
+    typedef std::shared_ptr<T>                      wrappedType_ptr;
     typedef std::shared_ptr<const messageArg_type>  constMessageArg_ptr;
 
 private:
+    wrappedType_ptr                _wrappedType;
     constMessageArg_ptr            _constArg;
-    std::function<fromTokens_fun>  _origFromTokens_call;
+    //std::function<fromTokens_fun>  _origFromTokens_call;
 
 public:
-    ConstMessageArgType(const QString &name, constMessageArg_ptr constArg, const std::function<fromTokens_fun> &fromTokens_call) :
-        T(name, [this](TokensReader *reader) { return fromTokens(reader); }),
-        _constArg(constArg), _origFromTokens_call(fromTokens_call)
+    ConstMessageArgType(const QString &name, wrappedType_ptr typeToWrap, constMessageArg_ptr constArg) :
+        MessageArgType<messageArg_type>(name, [this](TokensReader *reader) { return _fromTokens(reader); }),
+        _wrappedType(typeToWrap), _constArg(constArg)
     {
 
     }
 
-    ConstMessageArgType(const QString &name, constMessageArg_ptr constArg, const T &msgArgType) :
-        ConstMessageArgType(name, constArg, msgArgType.fromTokens_call())
+    wrappedType_ptr wrappedType() const
     {
-
+        return _wrappedType;
     }
 
     constMessageArg_ptr constArg()
@@ -170,14 +172,10 @@ public:
         return _constArg;
     }
 
-    std::function<fromTokens_fun> origFromTokens_call() const
+private:
+    messageArg_ptr _fromTokens(TokensReader *reader) const
     {
-        return _origFromTokens_call;
-    }
-
-    messageArg_ptr fromTokens(TokensReader *reader) const
-    {
-        messageArg_ptr arg = _origFromTokens_call(reader);
+        messageArg_ptr arg = _wrappedType->fromTokens_call()(reader);
         if (!(*arg == *_constArg))
             throw std::runtime_error("Const message arg type: The retrieved message arg isn't equal to the const/reference arg");
 
@@ -186,40 +184,40 @@ public:
 };
 
 template <class T = MessageArgType<>>
-class CVNIRCCORESHARED_EXPORT OptionalMessageArgType : public T
+class CVNIRCCORESHARED_EXPORT OptionalMessageArgType : public MessageArgType<typename T::messageArg_type>
 {
 public:
-    using typename T::messageArg_ptr;
-    using typename T::fromTokens_fun;
+    typedef MessageArgType<typename T::messageArg_type>  base_type;
+    using typename base_type::messageArg_type;
+    using typename base_type::messageArg_ptr;
+    using typename base_type::fromTokens_fun;
+
+    typedef std::shared_ptr<T>  wrappedType_ptr;
 
 private:
-    std::function<fromTokens_fun>  _origFromTokens_call;
+    wrappedType_ptr                _wrappedType;
+    //std::function<fromTokens_fun>  _origFromTokens_call;
 
 public:
-    OptionalMessageArgType(const QString &name, const std::function<fromTokens_fun> &fromTokens_call) :
-        T(name, [this](TokensReader *reader) { return fromTokens(reader); }),
-        _origFromTokens_call(fromTokens_call)
+    OptionalMessageArgType(const QString &name, wrappedType_ptr typeToWrap) :
+        MessageArgType<messageArg_type>(name, [this](TokensReader *reader) { return _fromTokens(reader); }),
+        _wrappedType(typeToWrap)
     {
 
     }
 
-    OptionalMessageArgType(const QString &name, const T &msgArgType) :
-        OptionalMessageArgType(name, msgArgType.fromTokens_call())
+    wrappedType_ptr wrappedType() const
     {
-
+        return _wrappedType;
     }
 
-    std::function<fromTokens_fun> origFromTokens_call() const
-    {
-        return _origFromTokens_call;
-    }
-
-    messageArg_ptr fromTokens(TokensReader *reader) const
+private:
+    messageArg_ptr _fromTokens(TokensReader *reader) const
     {
         if (reader->atEnd())
             return nullptr;
 
-        return _origFromTokens_call(reader);
+        return _wrappedType->fromTokens_call()(reader);
     }
 };
 
@@ -236,26 +234,23 @@ public:
     typedef typename T::messageArg_ptr           elementMsgArg_ptr;
     typedef typename T::fromTokens_fun           elementFromTokens_fun;
 
+    typedef std::shared_ptr<T>  elementType_ptr;
+
 private:
-    std::function<elementFromTokens_fun>  _elementFromTokens_call;
+    elementType_ptr                       _elementType;
+    //std::function<elementFromTokens_fun>  _elementFromTokens_call;
 
 public:
-    CommaListMessageArgType(const QString &name, const std::function<elementFromTokens_fun> &elementFromTokens_call) :
+    CommaListMessageArgType(const QString &name, elementType_ptr elementType) :
         MessageArgType<listMsgArg_type>(name, [this](TokensReader *reader) { return listFromTokens(reader); }),
-        _elementFromTokens_call(elementFromTokens_call)
+        _elementType(elementType)
     {
 
     }
 
-    CommaListMessageArgType(const QString &name, const T &elementMsgArgType) :
-        CommaListMessageArgType(name, elementMsgArgType.fromTokens_call())
+    elementType_ptr elementType() const
     {
-
-    }
-
-    std::function<elementFromTokens_fun> elementFromTokens_call() const
-    {
-        return _elementFromTokens_call;
+        return _elementType;
     }
 
     listMsgArg_ptr listFromTokens(TokensReader *reader) const
@@ -265,7 +260,7 @@ public:
         TokensReader innerReader(elementsBytes);
         while (!innerReader.atEnd()) {
             ret->list.append(
-                _elementFromTokens_call(&innerReader)
+                _elementType->fromTokens_call()(&innerReader)
             );
         }
         return ret;
