@@ -136,7 +136,7 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProto::Incoming *in)
     if (commandArg->commandUpper == "JOIN") {
         int argCount = msg->args.length();
         if (!(argCount >= 2 && argCount <= 3))
-            throw std::runtime_error("IRC core context, receive IRC proto message: Invalid argument count after processing (" + QString::number(argCount) + ")");
+            throw std::runtime_error("IRC core context, receive IRC proto message: Invalid argument count after processing (" + std::to_string(argCount) + ")");
 
         auto channelsArg = std::dynamic_pointer_cast<IRCProto::ListMessageArg<IRCProto::ChannelMessageArg>>(msg->args[1]);
         if (!channelsArg)
