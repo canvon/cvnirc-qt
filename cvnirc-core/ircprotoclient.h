@@ -59,6 +59,7 @@ public:
     const QByteArray &rawLineWhitelist() const;
     void setRawLineWhitelist(const QByteArray &newRawLineWhitelist);
 
+    bool isChannel(const QByteArray &token);
     static QString nickUserHost2nick(const QString &nickUserHost);
 
 signals:

@@ -563,6 +563,18 @@ void IRCProtoClient::_loadMsgArgTypes()
         return std::make_shared<SourceMessageArg>(QString(reader->takeToken()));
     });
 
+    _msgArgTypesHolder.targetType = std::make_shared<MessageArgType<TargetMessageArg>>("target",
+        [this](TokensReader *reader) -> std::shared_ptr<TargetMessageArg> {
+            QByteArray token = reader->takeToken();
+            if (isChannel(token))
+                return std::make_shared<ChannelTargetMessageArg>(QString(token));
+            else
+                return std::make_shared<NickTargetMessageArg>(QString(token));
+        });
+    _msgArgTypesHolder.targetListType = std::make_shared<CommaListMessageArgType<MessageArgType<TargetMessageArg>>>("targets",
+        _msgArgTypesHolder.targetType
+    );
+
     _msgArgTypesHolder.channelType = std::make_shared<MessageArgType<ChannelTargetMessageArg>>("channel", [](TokensReader *reader) {
         return std::make_shared<ChannelTargetMessageArg>(QString(reader->takeToken()));
     });
@@ -610,6 +622,13 @@ void IRCProtoClient::_loadMsgTypeVocabIn()
         std::make_shared<OptionalMessageArgType<CommaListMessageArgType<MessageArgType<KeyMessageArg>>>>("[keys]",
             _msgArgTypesHolder.keyListType),
     }));
+}
+
+bool IRCProtoClient::isChannel(const QByteArray &token)
+{
+    // TODO: Use information from 001 "Welcome" message or the like
+    //       to determine what's a channel and what's not.
+    return token.startsWith('#');
 }
 
 QString IRCProtoClient::nickUserHost2nick(const QString &nickUserHost)

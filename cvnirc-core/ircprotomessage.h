@@ -403,6 +403,10 @@ public:
         numericCommandNameType;
     std::shared_ptr<MessageArgType<SourceMessageArg>>
         sourceType;
+    std::shared_ptr<MessageArgType<TargetMessageArg>>
+        targetType;
+    std::shared_ptr<CommaListMessageArgType<MessageArgType<TargetMessageArg>>>
+        targetListType;
     std::shared_ptr<MessageArgType<ChannelTargetMessageArg>>
         channelType;
     std::shared_ptr<CommaListMessageArgType<MessageArgType<ChannelTargetMessageArg>>>
@@ -411,8 +415,6 @@ public:
         keyType;
     std::shared_ptr<CommaListMessageArgType<MessageArgType<KeyMessageArg>>>
         keyListType;
-    std::shared_ptr<MessageArgType<TargetMessageArg>>
-        targetType;
     std::shared_ptr<MessageArgType<MessageArg>>  // FIXME
         chatterDataType;
 };
