@@ -314,6 +314,9 @@ QList<Message::msgArg_ptr> MessageType::argsFromMessageAsTokens(const MessageAsT
         for (std::shared_ptr<MessageArgTypeBase> argType : _argTypes) {
             ret.append(argType->fromTokensUnsafe_call()(&reader));
         }
+
+        if (!reader.atEnd())
+            throw std::runtime_error("Trailing arguments, that is, more arguments than we had syntax for");
     }
     catch (const std::exception &ex) {
         throw std::runtime_error(std::string("Message type \"") + qPrintable(_name) + "\": Message tokens failed to convert to type, error: " +
