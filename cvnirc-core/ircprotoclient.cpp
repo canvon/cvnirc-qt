@@ -615,9 +615,10 @@ void IRCProtoClient::_loadMsgTypeVocabIn()
     }));
 
     _msgTypeVocabIn.registerMessageType("JOIN", std::make_shared<MessageType>("JoinChannelType", QList<std::shared_ptr<MessageArgTypeBase>> {
-        std::make_shared<ConstMessageArgType<MessageArgType<CommandNameMessageArg>>>("JoinChannelCommandType",
-            _msgArgTypesHolder.commandNameType,
-            std::make_shared<CommandNameMessageArg>("JOIN")),
+        //std::make_shared<ConstMessageArgType<MessageArgType<CommandNameMessageArg>>>("JoinChannelCommandType",
+        //    _msgArgTypesHolder.commandNameType,
+        //    std::make_shared<CommandNameMessageArg>("JOIN")),
+        make_const("JoinChannelCommandType", _msgArgTypesHolder.commandNameType, std::make_shared<CommandNameMessageArg>("JOIN")),
         _msgArgTypesHolder.channelListType,
         //std::make_shared<OptionalMessageArgType<decltype(_msgArgTypesHolder.keyListType)::element_type>>("[keys]",
         //    _msgArgTypesHolder.keyListType),

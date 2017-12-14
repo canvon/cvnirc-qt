@@ -184,6 +184,13 @@ private:
 };
 
 template <class T = MessageArgType<>>
+std::shared_ptr<ConstMessageArgType<T>> make_const(const QString &name,
+    std::shared_ptr<T> typeToWrap, std::shared_ptr<const typename T::messageArg_type> constArg)
+{
+    return std::make_shared<ConstMessageArgType<T>>(name, typeToWrap, constArg);
+}
+
+template <class T = MessageArgType<>>
 class CVNIRCCORESHARED_EXPORT OptionalMessageArgType : public MessageArgType<typename T::messageArg_type>
 {
 public:
