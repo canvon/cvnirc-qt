@@ -582,6 +582,10 @@ void IRCProtoClient::_loadMsgArgTypes()
         return std::make_shared<KeyMessageArg>(QString(reader->takeToken()));
     });
     _msgArgTypesHolder.keyListType = make_commalist("keys", _msgArgTypesHolder.keyType);
+
+    _msgArgTypesHolder.chatterDataType = std::make_shared<MessageArgType<ChatterDataMessageArg>>("chatterData", [](TokensReader *reader) {
+        return std::make_shared<ChatterDataMessageArg>(QString(reader->takeToken()));
+    });
 }
 
 void IRCProtoClient::_loadMsgTypeVocabIn()
@@ -601,6 +605,14 @@ void IRCProtoClient::_loadMsgTypeVocabIn()
         _msgArgTypesHolder.channelListType,
         make_optional("[keys]", _msgArgTypesHolder.keyListType),
     }));
+
+    auto chatterMsgType = std::make_shared<MessageType>("ChatterMessageType", QList<std::shared_ptr<MessageArgTypeBase>> {
+        _msgArgTypesHolder.commandNameType,
+        _msgArgTypesHolder.targetListType,
+        _msgArgTypesHolder.chatterDataType,
+    });
+    _msgTypeVocabIn.registerMessageType("PRIVMSG", chatterMsgType);
+    _msgTypeVocabIn.registerMessageType("NOTICE",  chatterMsgType);
 }
 
 bool IRCProtoClient::isChannel(const QByteArray &token)

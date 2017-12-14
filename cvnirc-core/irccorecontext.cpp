@@ -168,24 +168,33 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProto::Incoming *in)
         // (This may have been on another channel context than (if it is one) this one.)
         in->handled = true;
     }
+    else if (commandArg->commandUpper == "PRIVMSG" ||
+             commandArg->commandUpper == "NOTICE") {
+        int argCount = msg->args.length();
+        if (argCount != 3)
+            throw std::runtime_error("IRC core context, receive IRC proto message: Invalid argument count after processing (" + std::to_string(argCount) + ")");
 
-#if 0
-        }
-        break;
-    case IRCProtoMessage::MsgType::PrivMsg:
-    case IRCProtoMessage::MsgType::Notice:
-        {
-            //auto &chatterMsg(static_cast<IRCProto::ChatterMessage &>(msg));
-            auto chatterMsg = std::dynamic_pointer_cast<IRCProto::ChatterMessage>(msg);
-            if (!chatterMsg)
-                throw std::runtime_error("IRC core context, receive IRC proto message: Downcast to IRCProto::ChatterMessage failed");
-            bool isNotice = chatterMsg->msgType == IRCProtoMessage::MsgType::Notice;
-            QString senderNick = IRCProtoClient::nickUserHost2nick(in->inTokens->prefix);
+        auto targetsArg = std::dynamic_pointer_cast<IRCProto::ListMessageArg<IRCProto::TargetMessageArg>>(msg->args[1]);
+        if (!targetsArg)
+            throw std::runtime_error("IRC core context, receive IRC proto message: Invalid argument type at index 1");  // TODO: Give type information if possible.
 
-            // TODO: Recognize other types of channels.
-            bool isChannel = chatterMsg->target.startsWith("#");
+        auto chatterDataArg = std::dynamic_pointer_cast<IRCProto::ChatterDataMessageArg>(msg->args[2]);
+        if (!chatterDataArg)
+            throw std::runtime_error("IRC core context, receive IRC proto message: Invalid argument type at index 2");
+
+        bool isNotice = commandArg->commandUpper == "NOTICE";
+        QString senderNick = IRCProtoClient::nickUserHost2nick(in->inTokens->prefix);
+
+        for (std::shared_ptr<IRCProto::TargetMessageArg> targetArg : targetsArg->list) {
+            if (!targetArg)
+                throw std::runtime_error("IRC core context, receive IRC proto message: At least one target was null");
+
+            auto channelTargetArg = std::dynamic_pointer_cast<IRCProto::ChannelTargetMessageArg>(targetArg);
+            auto nickTargetArg = std::dynamic_pointer_cast<IRCProto::NickTargetMessageArg>(targetArg);
+            bool isChannel = channelTargetArg != nullptr;
+
             Type contextType = isChannel ? Type::Channel : Type::Query;
-            QString returnPath = isChannel ? chatterMsg->target : senderNick;
+            QString returnPath = isChannel ? channelTargetArg->channel : senderNick;
 
             if (_type == Type::Server) {
                 bool created = false;
@@ -196,22 +205,20 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProto::Incoming *in)
                 if (created)
                     context->receiveIRCProtoMessage(in);
 
-                break;
+                continue;
             }
 
             if (_type != contextType || returnPath != _outgoingTarget)
-                break;
+                continue;
 
             QString sourceTyped = (isNotice ? "-" : "<") + senderNick + (isNotice ? "-" : ">");
 
-            notifyUser(sourceTyped + " " + chatterMsg->chatterData, this);
-            in->handled = true;
+            notifyUser(sourceTyped + " " + chatterDataArg->chatterData, this);
         }
-        break;
-    default:
-        break;
+
+        // TODO: Only mark as handled if all channels have been handled somewhere
+        in->handled = true;
     }
-#endif
 }
 
 void IRCCoreContext::sendChatMessage(const QString &line)

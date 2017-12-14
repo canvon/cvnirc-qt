@@ -274,6 +274,21 @@ bool KeyMessageArg::operator ==(const MessageArg &other) const
     return key == myTypeOther->key;
 }
 
+ChatterDataMessageArg::ChatterDataMessageArg(const QString &chatterData) :
+    chatterData(chatterData)
+{
+
+}
+
+bool ChatterDataMessageArg::operator ==(const MessageArg &other) const
+{
+    const auto *myTypeOther = dynamic_cast<const ChatterDataMessageArg*>(&other);
+    if (myTypeOther == nullptr)
+        return false;
+
+    return chatterData == myTypeOther->chatterData;
+}
+
 MessageType::MessageType(const QString &name, const QList<MessageType::msgArgType_ptr> &argTypes) :
     _name(name), _argTypes(argTypes)
 {
