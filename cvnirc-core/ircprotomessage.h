@@ -399,17 +399,6 @@ public:
     }
 };
 
-class CVNIRCCORESHARED_EXPORT ChannelListMessageArg : public MessageArg
-{
-public:
-    QList<std::shared_ptr<ChannelTargetMessageArg>> channelList;
-
-    ChannelListMessageArg();
-    ChannelListMessageArg(const QList<std::shared_ptr<ChannelTargetMessageArg>> &channelList);
-
-    bool operator ==(const MessageArg &other) const override;
-};
-
 class CVNIRCCORESHARED_EXPORT MessageArgTypesHolder
 {
 public:
