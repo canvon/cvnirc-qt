@@ -459,10 +459,6 @@ public:
 
     Message(const MessageOrigin &origin, const QList<msgArg_ptr> args);
     virtual ~Message();
-#if 0
-protected:
-    Message(MsgType msgType);
-#endif
 };
 
 class CVNIRCCORESHARED_EXPORT MessageType
@@ -491,44 +487,6 @@ public:
     void registerMessageType(const QString &commandName, std::shared_ptr<MessageType> msgType);
     std::shared_ptr<MessageType> messageType(const QString &commandName);
 };
-
-
-#if 0
-class CVNIRCCORESHARED_EXPORT PingPongMessage : public Message
-{
-public:
-    PingPongMessage(MsgType msgType, const QString &target);
-
-    QString target;
-};
-
-class CVNIRCCORESHARED_EXPORT NumericMessage : public Message
-{
-public:
-    NumericMessage(MsgType msgType, int numeric);
-
-    int numeric;
-};
-
-class CVNIRCCORESHARED_EXPORT JoinMessage : public Message
-{
-public:
-    JoinMessage(MsgType msgType, const QStringList &channels, const QStringList &keys);
-
-    QStringList channels;
-    QStringList keys;
-};
-
-class CVNIRCCORESHARED_EXPORT ChatterMessage : public Message
-{
-public:
-    ChatterMessage(MsgType msgType, const QString &target, const QString &chatterData);
-
-    // FIXME: PRIVMSGs can have multiple targets, too!
-    QString target;
-    QString chatterData;
-};
-#endif
 
 }  // namespace cvnirc::core::IRCProto
 }  // namespace cvnirc::core

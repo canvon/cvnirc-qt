@@ -418,31 +418,6 @@ void IRCProtoClient::receivedMessageAutonomous(Incoming *in)
         _setConnectionState(ConnectionState::Connected);
         in->handled = true;
     }
-
-#if 0
-    switch (msg->msgType) {
-    case Message::MsgType::Ping:
-        {
-            auto &pingMsg(static_cast<PingPongMessage &>(*msg));
-            sendRaw("PONG :" + pingMsg.target);
-            in->handled = true;
-        }
-        break;
-    case Message::MsgType::Welcome:
-        if (connectionState() != ConnectionState::Registering) {
-            notifyUser("Protocol error, disconnecting: Got random Welcome/001 message");
-            disconnectFromIRCServer("Protocol error");
-            return;
-        }
-
-        notifyUser("Got welcome message; we're connected, now");
-        _setConnectionState(ConnectionState::Connected);
-        in->handled = true;
-        break;
-    default:
-        break;
-    }
-#endif
 }
 
 IRCProtoClient::ConnectionState IRCProtoClient::connectionState() const

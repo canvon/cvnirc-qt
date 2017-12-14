@@ -340,20 +340,6 @@ std::shared_ptr<MessageType> MessageTypeVocabulary::messageType(const QString &c
 }
 
 
-#if 0
-Message::Message() :
-    msgType(MsgType::Unknown)
-{
-
-}
-
-Message::Message(Message::MsgType msgType) :
-    msgType(msgType)
-{
-
-}
-#endif
-
 Message::Message(const MessageOrigin &origin, const QList<Message::msgArg_ptr> args) :
     origin(origin), args(args)
 {
@@ -364,52 +350,6 @@ Message::~Message()
 {
 
 }
-
-#if 0
-PingPongMessage::PingPongMessage(MsgType msgType, const QString &target) :
-    Message(msgType),
-    target(target)
-{
-    switch (msgType) {
-    case MsgType::Ping:
-    case MsgType::Pong:
-        break;
-    default:
-        throw std::invalid_argument("PingPongMessage ctor: Invalid msgType " + std::to_string((int)msgType));
-    }
-}
-
-NumericMessage::NumericMessage(MsgType msgType, int numeric) :
-    Message(msgType),
-    numeric(numeric)
-{
-    if (numeric < 0 || numeric > 999)
-        throw std::invalid_argument("NumericMessage ctor: Numeric " + std::to_string(numeric) + " out of range");
-}
-
-JoinMessage::JoinMessage(MsgType msgType, const QStringList &channels, const QStringList &keys) :
-    Message(msgType),
-    channels(channels),
-    keys(keys)
-{
-    if (msgType != MsgType::Join)
-        throw std::invalid_argument("JoinMessage ctor: Invalid msgType " + std::to_string((int)msgType));
-}
-
-ChatterMessage::ChatterMessage(MsgType msgType, const QString &target, const QString &chatterData) :
-    Message(msgType),
-    target(target),
-    chatterData(chatterData)
-{
-    switch (msgType) {
-    case MsgType::PrivMsg:
-    case MsgType::Notice:
-        break;
-    default:
-        throw std::invalid_argument("ChatterMessage ctor: Invalid msgType " + std::to_string((int)msgType));
-    }
-}
-#endif
 
 }  // namespace cvnirc::core::IRCProto
 }  // namespace cvnirc::core
