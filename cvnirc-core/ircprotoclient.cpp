@@ -576,24 +576,24 @@ void IRCProtoClient::_loadMsgArgTypes()
 
 void IRCProtoClient::_loadMsgTypeVocabIn()
 {
-    _msgTypeVocabIn.registerMessageType("PING", std::make_shared<MessageType>("PingType", QList<std::shared_ptr<MessageArgTypeBase>> {
+    _msgTypeVocabIn.registerMessageType("PING", MessageType::make_shared("PingType", {
         make_const_fwd("PingCommandType", _msgArgTypesHolder.commandNameType, "PING"),
         _msgArgTypesHolder.sourceType,
         //OptionalMessageArgType("[server2]", _msgArgTypesHolder.FIXME),
     }));
 
-    _msgTypeVocabIn.registerMessageType("001", std::make_shared<MessageType>("WelcomeType", QList<std::shared_ptr<MessageArgTypeBase>> {
+    _msgTypeVocabIn.registerMessageType("001", MessageType::make_shared("WelcomeType", {
         make_const_fwd("WelcomeNumericType", _msgArgTypesHolder.numericCommandNameType, "001"),
         _msgArgTypesHolder.unrecognizedArgListType,
     }));
 
-    _msgTypeVocabIn.registerMessageType("JOIN", std::make_shared<MessageType>("JoinChannelType", QList<std::shared_ptr<MessageArgTypeBase>> {
+    _msgTypeVocabIn.registerMessageType("JOIN", MessageType::make_shared("JoinChannelType", {
         make_const_fwd("JoinChannelCommandType", _msgArgTypesHolder.commandNameType, "JOIN"),
         _msgArgTypesHolder.channelListType,
         make_optional("[keys]", _msgArgTypesHolder.keyListType),
     }));
 
-    auto chatterMsgType = std::make_shared<MessageType>("ChatterMessageType", QList<std::shared_ptr<MessageArgTypeBase>> {
+    auto chatterMsgType = MessageType::make_shared("ChatterMessageType", {
         _msgArgTypesHolder.commandNameType,
         _msgArgTypesHolder.targetListType,
         _msgArgTypesHolder.chatterDataType,

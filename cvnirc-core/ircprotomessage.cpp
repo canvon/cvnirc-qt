@@ -358,6 +358,11 @@ std::shared_ptr<Message> MessageType::fromMessageAsTokens(const MessageAsTokens 
     return std::make_shared<Message>(origin, args);
 }
 
+std::shared_ptr<MessageType> MessageType::make_shared(const QString &name, const QList<MessageType::msgArgType_ptr> &argTypes)
+{
+    return std::make_shared<MessageType>(name, argTypes);
+}
+
 void MessageTypeVocabulary::registerMessageType(const QString &commandName, std::shared_ptr<MessageType> msgType)
 {
     _map.insert(commandName.toUpper(), msgType);

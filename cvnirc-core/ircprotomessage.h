@@ -478,6 +478,8 @@ public:
     QList<Message::msgArg_ptr> argsFromMessageAsTokens(const MessageAsTokens &msgTokens) const;
     std::shared_ptr<Message> fromMessageAsTokens(const MessageAsTokens &msgTokens,
         MessageOrigin::Type origin_onNullPrefix = MessageOrigin::Type::SeePrefix) const;
+
+    static std::shared_ptr<MessageType> make_shared(const QString &name, const QList<msgArgType_ptr> &argTypes);
 };
 
 class CVNIRCCORESHARED_EXPORT MessageTypeVocabulary
