@@ -92,13 +92,10 @@ class CVNIRCCORESHARED_EXPORT MessageArgTypeBase
 public:
     typedef std::shared_ptr<MessageArg>  messageArgUnsafe_ptr;
     typedef messageArgUnsafe_ptr (fromTokensUnsafe_fun)(TokensReader *reader);
-private:
-    //std::function<fromTokensUnsafe_fun> _fromTokensUnsafe_call;
 protected:
     MessageArgTypeBase(const QString &name);
 
 public:
-    //MessageArgTypeBase(const QString &name, const std::function<fromTokensUnsafe_fun> &fromTokensUnsafe_call);
     virtual ~MessageArgTypeBase();
 
     const QString &name() const;
@@ -108,7 +105,6 @@ public:
 template <class A = MessageArg>
 class CVNIRCCORESHARED_EXPORT MessageArgType : public MessageArgTypeBase
 {
-    //QString _name;
 public:
     typedef A  messageArg_type;
     typedef std::shared_ptr<A>  messageArg_ptr;
@@ -123,9 +119,6 @@ public:
 
     }
 
-    //virtual ~MessageArgType();
-
-    //const QString &name() const;
     std::function<fromTokensUnsafe_fun> fromTokensUnsafe_call() const override
     {
         return _fromTokens_call;
@@ -152,7 +145,6 @@ public:
 private:
     wrappedType_ptr                _wrappedType;
     constMessageArg_ptr            _constArg;
-    //std::function<fromTokens_fun>  _origFromTokens_call;
 
 public:
     ConstMessageArgType(const QString &name, wrappedType_ptr typeToWrap, constMessageArg_ptr constArg) :
@@ -210,7 +202,6 @@ public:
 
 private:
     wrappedType_ptr                _wrappedType;
-    //std::function<fromTokens_fun>  _origFromTokens_call;
 
 public:
     OptionalMessageArgType(const QString &name, wrappedType_ptr typeToWrap) :
@@ -258,7 +249,6 @@ public:
 
 private:
     elementType_ptr                       _elementType;
-    //std::function<elementFromTokens_fun>  _elementFromTokens_call;
 
 public:
     CommaListMessageArgType(const QString &name, elementType_ptr elementType) :
