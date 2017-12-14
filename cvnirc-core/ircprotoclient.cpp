@@ -571,19 +571,22 @@ void IRCProtoClient::_loadMsgArgTypes()
             else
                 return std::make_shared<NickTargetMessageArg>(QString(token));
         });
-    _msgArgTypesHolder.targetListType = std::make_shared<CommaListMessageArgType<MessageArgType<TargetMessageArg>>>("targets",
-        _msgArgTypesHolder.targetType
-    );
+    //_msgArgTypesHolder.targetListType = std::make_shared<CommaListMessageArgType<MessageArgType<TargetMessageArg>>>("targets",
+    //    _msgArgTypesHolder.targetType
+    //);
+    _msgArgTypesHolder.targetListType = make_commalist("targets", _msgArgTypesHolder.targetType);
 
     _msgArgTypesHolder.channelType = std::make_shared<MessageArgType<ChannelTargetMessageArg>>("channel", [](TokensReader *reader) {
         return std::make_shared<ChannelTargetMessageArg>(QString(reader->takeToken()));
     });
-    _msgArgTypesHolder.channelListType = std::make_shared<CommaListMessageArgType<MessageArgType<ChannelTargetMessageArg>>>("channels", _msgArgTypesHolder.channelType);
+    //_msgArgTypesHolder.channelListType = std::make_shared<CommaListMessageArgType<MessageArgType<ChannelTargetMessageArg>>>("channels", _msgArgTypesHolder.channelType);
+    _msgArgTypesHolder.channelListType = make_commalist("channels", _msgArgTypesHolder.channelType);
 
     _msgArgTypesHolder.keyType = std::make_shared<MessageArgType<KeyMessageArg>>("key", [](TokensReader *reader) {
         return std::make_shared<KeyMessageArg>(QString(reader->takeToken()));
     });
-    _msgArgTypesHolder.keyListType = std::make_shared<CommaListMessageArgType<MessageArgType<KeyMessageArg>>>("keys", _msgArgTypesHolder.keyType);
+    //_msgArgTypesHolder.keyListType = std::make_shared<CommaListMessageArgType<MessageArgType<KeyMessageArg>>>("keys", _msgArgTypesHolder.keyType);
+    _msgArgTypesHolder.keyListType = make_commalist("keys", _msgArgTypesHolder.keyType);
 }
 
 void IRCProtoClient::_loadMsgTypeVocabIn()

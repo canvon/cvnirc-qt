@@ -293,6 +293,12 @@ public:
     }
 };
 
+template <class T = MessageArgType<>>
+std::shared_ptr<CommaListMessageArgType<T>> make_commalist(const QString &name, std::shared_ptr<T> elementType)
+{
+    return std::make_shared<CommaListMessageArgType<T>>(name, elementType);
+}
+
 class CVNIRCCORESHARED_EXPORT MessageArg
 {
 public:
