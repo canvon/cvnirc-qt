@@ -364,13 +364,6 @@ void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
 
         if (!in.handled)
             notifyUser("Unhandled IRC protocol message: " + command);
-#if 0
-            notifyUser("Unhandled IRC protocol message (type " + QString::number((int)in.inMessage->msgType) +
-#ifdef CVN_HAVE_Q_ENUM
-                       ": " + QMetaEnum::fromType<Message::MsgType>().valueToKey((int)in.inMessage->msgType) +
-#endif
-                       "): " + commandOrig);
-#endif
 
         // This should not be necessary anymore, the smart pointers should
         // take care of everything. (?)

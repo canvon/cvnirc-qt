@@ -4,7 +4,6 @@
 #include "cvnirc-core_global.h"
 
 #include <memory>
-//#include <QObject>
 #include <QByteArray>
 #include <QByteArrayList>
 #include <QString>
@@ -436,24 +435,9 @@ public:
 
 class CVNIRCCORESHARED_EXPORT Message
 {
-#if 0
-    Q_GADGET
-public:
-    enum class MsgType {
-        Unknown,
-        Ping, Pong,
-        Welcome,
-        Join,
-        PrivMsg, Notice,
-    };
-#ifdef CVN_HAVE_Q_ENUM
-    Q_ENUM(MsgType)
-#endif
-#endif
 public:
     typedef std::shared_ptr<MessageArg> msgArg_ptr;
 
-    //MsgType msgType;
     MessageOrigin      origin;
     QList<msgArg_ptr>  args;
 

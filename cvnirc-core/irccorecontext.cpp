@@ -126,13 +126,6 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProto::Incoming *in)
     if (!commandArg)
         throw std::invalid_argument("IRC core context, receive IRC proto message: Incoming message first argument is not a command name argument");
 
-    // FIXME: Remove remnants
-#if 0
-    switch (msg->msgType) {
-    case IRCProtoMessage::MsgType::Join:
-        {
-#endif
-
     if (commandArg->commandUpper == "JOIN") {
         int argCount = msg->args.length();
         if (!(argCount >= 2 && argCount <= 3))
