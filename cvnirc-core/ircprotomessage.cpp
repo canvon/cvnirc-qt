@@ -204,6 +204,21 @@ bool NumericCommandNameMessageArg::operator ==(const MessageArg &other) const
     return numeric == myTypeOther->numeric;
 }
 
+UnrecognizedMessageArg::UnrecognizedMessageArg(const QByteArray &token) :
+    token(token)
+{
+
+}
+
+bool UnrecognizedMessageArg::operator ==(const MessageArg &other) const
+{
+    const auto *myTypeOther = dynamic_cast<const UnrecognizedMessageArg*>(&other);
+    if (myTypeOther == nullptr)
+        return false;
+
+    return token == myTypeOther->token;
+}
+
 SourceMessageArg::SourceMessageArg(const QString &source) :
     source(source)
 {

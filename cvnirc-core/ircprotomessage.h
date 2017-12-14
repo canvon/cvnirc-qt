@@ -311,6 +311,16 @@ public:
     bool operator ==(const MessageArg &other) const override;
 };
 
+class CVNIRCCORESHARED_EXPORT UnrecognizedMessageArg : public MessageArg
+{
+public:
+    QByteArray token;
+
+    UnrecognizedMessageArg(const QByteArray &token);
+
+    bool operator ==(const MessageArg &other) const override;
+};
+
 class CVNIRCCORESHARED_EXPORT SourceMessageArg : public MessageArg
 {
 public:
@@ -415,6 +425,10 @@ public:
         commandNameType;
     std::shared_ptr<MessageArgType<NumericCommandNameMessageArg>>
         numericCommandNameType;
+    std::shared_ptr<MessageArgType<UnrecognizedMessageArg>>
+        unrecognizedType;
+    std::shared_ptr<MessageArgType<ListMessageArg<UnrecognizedMessageArg>>>
+        unrecognizedArgListType;
     std::shared_ptr<MessageArgType<SourceMessageArg>>
         sourceType;
     std::shared_ptr<MessageArgType<TargetMessageArg>>

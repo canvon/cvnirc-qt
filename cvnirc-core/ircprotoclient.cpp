@@ -527,6 +527,17 @@ void IRCProtoClient::_loadMsgArgTypes()
         return std::make_shared<NumericCommandNameMessageArg>(QString(reader->takeToken()));
     });
 
+    _msgArgTypesHolder.unrecognizedType = std::make_shared<MessageArgType<UnrecognizedMessageArg>>("unrecognized", [](TokensReader *reader) {
+        return std::make_shared<UnrecognizedMessageArg>(reader->takeToken());
+    });
+    _msgArgTypesHolder.unrecognizedArgListType = std::make_shared<MessageArgType<ListMessageArg<UnrecognizedMessageArg>>>("unrecognizedArgs",
+        [](TokensReader *reader) {
+            auto ret = std::make_shared<ListMessageArg<UnrecognizedMessageArg>>();
+            while (!reader->atEnd())
+                ret->list.append(std::make_shared<UnrecognizedMessageArg>(reader->takeToken()));
+            return ret;
+        });
+
     _msgArgTypesHolder.sourceType = std::make_shared<MessageArgType<SourceMessageArg>>("source", [](TokensReader *reader) {
         return std::make_shared<SourceMessageArg>(QString(reader->takeToken()));
     });
@@ -566,6 +577,7 @@ void IRCProtoClient::_loadMsgTypeVocabIn()
 
     _msgTypeVocabIn.registerMessageType("001", std::make_shared<MessageType>("WelcomeType", QList<std::shared_ptr<MessageArgTypeBase>> {
         make_const_fwd("WelcomeNumericType", _msgArgTypesHolder.numericCommandNameType, "001"),
+        _msgArgTypesHolder.unrecognizedArgListType,
     }));
 
     _msgTypeVocabIn.registerMessageType("JOIN", std::make_shared<MessageType>("JoinChannelType", QList<std::shared_ptr<MessageArgTypeBase>> {
