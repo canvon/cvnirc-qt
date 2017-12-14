@@ -619,8 +619,9 @@ void IRCProtoClient::_loadMsgTypeVocabIn()
             _msgArgTypesHolder.commandNameType,
             std::make_shared<CommandNameMessageArg>("JOIN")),
         _msgArgTypesHolder.channelListType,
-        std::make_shared<OptionalMessageArgType<CommaListMessageArgType<MessageArgType<KeyMessageArg>>>>("[keys]",
-            _msgArgTypesHolder.keyListType),
+        //std::make_shared<OptionalMessageArgType<decltype(_msgArgTypesHolder.keyListType)::element_type>>("[keys]",
+        //    _msgArgTypesHolder.keyListType),
+        make_optional("[keys]", _msgArgTypesHolder.keyListType),
     }));
 }
 

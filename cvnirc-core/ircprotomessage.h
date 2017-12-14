@@ -221,6 +221,18 @@ private:
     }
 };
 
+//template <class T = MessageArgType<>, typename... Uargs>
+//std::shared_ptr<OptionalMessageArgType<T>> make_optional(Uargs... args)
+//{
+//    return std::make_shared<OptionalMessageArgType<T>>(std::forward<Uargs>(args)...);
+//}
+
+template <class T = MessageArgType<>>
+std::shared_ptr<OptionalMessageArgType<T>> make_optional(const QString &name, std::shared_ptr<T> typeToWrap)
+{
+    return std::make_shared<OptionalMessageArgType<T>>(name, typeToWrap);
+}
+
 template <class A> class ListMessageArg;
 
 template <class T = MessageArgType<>>
