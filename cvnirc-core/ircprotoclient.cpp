@@ -531,10 +531,12 @@ void IRCProtoClient::_loadMsgArgTypes()
         return std::make_shared<UnrecognizedMessageArg>(reader->takeToken());
     });
     _msgArgTypesHolder.unrecognizedArgListType = std::make_shared<MessageArgType<ListMessageArg<UnrecognizedMessageArg>>>("unrecognizedArgs",
-        [](TokensReader *reader) {
+        [unrecognizedType = _msgArgTypesHolder.unrecognizedType](TokensReader *reader) {
             auto ret = std::make_shared<ListMessageArg<UnrecognizedMessageArg>>();
             while (!reader->atEnd())
-                ret->list.append(std::make_shared<UnrecognizedMessageArg>(reader->takeToken()));
+                ret->list.append(
+                    unrecognizedType->fromTokens_call()(reader)
+                );
             return ret;
         });
 
