@@ -527,11 +527,12 @@ void IRCProtoClient::_loadMsgArgTypes()
         return std::make_shared<NumericCommandNameMessageArg>(QString(reader->takeToken()));
     });
 
-    _msgArgTypesHolder.unrecognizedType = std::make_shared<MessageArgType<UnrecognizedMessageArg>>("unrecognized", [](TokensReader *reader) {
+    auto unrecognizedType = std::make_shared<MessageArgType<UnrecognizedMessageArg>>("unrecognized", [](TokensReader *reader) {
         return std::make_shared<UnrecognizedMessageArg>(reader->takeToken());
     });
+    _msgArgTypesHolder.unrecognizedType = unrecognizedType;
     _msgArgTypesHolder.unrecognizedArgListType = std::make_shared<MessageArgType<ListMessageArg<UnrecognizedMessageArg>>>("unrecognizedArgs",
-        [unrecognizedType = _msgArgTypesHolder.unrecognizedType](TokensReader *reader) {
+        [unrecognizedType](TokensReader *reader) {
             auto ret = std::make_shared<ListMessageArg<UnrecognizedMessageArg>>();
             while (!reader->atEnd())
                 ret->list.append(
