@@ -590,9 +590,10 @@ void IRCProtoClient::_loadMsgTypeVocabIn()
 {
 #if 1
     _msgTypeVocabIn.registerMessageType("PING", std::make_shared<MessageType>("PingType", QList<std::shared_ptr<MessageArgTypeBase>> {
-        std::make_shared<ConstMessageArgType<MessageArgType<CommandNameMessageArg>>>("PingCommandType",
-            _msgArgTypesHolder.commandNameType,
-            std::make_shared<CommandNameMessageArg>("PING")),
+        //std::make_shared<ConstMessageArgType<MessageArgType<CommandNameMessageArg>>>("PingCommandType",
+        //    _msgArgTypesHolder.commandNameType,
+        //    std::make_shared<CommandNameMessageArg>("PING")),
+        make_const_fwd("PingCommandType", _msgArgTypesHolder.commandNameType, "PING"),
         _msgArgTypesHolder.sourceType,
         //OptionalMessageArgType("[server2]", _msgArgTypesHolder.FIXME),
     }));
@@ -609,16 +610,18 @@ void IRCProtoClient::_loadMsgTypeVocabIn()
 #endif
 
     _msgTypeVocabIn.registerMessageType("001", std::make_shared<MessageType>("WelcomeType", QList<std::shared_ptr<MessageArgTypeBase>> {
-        std::make_shared<ConstMessageArgType<MessageArgType<NumericCommandNameMessageArg>>>("WelcomeNumericType",
-            _msgArgTypesHolder.numericCommandNameType,
-            std::make_shared<NumericCommandNameMessageArg>("001")),
+        //std::make_shared<ConstMessageArgType<MessageArgType<NumericCommandNameMessageArg>>>("WelcomeNumericType",
+        //    _msgArgTypesHolder.numericCommandNameType,
+        //    std::make_shared<NumericCommandNameMessageArg>("001")),
+        make_const_fwd("WelcomeNumericType", _msgArgTypesHolder.numericCommandNameType, "001"),
     }));
 
     _msgTypeVocabIn.registerMessageType("JOIN", std::make_shared<MessageType>("JoinChannelType", QList<std::shared_ptr<MessageArgTypeBase>> {
         //std::make_shared<ConstMessageArgType<MessageArgType<CommandNameMessageArg>>>("JoinChannelCommandType",
         //    _msgArgTypesHolder.commandNameType,
         //    std::make_shared<CommandNameMessageArg>("JOIN")),
-        make_const("JoinChannelCommandType", _msgArgTypesHolder.commandNameType, std::make_shared<CommandNameMessageArg>("JOIN")),
+        //make_const("JoinChannelCommandType", _msgArgTypesHolder.commandNameType, std::make_shared<CommandNameMessageArg>("JOIN")),
+        make_const_fwd("JoinChannelCommandType", _msgArgTypesHolder.commandNameType, "JOIN"),
         _msgArgTypesHolder.channelListType,
         //std::make_shared<OptionalMessageArgType<decltype(_msgArgTypesHolder.keyListType)::element_type>>("[keys]",
         //    _msgArgTypesHolder.keyListType),

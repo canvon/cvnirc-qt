@@ -190,6 +190,13 @@ std::shared_ptr<ConstMessageArgType<T>> make_const(const QString &name,
     return std::make_shared<ConstMessageArgType<T>>(name, typeToWrap, constArg);
 }
 
+template <class T = MessageArgType<>, typename... Aargs>
+std::shared_ptr<ConstMessageArgType<T>> make_const_fwd(const QString &name,
+    std::shared_ptr<T> typeToWrap, Aargs... args)
+{
+    return make_const(name, typeToWrap, std::make_shared<const typename T::messageArg_type>(std::forward<Aargs>(args)...));
+}
+
 template <class T = MessageArgType<>>
 class CVNIRCCORESHARED_EXPORT OptionalMessageArgType : public MessageArgType<typename T::messageArg_type>
 {
