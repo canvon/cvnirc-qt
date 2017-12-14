@@ -316,7 +316,8 @@ QList<Message::msgArg_ptr> MessageType::argsFromMessageAsTokens(const MessageAsT
         }
     }
     catch (const std::exception &ex) {
-        throw std::runtime_error(std::string("Message type \"") + qPrintable(_name) + "\": Message tokens failed to convert to type");
+        throw std::runtime_error(std::string("Message type \"") + qPrintable(_name) + "\": Message tokens failed to convert to type, error: " +
+                                 ex.what());
     }
 
     return ret;
