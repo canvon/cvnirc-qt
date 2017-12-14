@@ -571,63 +571,34 @@ void IRCProtoClient::_loadMsgArgTypes()
             else
                 return std::make_shared<NickTargetMessageArg>(QString(token));
         });
-    //_msgArgTypesHolder.targetListType = std::make_shared<CommaListMessageArgType<MessageArgType<TargetMessageArg>>>("targets",
-    //    _msgArgTypesHolder.targetType
-    //);
     _msgArgTypesHolder.targetListType = make_commalist("targets", _msgArgTypesHolder.targetType);
 
     _msgArgTypesHolder.channelType = std::make_shared<MessageArgType<ChannelTargetMessageArg>>("channel", [](TokensReader *reader) {
         return std::make_shared<ChannelTargetMessageArg>(QString(reader->takeToken()));
     });
-    //_msgArgTypesHolder.channelListType = std::make_shared<CommaListMessageArgType<MessageArgType<ChannelTargetMessageArg>>>("channels", _msgArgTypesHolder.channelType);
     _msgArgTypesHolder.channelListType = make_commalist("channels", _msgArgTypesHolder.channelType);
 
     _msgArgTypesHolder.keyType = std::make_shared<MessageArgType<KeyMessageArg>>("key", [](TokensReader *reader) {
         return std::make_shared<KeyMessageArg>(QString(reader->takeToken()));
     });
-    //_msgArgTypesHolder.keyListType = std::make_shared<CommaListMessageArgType<MessageArgType<KeyMessageArg>>>("keys", _msgArgTypesHolder.keyType);
     _msgArgTypesHolder.keyListType = make_commalist("keys", _msgArgTypesHolder.keyType);
 }
 
 void IRCProtoClient::_loadMsgTypeVocabIn()
 {
-#if 1
     _msgTypeVocabIn.registerMessageType("PING", std::make_shared<MessageType>("PingType", QList<std::shared_ptr<MessageArgTypeBase>> {
-        //std::make_shared<ConstMessageArgType<MessageArgType<CommandNameMessageArg>>>("PingCommandType",
-        //    _msgArgTypesHolder.commandNameType,
-        //    std::make_shared<CommandNameMessageArg>("PING")),
         make_const_fwd("PingCommandType", _msgArgTypesHolder.commandNameType, "PING"),
         _msgArgTypesHolder.sourceType,
         //OptionalMessageArgType("[server2]", _msgArgTypesHolder.FIXME),
     }));
-#else
-    QList<std::shared_ptr<MessageArgTypeBase>> argTypes;
-    std::shared_ptr<MessageArgType<CommandNameMessageArg>> commandArg =
-        std::make_shared<ConstMessageArgType<MessageArgType<CommandNameMessageArg>>>("PingCommandType",
-            _msgArgTypesHolder.commandNameType,
-            std::make_shared<CommandNameMessageArg>("PING"));
-    argTypes.append(commandArg);
-    argTypes.append(_msgArgTypesHolder.sourceType);
-    //argTypes.append(OptionalMessageArgType("[server2]", *_msgArgTypesHolder.FIXME));
-    _msgTypeVocabIn.registerMessageType("PING", std::make_shared<MessageType>("PingType", argTypes));
-#endif
 
     _msgTypeVocabIn.registerMessageType("001", std::make_shared<MessageType>("WelcomeType", QList<std::shared_ptr<MessageArgTypeBase>> {
-        //std::make_shared<ConstMessageArgType<MessageArgType<NumericCommandNameMessageArg>>>("WelcomeNumericType",
-        //    _msgArgTypesHolder.numericCommandNameType,
-        //    std::make_shared<NumericCommandNameMessageArg>("001")),
         make_const_fwd("WelcomeNumericType", _msgArgTypesHolder.numericCommandNameType, "001"),
     }));
 
     _msgTypeVocabIn.registerMessageType("JOIN", std::make_shared<MessageType>("JoinChannelType", QList<std::shared_ptr<MessageArgTypeBase>> {
-        //std::make_shared<ConstMessageArgType<MessageArgType<CommandNameMessageArg>>>("JoinChannelCommandType",
-        //    _msgArgTypesHolder.commandNameType,
-        //    std::make_shared<CommandNameMessageArg>("JOIN")),
-        //make_const("JoinChannelCommandType", _msgArgTypesHolder.commandNameType, std::make_shared<CommandNameMessageArg>("JOIN")),
         make_const_fwd("JoinChannelCommandType", _msgArgTypesHolder.commandNameType, "JOIN"),
         _msgArgTypesHolder.channelListType,
-        //std::make_shared<OptionalMessageArgType<decltype(_msgArgTypesHolder.keyListType)::element_type>>("[keys]",
-        //    _msgArgTypesHolder.keyListType),
         make_optional("[keys]", _msgArgTypesHolder.keyListType),
     }));
 }
