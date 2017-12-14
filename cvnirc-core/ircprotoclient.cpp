@@ -296,7 +296,11 @@ void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
     }
 
     try {
-        in.inMessage = in.inMessageType->fromMessageAsTokens(*in.inTokens);
+        // TODO: Somehow pass in how to decode raw prefix from QByteArray to QString...
+        // Might be relevant if network and user use different encodings,
+        // like latin1 vs. UTF-8, or it might even strange things like KOI8-R
+        // or what's it alled, or Shift_JIS or something be involved.
+        in.inMessage = in.inMessageType->fromMessageAsTokens(*in.inTokens, MessageOrigin::Type::LinkServer);
     }
     catch (const std::exception &ex) {
         notifyUser("Error processing command \"" + command + "\": " + ex.what());

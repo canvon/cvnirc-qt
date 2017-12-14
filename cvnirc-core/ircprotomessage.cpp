@@ -137,6 +137,11 @@ Incoming::Incoming(Incoming::raw_ptr inRaw, Incoming::tokens_ptr inTokens, messa
 }
 
 
+MessageOrigin MessageOrigin::fromPrefix(const QString &prefix, Type onNull)
+{
+    return { prefix.isNull() ? onNull : Type::SeePrefix, prefix };
+}
+
 MessageArgTypeBase::MessageArgTypeBase(const QString &name) :
     _name(name)
 {
@@ -341,10 +346,15 @@ QList<Message::msgArg_ptr> MessageType::argsFromMessageAsTokens(const MessageAsT
     return ret;
 }
 
-std::shared_ptr<Message> MessageType::fromMessageAsTokens(const MessageAsTokens &msgTokens) const
+std::shared_ptr<Message> MessageType::fromMessageAsTokens(const MessageAsTokens &msgTokens,
+    MessageOrigin::Type origin_onNullPrefix) const
 {
-    MessageOrigin origin { MessageOrigin::Type::SeePrefix, QString(msgTokens.prefix) };
+    // TODO: Conversion routine of prefix from QByteArray to QString has to be passed in.
+    // (See also full comment in IRCProtoClient::receivedRaw().)
+    auto origin = MessageOrigin::fromPrefix(QString(msgTokens.prefix), origin_onNullPrefix);
+
     QList<Message::msgArg_ptr> args = argsFromMessageAsTokens(msgTokens);
+
     return std::make_shared<Message>(origin, args);
 }
 

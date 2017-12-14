@@ -82,6 +82,8 @@ public:
 
     Type     type;
     QString  prefix;
+
+    static MessageOrigin fromPrefix(const QString &prefix, Type onNull = Type::SeePrefix);
 };
 
 class MessageArg;
@@ -474,7 +476,8 @@ public:
     const QList<msgArgType_ptr> &argTypes() const;
 
     QList<Message::msgArg_ptr> argsFromMessageAsTokens(const MessageAsTokens &msgTokens) const;
-    std::shared_ptr<Message> fromMessageAsTokens(const MessageAsTokens &msgTokens) const;
+    std::shared_ptr<Message> fromMessageAsTokens(const MessageAsTokens &msgTokens,
+        MessageOrigin::Type origin_onNullPrefix = MessageOrigin::Type::SeePrefix) const;
 };
 
 class CVNIRCCORESHARED_EXPORT MessageTypeVocabulary
