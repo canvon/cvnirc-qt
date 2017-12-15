@@ -152,7 +152,7 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProto::Incoming *in)
             }
             else if (_type == Type::Channel && channel == _outgoingTarget) {
                 notifyUser("Joined channel " + channel +
-                           (in->inTokens->prefix.count() > 0 ? ": " + in->inTokens->prefix : ""),
+                           (!msg->origin.prefix.isEmpty() ? ": " + msg->origin.prefix : ""),
                            this);
             }
         }
@@ -176,7 +176,9 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProto::Incoming *in)
             throw std::runtime_error("IRC core context, receive IRC proto message: Invalid argument type at index 2");
 
         bool isNotice = commandArg->commandUpper == "NOTICE";
-        QString senderNick = IRCProtoClient::nickUserHost2nick(in->inTokens->prefix);
+        QString senderNick = msg->origin.type == MessageOrigin::Type::LinkServer ?
+            "LinkServer" :  // TODO: Make sure this does not collide with a valid nick name!
+            IRCProtoClient::nickUserHost2nick(msg->origin.prefix);
 
         for (std::shared_ptr<IRCProto::TargetMessageArg> targetArg : targetsArg->list) {
             if (!targetArg)
