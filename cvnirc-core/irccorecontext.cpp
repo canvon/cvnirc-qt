@@ -176,7 +176,7 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProto::Incoming *in)
             throw std::runtime_error("IRC core context, receive IRC proto message: Invalid argument type at index 2");
 
         bool isNotice = commandArg->commandUpper == "NOTICE";
-        QString senderNick = msg->origin.type == MessageOrigin::Type::LinkServer ?
+        QString senderNick = msg->origin.type == IRCProto::MessageOrigin::Type::LinkServer ?
             "LinkServer" :  // TODO: Make sure this does not collide with a valid nick name!
             IRCProtoClient::nickUserHost2nick(msg->origin.prefix);
 
