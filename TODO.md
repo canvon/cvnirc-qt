@@ -80,6 +80,10 @@ TODO ideas for cvnirc-qt by canvon
 
    (2017-11-20/-21)
 
+ * Detect & display when a nick's username/hostname change.
+
+   (2017-12-13)
+
  * Collect MOTD lines and pass the full MOTD as a multi-line text object,
    perhaps to be displayed in its own window tab.
 
