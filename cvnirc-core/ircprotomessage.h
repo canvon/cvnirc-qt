@@ -74,6 +74,8 @@ public:
 class CVNIRCCORESHARED_EXPORT MessageOrigin
 {
 public:
+    typedef QString (decode_fun)(const QByteArray &prefixBytes);
+
     enum class Type {
         LinkServer,
         ThisClient,
@@ -84,6 +86,26 @@ public:
     QString  prefix;
 
     static MessageOrigin fromPrefix(const QString &prefix, Type onNull = Type::SeePrefix);
+    static MessageOrigin fromPrefixBytes(const QByteArray &prefixBytes, const std::function<decode_fun> &decoder, Type onNull = Type::SeePrefix);
+};
+
+class CVNIRCCORESHARED_EXPORT MessageOriginType
+{
+public:
+    typedef std::function<MessageOrigin::decode_fun> decoder_type;
+private:
+    QString              _name;
+    decoder_type         _decoder;
+    MessageOrigin::Type  _onNullPrefix;
+
+public:
+    MessageOriginType(const QString &name, decoder_type decoder, MessageOrigin::Type onNullPrefix);
+
+    const QString &name() const;
+    decoder_type decoder() const;
+    MessageOrigin::Type onNullPrefix() const;
+
+    MessageOrigin fromPrefixBytes(const QByteArray &prefixBytes) const;
 };
 
 class MessageArg;
@@ -423,6 +445,8 @@ public:
 class CVNIRCCORESHARED_EXPORT MessageArgTypesHolder
 {
 public:
+    std::shared_ptr<MessageOriginType>
+        originType;
     std::shared_ptr<MessageArgType<CommandNameMessageArg>>
         commandNameType;
     std::shared_ptr<MessageArgType<NumericCommandNameMessageArg>>
@@ -465,21 +489,23 @@ class CVNIRCCORESHARED_EXPORT MessageType
 {
     QString _name;
 public:
+    typedef std::shared_ptr<MessageOriginType>  originType_ptr;
     typedef std::shared_ptr<MessageArgTypeBase> msgArgType_ptr;
 private:
+    originType_ptr        _originType;
     QList<msgArgType_ptr> _argTypes;
 
 public:
-    MessageType(const QString &name, const QList<msgArgType_ptr> &argTypes);
+    MessageType(const QString &name, originType_ptr originType, const QList<msgArgType_ptr> &argTypes);
 
     const QString &name() const;
+    originType_ptr originType() const;
     const QList<msgArgType_ptr> &argTypes() const;
 
     QList<Message::msgArg_ptr> argsFromMessageAsTokens(const MessageAsTokens &msgTokens) const;
-    std::shared_ptr<Message> fromMessageAsTokens(const MessageAsTokens &msgTokens,
-        MessageOrigin::Type origin_onNullPrefix = MessageOrigin::Type::SeePrefix) const;
+    std::shared_ptr<Message> fromMessageAsTokens(const MessageAsTokens &msgTokens) const;
 
-    static std::shared_ptr<MessageType> make_shared(const QString &name, const QList<msgArgType_ptr> &argTypes);
+    static std::shared_ptr<MessageType> make_shared(const QString &name, originType_ptr originType, const QList<msgArgType_ptr> &argTypes);
 };
 
 class CVNIRCCORESHARED_EXPORT MessageTypeVocabulary

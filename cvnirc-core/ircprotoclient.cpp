@@ -300,7 +300,12 @@ void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
         // Might be relevant if network and user use different encodings,
         // like latin1 vs. UTF-8, or it might even strange things like KOI8-R
         // or what's it alled, or Shift_JIS or something be involved.
-        in.inMessage = in.inMessageType->fromMessageAsTokens(*in.inTokens, MessageOrigin::Type::LinkServer);
+        //
+        // Note: This would most likely be implemented via letting the lambdas
+        // in _loadMsgArgTypes() capture "this" and call a reencoding method
+        // of this IRCProtoClient for the conversion from QByteArray to QString.
+        //
+        in.inMessage = in.inMessageType->fromMessageAsTokens(*in.inTokens);
     }
     catch (const std::exception &ex) {
         notifyUser("Error processing command \"" + command + "\": " + ex.what());
@@ -524,6 +529,10 @@ void IRCProtoClient::_setConnectionState(ConnectionState newState)
 
 void IRCProtoClient::_loadMsgArgTypes()
 {
+    _msgArgTypesHolder.originType = std::make_shared<MessageOriginType>("origin", [](const QByteArray &prefixBytes) {
+        return QString(prefixBytes);  // TODO: Reencode from network to user encoding.
+    }, MessageOrigin::Type::LinkServer);
+
     _msgArgTypesHolder.commandNameType = std::make_shared<MessageArgType<CommandNameMessageArg>>("command", [](TokensReader *reader) {
         return std::make_shared<CommandNameMessageArg>(QString(reader->takeToken()));
     });
@@ -576,24 +585,24 @@ void IRCProtoClient::_loadMsgArgTypes()
 
 void IRCProtoClient::_loadMsgTypeVocabIn()
 {
-    _msgTypeVocabIn.registerMessageType("PING", MessageType::make_shared("PingType", {
+    _msgTypeVocabIn.registerMessageType("PING", MessageType::make_shared("PingType", _msgArgTypesHolder.originType, {
         make_const_fwd("PingCommandType", _msgArgTypesHolder.commandNameType, "PING"),
         _msgArgTypesHolder.sourceType,
         //OptionalMessageArgType("[server2]", _msgArgTypesHolder.FIXME),
     }));
 
-    _msgTypeVocabIn.registerMessageType("001", MessageType::make_shared("WelcomeType", {
+    _msgTypeVocabIn.registerMessageType("001", MessageType::make_shared("WelcomeType", _msgArgTypesHolder.originType, {
         make_const_fwd("WelcomeNumericType", _msgArgTypesHolder.numericCommandNameType, "001"),
         _msgArgTypesHolder.unrecognizedArgListType,
     }));
 
-    _msgTypeVocabIn.registerMessageType("JOIN", MessageType::make_shared("JoinChannelType", {
+    _msgTypeVocabIn.registerMessageType("JOIN", MessageType::make_shared("JoinChannelType", _msgArgTypesHolder.originType, {
         make_const_fwd("JoinChannelCommandType", _msgArgTypesHolder.commandNameType, "JOIN"),
         _msgArgTypesHolder.channelListType,
         make_optional("[keys]", _msgArgTypesHolder.keyListType),
     }));
 
-    auto chatterMsgType = MessageType::make_shared("ChatterMessageType", {
+    auto chatterMsgType = MessageType::make_shared("ChatterMessageType", _msgArgTypesHolder.originType, {
         _msgArgTypesHolder.commandNameType,
         _msgArgTypesHolder.targetListType,
         _msgArgTypesHolder.chatterDataType,

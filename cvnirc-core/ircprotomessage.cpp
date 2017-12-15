@@ -142,6 +142,37 @@ MessageOrigin MessageOrigin::fromPrefix(const QString &prefix, Type onNull)
     return { prefix.isNull() ? onNull : Type::SeePrefix, prefix };
 }
 
+MessageOrigin MessageOrigin::fromPrefixBytes(const QByteArray &prefixBytes, const std::function<MessageOrigin::decode_fun> &decoder, MessageOrigin::Type onNull)
+{
+    return fromPrefix(decoder(prefixBytes), onNull);
+}
+
+MessageOriginType::MessageOriginType(const QString &name, MessageOriginType::decoder_type decoder, MessageOrigin::Type onNullPrefix) :
+    _name(name), _decoder(decoder), _onNullPrefix(onNullPrefix)
+{
+
+}
+
+const QString &MessageOriginType::name() const
+{
+    return _name;
+}
+
+MessageOriginType::decoder_type MessageOriginType::decoder() const
+{
+    return _decoder;
+}
+
+MessageOrigin::Type MessageOriginType::onNullPrefix() const
+{
+    return _onNullPrefix;
+}
+
+MessageOrigin MessageOriginType::fromPrefixBytes(const QByteArray &prefixBytes) const
+{
+    return MessageOrigin::fromPrefixBytes(prefixBytes, _decoder, _onNullPrefix);
+}
+
 MessageArgTypeBase::MessageArgTypeBase(const QString &name) :
     _name(name)
 {
@@ -309,8 +340,8 @@ bool ChatterDataMessageArg::operator ==(const MessageArg &other) const
     return chatterData == myTypeOther->chatterData;
 }
 
-MessageType::MessageType(const QString &name, const QList<MessageType::msgArgType_ptr> &argTypes) :
-    _name(name), _argTypes(argTypes)
+MessageType::MessageType(const QString &name, originType_ptr originType, const QList<MessageType::msgArgType_ptr> &argTypes) :
+    _name(name), _originType(originType), _argTypes(argTypes)
 {
 
 }
@@ -318,6 +349,11 @@ MessageType::MessageType(const QString &name, const QList<MessageType::msgArgTyp
 const QString &MessageType::name() const
 {
     return _name;
+}
+
+MessageType::originType_ptr MessageType::originType() const
+{
+    return _originType;
 }
 
 const QList<MessageType::msgArgType_ptr> &MessageType::argTypes() const
@@ -346,21 +382,16 @@ QList<Message::msgArg_ptr> MessageType::argsFromMessageAsTokens(const MessageAsT
     return ret;
 }
 
-std::shared_ptr<Message> MessageType::fromMessageAsTokens(const MessageAsTokens &msgTokens,
-    MessageOrigin::Type origin_onNullPrefix) const
+std::shared_ptr<Message> MessageType::fromMessageAsTokens(const MessageAsTokens &msgTokens) const
 {
-    // TODO: Conversion routine of prefix from QByteArray to QString has to be passed in.
-    // (See also full comment in IRCProtoClient::receivedRaw().)
-    auto origin = MessageOrigin::fromPrefix(QString(msgTokens.prefix), origin_onNullPrefix);
-
+    MessageOrigin origin = _originType->fromPrefixBytes(msgTokens.prefix);
     QList<Message::msgArg_ptr> args = argsFromMessageAsTokens(msgTokens);
-
     return std::make_shared<Message>(origin, args);
 }
 
-std::shared_ptr<MessageType> MessageType::make_shared(const QString &name, const QList<MessageType::msgArgType_ptr> &argTypes)
+std::shared_ptr<MessageType> MessageType::make_shared(const QString &name, MessageType::originType_ptr originType, const QList<MessageType::msgArgType_ptr> &argTypes)
 {
-    return std::make_shared<MessageType>(name, argTypes);
+    return std::make_shared<MessageType>(name, originType, argTypes);
 }
 
 void MessageTypeVocabulary::registerMessageType(const QString &commandName, std::shared_ptr<MessageType> msgType)
