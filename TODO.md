@@ -134,11 +134,6 @@ TODO ideas for cvnirc-qt by canvon
 Source only
 -----------
 
- * Have some kind of Originator data on Message-s that would be
-   an interpreted prefix. Server, Client or arbitrary prefix.
-
-   (2017-12-04)
-
  * Wrap into namespaces consistently (like already begun with the
    IRCProtoMessage -> cvnirc::core::IRCProto::Message reworking).
 

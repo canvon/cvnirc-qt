@@ -59,6 +59,7 @@ public:
     const QByteArray &rawLineWhitelist() const;
     void setRawLineWhitelist(const QByteArray &newRawLineWhitelist);
 
+    bool isChannel(const QByteArray &token);
     static QString nickUserHost2nick(const QString &nickUserHost);
 
 signals:
@@ -102,6 +103,11 @@ private:
 
     int _verboseLevel = 1;
     QByteArray _rawLineWhitelist;
+    IRCProto::MessageArgTypesHolder _msgArgTypesHolder;
+    IRCProto::MessageTypeVocabulary _msgTypeVocabIn;
+
+    void _loadMsgArgTypes();
+    void _loadMsgTypeVocabIn();
 };
 
 #endif // IRCPROTOCLIENT_H

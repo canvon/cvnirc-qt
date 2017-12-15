@@ -16,6 +16,9 @@ IRCProtoClient::IRCProtoClient(QObject *parent) : QObject(parent),
             _rawLineWhitelist.append(c);
     }
 
+    _loadMsgArgTypes();
+    _loadMsgTypeVocabIn();
+
     // Set up signals & slots.
     connect(socket, &QAbstractSocket::connected,
             this, &IRCProtoClient::handle_socket_connected);
@@ -252,24 +255,6 @@ void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
     );
     receivedLine(raw.bytes.toPercentEncoding(_rawLineWhitelist));
 
-#if 0  // TODO: Ensure the same functionality is provided via parse().
-    std::vector<QString> tokens = IRCProtoMessage::splitRawLine(rawLine);
-    if (!(tokens.size() >= 1)) {
-        notifyUser("Protocol error, disconnecting: Received raw line with no tokens!");
-        disconnectFromIRCServer("Protocol error");
-        return;
-    }
-
-    IRCProtoMessage *msg = nullptr;
-    QString prefix;
-
-    if (tokens[0].length() >= 1 && tokens[0][0] == ':') {
-        prefix = tokens[0];
-        prefix.remove(0, 1);  // Strip prefix identifier from identified prefix.
-        tokens.erase(tokens.begin());
-    }
-#endif
-
     const QByteArray     &prefix(in.inTokens->prefix);
     const QByteArrayList &tokens(in.inTokens->mainTokens);
 
@@ -283,57 +268,29 @@ void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
         return;
     }
 
-    const QByteArray &commandOrig(tokens.front());
-    const QByteArray  commandUpper = commandOrig.toUpper();
+    // FIXME: Implement
+    const QString command = tokens[0];
 
-    if (commandUpper == "PING") {
-        if (!(tokens.size() == 2)) {
-            notifyUser("Protocol error, disconnecting: Received PING message with unexpected token count " + QString::number(tokens.size()));
-            disconnectFromIRCServer("Protocol error");
-            return;
-        }
-        in.inMessage = std::make_shared<PingPongMessage>(Message::MsgType::Ping, tokens[1]);
+    in.inMessageType = _msgTypeVocabIn.messageType(command);
+    if (!in.inMessageType) {
+        notifyUser("Received unrecognized command \"" + command + "\"");
+        return;
     }
-    else if (commandUpper == "001") {
-        in.inMessage = std::make_shared<NumericMessage>(Message::MsgType::Welcome, 1);
+
+    try {
+        // TODO: Somehow pass in how to decode raw prefix from QByteArray to QString...
+        // Might be relevant if network and user use different encodings,
+        // like latin1 vs. UTF-8, or it might even strange things like KOI8-R
+        // or what's it alled, or Shift_JIS or something be involved.
+        //
+        // Note: This would most likely be implemented via letting the lambdas
+        // in _loadMsgArgTypes() capture "this" and call a reencoding method
+        // of this IRCProtoClient for the conversion from QByteArray to QString.
+        //
+        in.inMessage = in.inMessageType->fromMessageAsTokens(*in.inTokens);
     }
-    else if (commandUpper == "JOIN") {
-        if (!(tokens.size() >= 2 && tokens.size() <= 3)) {
-            notifyUser("Protocol error, ignoring: Received JOIN message with unexpected token count " + QString::number(tokens.size()));
-            return;
-        }
-
-        QByteArrayList channelsBytes = tokens[1].split(',');
-        QByteArrayList keysBytes = tokens.size() >= 3 ? tokens[2].split(',') : QByteArrayList();
-
-        QStringList channels;
-        for (QByteArray channelBytes : channelsBytes) {
-            channels.append(QString(channelBytes));
-        }
-
-        QStringList keys;
-        for (QByteArray keyBytes : keysBytes) {
-            keys.append(QString(keyBytes));
-        }
-
-        in.inMessage = std::make_shared<JoinMessage>(Message::MsgType::Join, channels, keys);
-    }
-    else if (commandUpper == "PRIVMSG" || commandUpper == "NOTICE") {
-        if (!(tokens.size() == 3)) {
-            notifyUser("Protocol error, ignoring: Received " + commandUpper + " message with unexpected token count " + QString::number(tokens.size()));
-            return;
-        }
-
-        auto msgType = IRCProtoMessage::MsgType::Unknown;
-        if (commandUpper == "PRIVMSG")
-            msgType = IRCProtoMessage::MsgType::PrivMsg;
-        else if (commandUpper == "NOTICE")
-            msgType = IRCProtoMessage::MsgType::Notice;
-
-        in.inMessage = std::make_shared<ChatterMessage>(msgType, tokens[1], tokens[2]);
-    }
-    else {
-        in.inMessage = std::make_shared<Message>();
+    catch (const std::exception &ex) {
+        notifyUser("Error processing command \"" + command + "\": " + ex.what());
     }
 
     if (in.inMessage) {
@@ -341,15 +298,7 @@ void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
         receivedMessage(&in);
 
         if (!in.handled)
-            notifyUser("Unhandled IRC protocol message (type " + QString::number((int)in.inMessage->msgType) +
-#ifdef CVN_HAVE_Q_ENUM
-                       ": " + QMetaEnum::fromType<Message::MsgType>().valueToKey((int)in.inMessage->msgType) +
-#endif
-                       "): " + commandOrig);
-
-        // This should not be necessary anymore, the smart pointers should
-        // take care of everything. (?)
-        //delete msg;
+            notifyUser("Unhandled IRC protocol message: " + command);
     }
 }
 
@@ -362,15 +311,27 @@ void IRCProtoClient::receivedMessageAutonomous(Incoming *in)
     if (!msg)
         throw std::invalid_argument("IRC protocol client, receivedMessageAutonomous(): Incoming message can't be null");
 
-    switch (msg->msgType) {
-    case Message::MsgType::Ping:
-        {
-            auto &pingMsg(static_cast<PingPongMessage &>(*msg));
-            sendRaw("PONG :" + pingMsg.target);
-            in->handled = true;
-        }
-        break;
-    case Message::MsgType::Welcome:
+    if (msg->args.isEmpty())
+        throw std::invalid_argument("IRC protocol client, receivedMessageAutonomous(): Incoming message can't miss first argument (the command name)");
+
+    auto commandArg = std::dynamic_pointer_cast<CommandNameMessageArg>(msg->args.front());
+    if (!commandArg)
+        throw std::invalid_argument("IRC protocol client, receivedMessageAutonomous(): Incoming message first argument is not a command name argument");
+
+    auto numericArg = std::dynamic_pointer_cast<NumericCommandNameMessageArg>(commandArg);
+
+    if (commandArg->commandUpper == "PING") {
+        if (msg->args.length() < 2)
+            throw std::invalid_argument("IRC protocol client, receivedMessageAutonomous(): Incoming message misses second argument, the ping source");
+
+        auto sourceArg = std::dynamic_pointer_cast<SourceMessageArg>(msg->args[1]);
+        if (!sourceArg)
+            throw std::invalid_argument("IRC protocol client, receivedMessageAutonomous(): Incoming message second argument is not a source argument");
+
+        sendRaw("PONG :" + sourceArg->source);
+        in->handled = true;
+    }
+    else if (numericArg && numericArg->numeric == 1) {
         if (connectionState() != ConnectionState::Registering) {
             notifyUser("Protocol error, disconnecting: Got random Welcome/001 message");
             disconnectFromIRCServer("Protocol error");
@@ -380,9 +341,6 @@ void IRCProtoClient::receivedMessageAutonomous(Incoming *in)
         notifyUser("Got welcome message; we're connected, now");
         _setConnectionState(ConnectionState::Connected);
         in->handled = true;
-        break;
-    default:
-        break;
     }
 }
 
@@ -489,6 +447,97 @@ void IRCProtoClient::_setConnectionState(ConnectionState newState)
 
     _connectionState = newState;
     connectionStateChanged();
+}
+
+void IRCProtoClient::_loadMsgArgTypes()
+{
+    _msgArgTypesHolder.originType = std::make_shared<MessageOriginType>("origin", [](const QByteArray &prefixBytes) {
+        return QString(prefixBytes);  // TODO: Reencode from network to user encoding.
+    }, MessageOrigin::Type::LinkServer);
+
+    _msgArgTypesHolder.commandNameType = std::make_shared<MessageArgType<CommandNameMessageArg>>("command", [](TokensReader *reader) {
+        return std::make_shared<CommandNameMessageArg>(QString(reader->takeToken()));
+    });
+    _msgArgTypesHolder.numericCommandNameType = std::make_shared<MessageArgType<NumericCommandNameMessageArg>>("numeric", [](TokensReader *reader) {
+        return std::make_shared<NumericCommandNameMessageArg>(QString(reader->takeToken()));
+    });
+
+    auto unrecognizedType = std::make_shared<MessageArgType<UnrecognizedMessageArg>>("unrecognized", [](TokensReader *reader) {
+        return std::make_shared<UnrecognizedMessageArg>(reader->takeToken());
+    });
+    _msgArgTypesHolder.unrecognizedType = unrecognizedType;
+    _msgArgTypesHolder.unrecognizedArgListType = std::make_shared<MessageArgType<ListMessageArg<UnrecognizedMessageArg>>>("unrecognizedArgs",
+        [unrecognizedType](TokensReader *reader) {
+            auto ret = std::make_shared<ListMessageArg<UnrecognizedMessageArg>>();
+            while (!reader->atEnd())
+                ret->list.append(
+                    unrecognizedType->fromTokens_call()(reader)
+                );
+            return ret;
+        });
+
+    _msgArgTypesHolder.sourceType = std::make_shared<MessageArgType<SourceMessageArg>>("source", [](TokensReader *reader) {
+        return std::make_shared<SourceMessageArg>(QString(reader->takeToken()));
+    });
+
+    _msgArgTypesHolder.targetType = std::make_shared<MessageArgType<TargetMessageArg>>("target",
+        [this](TokensReader *reader) -> std::shared_ptr<TargetMessageArg> {
+            QByteArray token = reader->takeToken();
+            if (isChannel(token))
+                return std::make_shared<ChannelTargetMessageArg>(QString(token));
+            else
+                return std::make_shared<NickTargetMessageArg>(QString(token));
+        });
+    _msgArgTypesHolder.targetListType = make_commalist("targets", _msgArgTypesHolder.targetType);
+
+    _msgArgTypesHolder.channelType = std::make_shared<MessageArgType<ChannelTargetMessageArg>>("channel", [](TokensReader *reader) {
+        return std::make_shared<ChannelTargetMessageArg>(QString(reader->takeToken()));
+    });
+    _msgArgTypesHolder.channelListType = make_commalist("channels", _msgArgTypesHolder.channelType);
+
+    _msgArgTypesHolder.keyType = std::make_shared<MessageArgType<KeyMessageArg>>("key", [](TokensReader *reader) {
+        return std::make_shared<KeyMessageArg>(QString(reader->takeToken()));
+    });
+    _msgArgTypesHolder.keyListType = make_commalist("keys", _msgArgTypesHolder.keyType);
+
+    _msgArgTypesHolder.chatterDataType = std::make_shared<MessageArgType<ChatterDataMessageArg>>("chatterData", [](TokensReader *reader) {
+        return std::make_shared<ChatterDataMessageArg>(QString(reader->takeToken()));
+    });
+}
+
+void IRCProtoClient::_loadMsgTypeVocabIn()
+{
+    _msgTypeVocabIn.registerMessageType("PING", MessageType::make_shared("PingType", _msgArgTypesHolder.originType, {
+        make_const_fwd("PingCommandType", _msgArgTypesHolder.commandNameType, "PING"),
+        _msgArgTypesHolder.sourceType,
+        //OptionalMessageArgType("[server2]", _msgArgTypesHolder.FIXME),
+    }));
+
+    _msgTypeVocabIn.registerMessageType("001", MessageType::make_shared("WelcomeType", _msgArgTypesHolder.originType, {
+        make_const_fwd("WelcomeNumericType", _msgArgTypesHolder.numericCommandNameType, "001"),
+        _msgArgTypesHolder.unrecognizedArgListType,
+    }));
+
+    _msgTypeVocabIn.registerMessageType("JOIN", MessageType::make_shared("JoinChannelType", _msgArgTypesHolder.originType, {
+        make_const_fwd("JoinChannelCommandType", _msgArgTypesHolder.commandNameType, "JOIN"),
+        _msgArgTypesHolder.channelListType,
+        make_optional("[keys]", _msgArgTypesHolder.keyListType),
+    }));
+
+    auto chatterMsgType = MessageType::make_shared("ChatterMessageType", _msgArgTypesHolder.originType, {
+        _msgArgTypesHolder.commandNameType,
+        _msgArgTypesHolder.targetListType,
+        _msgArgTypesHolder.chatterDataType,
+    });
+    _msgTypeVocabIn.registerMessageType("PRIVMSG", chatterMsgType);
+    _msgTypeVocabIn.registerMessageType("NOTICE",  chatterMsgType);
+}
+
+bool IRCProtoClient::isChannel(const QByteArray &token)
+{
+    // TODO: Use information from 001 "Welcome" message or the like
+    //       to determine what's a channel and what's not.
+    return token.startsWith('#');
 }
 
 QString IRCProtoClient::nickUserHost2nick(const QString &nickUserHost)
