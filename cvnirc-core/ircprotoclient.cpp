@@ -255,24 +255,6 @@ void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
     );
     receivedLine(raw.bytes.toPercentEncoding(_rawLineWhitelist));
 
-#if 0  // TODO: Ensure the same functionality is provided via parse().
-    std::vector<QString> tokens = IRCProtoMessage::splitRawLine(rawLine);
-    if (!(tokens.size() >= 1)) {
-        notifyUser("Protocol error, disconnecting: Received raw line with no tokens!");
-        disconnectFromIRCServer("Protocol error");
-        return;
-    }
-
-    IRCProtoMessage *msg = nullptr;
-    QString prefix;
-
-    if (tokens[0].length() >= 1 && tokens[0][0] == ':') {
-        prefix = tokens[0];
-        prefix.remove(0, 1);  // Strip prefix identifier from identified prefix.
-        tokens.erase(tokens.begin());
-    }
-#endif
-
     const QByteArray     &prefix(in.inTokens->prefix);
     const QByteArrayList &tokens(in.inTokens->mainTokens);
 
@@ -311,72 +293,12 @@ void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
         notifyUser("Error processing command \"" + command + "\": " + ex.what());
     }
 
-#if 0
-    // FIXME: Remove
-    const QByteArray &commandOrig(tokens.front());
-    const QByteArray  commandUpper = commandOrig.toUpper();
-
-    if (commandUpper == "PING") {
-        if (!(tokens.size() == 2)) {
-            notifyUser("Protocol error, disconnecting: Received PING message with unexpected token count " + QString::number(tokens.size()));
-            disconnectFromIRCServer("Protocol error");
-            return;
-        }
-        in.inMessage = std::make_shared<PingPongMessage>(Message::MsgType::Ping, tokens[1]);
-    }
-    else if (commandUpper == "001") {
-        in.inMessage = std::make_shared<NumericMessage>(Message::MsgType::Welcome, 1);
-    }
-    else if (commandUpper == "JOIN") {
-        if (!(tokens.size() >= 2 && tokens.size() <= 3)) {
-            notifyUser("Protocol error, ignoring: Received JOIN message with unexpected token count " + QString::number(tokens.size()));
-            return;
-        }
-
-        QByteArrayList channelsBytes = tokens[1].split(',');
-        QByteArrayList keysBytes = tokens.size() >= 3 ? tokens[2].split(',') : QByteArrayList();
-
-        QStringList channels;
-        for (QByteArray channelBytes : channelsBytes) {
-            channels.append(QString(channelBytes));
-        }
-
-        QStringList keys;
-        for (QByteArray keyBytes : keysBytes) {
-            keys.append(QString(keyBytes));
-        }
-
-        in.inMessage = std::make_shared<JoinMessage>(Message::MsgType::Join, channels, keys);
-    }
-    else if (commandUpper == "PRIVMSG" || commandUpper == "NOTICE") {
-        if (!(tokens.size() == 3)) {
-            notifyUser("Protocol error, ignoring: Received " + commandUpper + " message with unexpected token count " + QString::number(tokens.size()));
-            return;
-        }
-
-        auto msgType = IRCProtoMessage::MsgType::Unknown;
-        if (commandUpper == "PRIVMSG")
-            msgType = IRCProtoMessage::MsgType::PrivMsg;
-        else if (commandUpper == "NOTICE")
-            msgType = IRCProtoMessage::MsgType::Notice;
-
-        in.inMessage = std::make_shared<ChatterMessage>(msgType, tokens[1], tokens[2]);
-    }
-    else {
-        in.inMessage = std::make_shared<Message>();
-    }
-#endif
-
     if (in.inMessage) {
         receivedMessageAutonomous(&in);
         receivedMessage(&in);
 
         if (!in.handled)
             notifyUser("Unhandled IRC protocol message: " + command);
-
-        // This should not be necessary anymore, the smart pointers should
-        // take care of everything. (?)
-        //delete msg;
     }
 }
 
