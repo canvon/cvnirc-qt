@@ -411,11 +411,6 @@ Message::Message(const MessageOrigin &origin, const QList<Message::msgArg_ptr> a
 
 }
 
-Message::~Message()
-{
-
-}
-
 }  // namespace cvnirc::core::IRCProto
 }  // namespace cvnirc::core
 }  // namespace cvnirc

@@ -482,7 +482,6 @@ public:
     QList<msgArg_ptr>  args;
 
     Message(const MessageOrigin &origin, const QList<msgArg_ptr> args);
-    virtual ~Message();
 };
 
 class CVNIRCCORESHARED_EXPORT MessageType
