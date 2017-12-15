@@ -268,7 +268,6 @@ void IRCProtoClient::receivedRaw(const MessageOnNetwork &raw)
         return;
     }
 
-    // FIXME: Implement
     const QString command = tokens[0];
 
     in.inMessageType = _msgTypeVocabIn.messageType(command);
