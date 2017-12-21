@@ -479,9 +479,9 @@ public:
     typedef std::shared_ptr<MessageArg> msgArg_ptr;
 
     MessageOrigin      origin;
-    QList<msgArg_ptr>  args;
+    QList<msgArg_ptr>  argsList;
 
-    Message(const MessageOrigin &origin, const QList<msgArg_ptr> args);
+    Message(const MessageOrigin &origin, const QList<msgArg_ptr> argsList);
 };
 
 class CVNIRCCORESHARED_EXPORT MessageType

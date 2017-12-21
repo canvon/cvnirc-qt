@@ -310,20 +310,20 @@ void IRCProtoClient::receivedMessageAutonomous(Incoming *in)
     if (!msg)
         throw std::invalid_argument("IRC protocol client, receivedMessageAutonomous(): Incoming message can't be null");
 
-    if (msg->args.isEmpty())
+    if (msg->argsList.isEmpty())
         throw std::invalid_argument("IRC protocol client, receivedMessageAutonomous(): Incoming message can't miss first argument (the command name)");
 
-    auto commandArg = std::dynamic_pointer_cast<CommandNameMessageArg>(msg->args.front());
+    auto commandArg = std::dynamic_pointer_cast<CommandNameMessageArg>(msg->argsList.front());
     if (!commandArg)
         throw std::invalid_argument("IRC protocol client, receivedMessageAutonomous(): Incoming message first argument is not a command name argument");
 
     auto numericArg = std::dynamic_pointer_cast<NumericCommandNameMessageArg>(commandArg);
 
     if (commandArg->commandUpper == "PING") {
-        if (msg->args.length() < 2)
+        if (msg->argsList.length() < 2)
             throw std::invalid_argument("IRC protocol client, receivedMessageAutonomous(): Incoming message misses second argument, the ping source");
 
-        auto sourceArg = std::dynamic_pointer_cast<SourceMessageArg>(msg->args[1]);
+        auto sourceArg = std::dynamic_pointer_cast<SourceMessageArg>(msg->argsList[1]);
         if (!sourceArg)
             throw std::invalid_argument("IRC protocol client, receivedMessageAutonomous(): Incoming message second argument is not a source argument");
 

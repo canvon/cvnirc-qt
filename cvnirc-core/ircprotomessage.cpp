@@ -405,8 +405,8 @@ std::shared_ptr<MessageType> MessageTypeVocabulary::messageType(const QString &c
 }
 
 
-Message::Message(const MessageOrigin &origin, const QList<Message::msgArg_ptr> args) :
-    origin(origin), args(args)
+Message::Message(const MessageOrigin &origin, const QList<Message::msgArg_ptr> argsList) :
+    origin(origin), argsList(argsList)
 {
 
 }

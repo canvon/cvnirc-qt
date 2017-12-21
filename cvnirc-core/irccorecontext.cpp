@@ -119,19 +119,19 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProto::Incoming *in)
 
     auto *core = dynamic_cast<IRCCore *>(parent());
 
-    if (msg->args.isEmpty())
+    if (msg->argsList.isEmpty())
         throw std::invalid_argument("IRC core context, receive IRC proto message: Incoming message can't miss first argument (the command name)");
 
-    auto commandArg = std::dynamic_pointer_cast<IRCProto::CommandNameMessageArg>(msg->args.front());
+    auto commandArg = std::dynamic_pointer_cast<IRCProto::CommandNameMessageArg>(msg->argsList.front());
     if (!commandArg)
         throw std::invalid_argument("IRC core context, receive IRC proto message: Incoming message first argument is not a command name argument");
 
     if (commandArg->commandUpper == "JOIN") {
-        int argCount = msg->args.length();
+        int argCount = msg->argsList.length();
         if (!(argCount >= 2 && argCount <= 3))
             throw std::runtime_error("IRC core context, receive IRC proto message: Invalid argument count after processing (" + std::to_string(argCount) + ")");
 
-        auto channelsArg = std::dynamic_pointer_cast<IRCProto::ListMessageArg<IRCProto::ChannelTargetMessageArg>>(msg->args[1]);
+        auto channelsArg = std::dynamic_pointer_cast<IRCProto::ListMessageArg<IRCProto::ChannelTargetMessageArg>>(msg->argsList[1]);
         if (!channelsArg)
             throw std::runtime_error("IRC core context, receive IRC proto message: Invalid argument type at index 1");  // TODO: Give type information if possible.
 
@@ -163,15 +163,15 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProto::Incoming *in)
     }
     else if (commandArg->commandUpper == "PRIVMSG" ||
              commandArg->commandUpper == "NOTICE") {
-        int argCount = msg->args.length();
+        int argCount = msg->argsList.length();
         if (argCount != 3)
             throw std::runtime_error("IRC core context, receive IRC proto message: Invalid argument count after processing (" + std::to_string(argCount) + ")");
 
-        auto targetsArg = std::dynamic_pointer_cast<IRCProto::ListMessageArg<IRCProto::TargetMessageArg>>(msg->args[1]);
+        auto targetsArg = std::dynamic_pointer_cast<IRCProto::ListMessageArg<IRCProto::TargetMessageArg>>(msg->argsList[1]);
         if (!targetsArg)
             throw std::runtime_error("IRC core context, receive IRC proto message: Invalid argument type at index 1");  // TODO: Give type information if possible.
 
-        auto chatterDataArg = std::dynamic_pointer_cast<IRCProto::ChatterDataMessageArg>(msg->args[2]);
+        auto chatterDataArg = std::dynamic_pointer_cast<IRCProto::ChatterDataMessageArg>(msg->argsList[2]);
         if (!chatterDataArg)
             throw std::runtime_error("IRC core context, receive IRC proto message: Invalid argument type at index 2");
 
