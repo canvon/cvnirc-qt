@@ -306,7 +306,7 @@ void IRCProtoClient::receivedMessageAutonomous(Incoming *in)
     if (in == nullptr)
         throw std::invalid_argument("IRC protocol client, receivedMessageAutonomous(): Incoming can't be null");
 
-    std::shared_ptr<Message> msg = in->inMessage;
+    std::shared_ptr<MessageBase> msg = in->inMessage;
     if (!msg)
         throw std::invalid_argument("IRC protocol client, receivedMessageAutonomous(): Incoming message can't be null");
 

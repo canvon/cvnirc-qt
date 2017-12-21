@@ -51,14 +51,14 @@ public:
 
 
 class MessageType;
-class Message;
+class MessageBase;
 class CVNIRCCORESHARED_EXPORT Incoming
 {
 public:
     typedef std::shared_ptr<MessageOnNetwork>  raw_ptr;
     typedef std::shared_ptr<MessageAsTokens>   tokens_ptr;
     typedef std::shared_ptr<MessageType>       messageType_ptr;
-    typedef std::shared_ptr<Message>           message_ptr;
+    typedef std::shared_ptr<MessageBase>       message_ptr;
 
     raw_ptr      inRaw;
     tokens_ptr   inTokens;
@@ -473,7 +473,7 @@ public:
         chatterDataType;
 };
 
-class CVNIRCCORESHARED_EXPORT Message
+class CVNIRCCORESHARED_EXPORT MessageBase
 {
 public:
     typedef std::shared_ptr<MessageArg> msgArg_ptr;
@@ -481,7 +481,7 @@ public:
     MessageOrigin      origin;
     QList<msgArg_ptr>  argsList;
 
-    Message(const MessageOrigin &origin, const QList<msgArg_ptr> argsList);
+    MessageBase(const MessageOrigin &origin, const QList<msgArg_ptr> argsList);
 };
 
 class CVNIRCCORESHARED_EXPORT MessageType
@@ -501,8 +501,8 @@ public:
     originType_ptr originType() const;
     const QList<msgArgType_ptr> &argTypes() const;
 
-    QList<Message::msgArg_ptr> argsFromMessageAsTokens(const MessageAsTokens &msgTokens) const;
-    std::shared_ptr<Message> fromMessageAsTokens(const MessageAsTokens &msgTokens) const;
+    QList<MessageBase::msgArg_ptr> argsFromMessageAsTokens(const MessageAsTokens &msgTokens) const;
+    std::shared_ptr<MessageBase> fromMessageAsTokens(const MessageAsTokens &msgTokens) const;
 
     static std::shared_ptr<MessageType> make_shared(const QString &name, originType_ptr originType, const QList<msgArgType_ptr> &argTypes);
 };
@@ -522,6 +522,6 @@ public:
 
 // For compatibility.
 // TODO: Change all using code and remove this.
-using IRCProtoMessage = cvnirc::core::IRCProto::Message;
+using IRCProtoMessage = cvnirc::core::IRCProto::MessageBase;
 
 #endif // IRCPROTOMESSAGE_H

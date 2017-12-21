@@ -107,7 +107,7 @@ void IRCCoreContext::receiveIRCProtoMessage(IRCProto::Incoming *in)
     if (in == nullptr)
         throw std::invalid_argument("IRC core context, slot receiveIRCProtoMessage(): Incoming can't be null");
 
-    std::shared_ptr<IRCProto::Message> msg = in->inMessage;
+    std::shared_ptr<IRCProto::MessageBase> msg = in->inMessage;
     if (!msg)
         throw std::invalid_argument("IRC core context, slot receiveIRCProtoMessage(): Incoming message can't be null");
 

@@ -361,9 +361,9 @@ const QList<MessageType::msgArgType_ptr> &MessageType::argTypes() const
     return _argTypes;
 }
 
-QList<Message::msgArg_ptr> MessageType::argsFromMessageAsTokens(const MessageAsTokens &msgTokens) const
+QList<MessageBase::msgArg_ptr> MessageType::argsFromMessageAsTokens(const MessageAsTokens &msgTokens) const
 {
-    QList<Message::msgArg_ptr> ret;
+    QList<MessageBase::msgArg_ptr> ret;
     TokensReader reader(msgTokens);
 
     try {
@@ -382,11 +382,11 @@ QList<Message::msgArg_ptr> MessageType::argsFromMessageAsTokens(const MessageAsT
     return ret;
 }
 
-std::shared_ptr<Message> MessageType::fromMessageAsTokens(const MessageAsTokens &msgTokens) const
+std::shared_ptr<MessageBase> MessageType::fromMessageAsTokens(const MessageAsTokens &msgTokens) const
 {
     MessageOrigin origin = _originType->fromPrefixBytes(msgTokens.prefix);
-    QList<Message::msgArg_ptr> args = argsFromMessageAsTokens(msgTokens);
-    return std::make_shared<Message>(origin, args);
+    QList<MessageBase::msgArg_ptr> args = argsFromMessageAsTokens(msgTokens);
+    return std::make_shared<MessageBase>(origin, args);
 }
 
 std::shared_ptr<MessageType> MessageType::make_shared(const QString &name, MessageType::originType_ptr originType, const QList<MessageType::msgArgType_ptr> &argTypes)
@@ -405,7 +405,7 @@ std::shared_ptr<MessageType> MessageTypeVocabulary::messageType(const QString &c
 }
 
 
-Message::Message(const MessageOrigin &origin, const QList<Message::msgArg_ptr> argsList) :
+MessageBase::MessageBase(const MessageOrigin &origin, const QList<MessageBase::msgArg_ptr> argsList) :
     origin(origin), argsList(argsList)
 {
 
