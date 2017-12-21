@@ -481,7 +481,7 @@ public:
     MessageOrigin      origin;
     QList<msgArg_ptr>  argsList;
 
-    MessageBase(const MessageOrigin &origin, const QList<msgArg_ptr> argsList);
+    MessageBase(const MessageOrigin &origin, const QList<msgArg_ptr> &argsList);
 };
 
 class CVNIRCCORESHARED_EXPORT MessageType
