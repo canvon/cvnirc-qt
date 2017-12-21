@@ -4,6 +4,8 @@
 #include "cvnirc-core_global.h"
 
 #include <memory>
+#include <tuple>
+#include <utility>
 #include <QByteArray>
 #include <QByteArrayList>
 #include <QString>
@@ -482,6 +484,35 @@ public:
     QList<msgArg_ptr>  argsList;
 
     MessageBase(const MessageOrigin &origin, const QList<msgArg_ptr> &argsList);
+};
+
+template <class... As>
+class CVNIRCCORESHARED_EXPORT Message : public MessageBase
+{
+public:
+    typedef std::tuple<std::shared_ptr<As>...> args_type;
+
+private:
+    template <size_t... Is>
+    static QList<msgArg_ptr> _argsToList(const args_type &args, std::index_sequence<Is...>)
+    {
+        return { std::get<Is>(args)... };
+    }
+
+public:
+    args_type  args;
+
+    Message(const MessageOrigin &origin, const args_type &args) :
+        MessageBase(origin, _argsToList(args, std::index_sequence_for<As...>())), args(args)
+    {
+
+    }
+
+    Message(const MessageOrigin &origin, As&& ... argsToForward) :
+        Message(origin, std::make_tuple(std::make_shared<As>(std::forward<As>(argsToForward))...))
+    {
+
+    }
 };
 
 class CVNIRCCORESHARED_EXPORT MessageType
