@@ -7,7 +7,7 @@
 QT += network
 QT -= gui
 
-CONFIG += c++11
+CONFIG += c++14
 
 TEMPLATE = lib
 TARGET = cvnirc-core
