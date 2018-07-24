@@ -486,6 +486,7 @@ public:
     MessageBase(const MessageOrigin &origin, const QList<msgArg_ptr> &argsList);
 };
 
+#if 0
 template <class... As>
 class CVNIRCCORESHARED_EXPORT Message : public MessageBase
 {
@@ -514,6 +515,7 @@ public:
 
     }
 };
+#endif
 
 class CVNIRCCORESHARED_EXPORT MessageType
 {
