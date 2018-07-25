@@ -475,6 +475,7 @@ public:
         chatterDataType;
 };
 
+
 class CVNIRCCORESHARED_EXPORT MessageBase
 {
 public:
@@ -484,6 +485,7 @@ public:
     QList<msgArg_ptr>  argsList;
 
     MessageBase(const MessageOrigin &origin, const QList<msgArg_ptr> &argsList);
+    virtual ~MessageBase();
 };
 
 #if 0
@@ -517,6 +519,37 @@ public:
 };
 #endif
 
+class CVNIRCCORESHARED_EXPORT CommandMessage : public MessageBase
+{
+public:
+    std::shared_ptr<CommandNameMessageArg> commandArg;
+
+    CommandMessage(const MessageOrigin &origin, const QList<msgArg_ptr> &argsList);
+};
+
+class CVNIRCCORESHARED_EXPORT NumericMessage : public CommandMessage
+{
+public:
+    std::shared_ptr<NumericCommandNameMessageArg> numericArg;
+
+    NumericMessage(const MessageOrigin &origin, const QList<msgArg_ptr> &argsList);
+};
+
+class CVNIRCCORESHARED_EXPORT WelcomeMessage : public NumericMessage
+{
+public:
+    WelcomeMessage(const MessageOrigin &origin, const QList<msgArg_ptr> &argsList);
+};
+
+class CVNIRCCORESHARED_EXPORT PingMessage : public CommandMessage
+{
+public:
+    std::shared_ptr<SourceMessageArg> sourceArg;
+
+    PingMessage(const MessageOrigin &origin, const QList<msgArg_ptr> &argsList);
+};
+
+
 class CVNIRCCORESHARED_EXPORT MessageType
 {
     QString _name;
@@ -534,11 +567,33 @@ public:
     originType_ptr originType() const;
     const QList<msgArgType_ptr> &argTypes() const;
 
+    virtual std::shared_ptr<MessageBase> createMessageInstance(const MessageOrigin &origin, const QList<MessageBase::msgArg_ptr> &args) const;
+
     QList<MessageBase::msgArg_ptr> argsFromMessageAsTokens(const MessageAsTokens &msgTokens) const;
     std::shared_ptr<MessageBase> fromMessageAsTokens(const MessageAsTokens &msgTokens) const;
 
     static std::shared_ptr<MessageType> make_shared(const QString &name, originType_ptr originType, const QList<msgArgType_ptr> &argTypes);
 };
+
+template <class Dest>
+class CVNIRCCORESHARED_EXPORT MessageTypeWithDest : public MessageType
+{
+public:
+    MessageTypeWithDest(const QString &name, originType_ptr originType, const QList<msgArgType_ptr> &argTypes) :
+        MessageType(name, originType, argTypes)
+    { }
+
+    std::shared_ptr<MessageBase> createMessageInstance(const MessageOrigin &origin, const QList<MessageBase::msgArg_ptr> &args) const override
+    {
+        return std::make_shared<Dest>(origin, args);
+    }
+
+    static std::shared_ptr<MessageTypeWithDest> make_shared(const QString &name, originType_ptr originType, const QList<msgArgType_ptr> &argTypes)
+    {
+        return std::make_shared<MessageTypeWithDest>(name, originType, argTypes);
+    }
+};
+
 
 class CVNIRCCORESHARED_EXPORT MessageTypeVocabulary
 {
@@ -546,6 +601,11 @@ class CVNIRCCORESHARED_EXPORT MessageTypeVocabulary
 
 public:
     void registerMessageType(const QString &commandName, std::shared_ptr<MessageType> msgType);
+    template <class T> void registerMessageTypeGeneric(const QString &commandName, std::shared_ptr<T> msgType)
+    {
+        return registerMessageType(commandName, std::dynamic_pointer_cast<MessageType>(msgType));
+    }
+
     std::shared_ptr<MessageType> messageType(const QString &commandName);
 };
 

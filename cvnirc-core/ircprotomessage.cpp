@@ -340,6 +340,57 @@ bool ChatterDataMessageArg::operator ==(const MessageArg &other) const
     return chatterData == myTypeOther->chatterData;
 }
 
+
+MessageBase::MessageBase(const MessageOrigin &origin, const QList<msgArg_ptr> &argsList) :
+    origin(origin), argsList(argsList)
+{
+
+}
+
+MessageBase::~MessageBase()
+{
+
+}
+
+CommandMessage::CommandMessage(const MessageOrigin &origin, const QList<MessageBase::msgArg_ptr> &argsList) :
+    MessageBase(origin, argsList)
+{
+    if (argsList.isEmpty())
+        throw std::invalid_argument("CommandMessage: IRC message can't miss first argument (the command name)");
+
+    commandArg = std::dynamic_pointer_cast<CommandNameMessageArg>(argsList.front());
+    if (!commandArg)
+        throw std::invalid_argument("CommandMessage: IRC message first argument is not a command name argument");
+}
+
+NumericMessage::NumericMessage(const MessageOrigin &origin, const QList<MessageBase::msgArg_ptr> &argsList) :
+    CommandMessage(origin, argsList)
+{
+    numericArg = std::dynamic_pointer_cast<NumericCommandNameMessageArg>(commandArg);
+    if (!numericArg)
+        throw std::invalid_argument("NumericMessage: IRC message command name is not a numeric command name argument");
+}
+
+WelcomeMessage::WelcomeMessage(const MessageOrigin &origin, const QList<MessageBase::msgArg_ptr> &argsList) :
+    NumericMessage(origin, argsList)
+{
+    // (Be flexible and allow the vocabulary to determine whether this should be treated as this kind of message.)
+    //if (!(numericArg->numeric == 1))
+    //    throw std::invalid_argument("WelcomeMessage: IRC message numeric command name's numeric isn't 001");
+}
+
+PingMessage::PingMessage(const MessageOrigin &origin, const QList<MessageBase::msgArg_ptr> &argsList) :
+    CommandMessage(origin, argsList)
+{
+    if (argsList.length() < 2)
+        throw std::invalid_argument("PingMessage: IRC message misses second argument, the ping source");
+
+    sourceArg = std::dynamic_pointer_cast<SourceMessageArg>(argsList[1]);
+    if (!sourceArg)
+        throw std::invalid_argument("PingMessage: IRC message second argument is not a source argument");
+}
+
+
 MessageType::MessageType(const QString &name, originType_ptr originType, const QList<MessageType::msgArgType_ptr> &argTypes) :
     _name(name), _originType(originType), _argTypes(argTypes)
 {
@@ -359,6 +410,11 @@ MessageType::originType_ptr MessageType::originType() const
 const QList<MessageType::msgArgType_ptr> &MessageType::argTypes() const
 {
     return _argTypes;
+}
+
+std::shared_ptr<MessageBase> MessageType::createMessageInstance(const MessageOrigin &origin, const QList<MessageBase::msgArg_ptr> &args) const
+{
+    return std::make_shared<MessageBase>(origin, args);
 }
 
 QList<MessageBase::msgArg_ptr> MessageType::argsFromMessageAsTokens(const MessageAsTokens &msgTokens) const
@@ -386,7 +442,7 @@ std::shared_ptr<MessageBase> MessageType::fromMessageAsTokens(const MessageAsTok
 {
     MessageOrigin origin = _originType->fromPrefixBytes(msgTokens.prefix);
     QList<MessageBase::msgArg_ptr> args = argsFromMessageAsTokens(msgTokens);
-    return std::make_shared<MessageBase>(origin, args);
+    return createMessageInstance(origin, args);
 }
 
 std::shared_ptr<MessageType> MessageType::make_shared(const QString &name, MessageType::originType_ptr originType, const QList<MessageType::msgArgType_ptr> &argTypes)
@@ -402,13 +458,6 @@ void MessageTypeVocabulary::registerMessageType(const QString &commandName, std:
 std::shared_ptr<MessageType> MessageTypeVocabulary::messageType(const QString &commandName)
 {
     return _map.value(commandName.toUpper());
-}
-
-
-MessageBase::MessageBase(const MessageOrigin &origin, const QList<msgArg_ptr> &argsList) :
-    origin(origin), argsList(argsList)
-{
-
 }
 
 }  // namespace cvnirc::core::IRCProto

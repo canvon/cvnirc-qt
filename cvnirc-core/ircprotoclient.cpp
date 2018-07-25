@@ -310,27 +310,11 @@ void IRCProtoClient::receivedMessageAutonomous(Incoming *in)
     if (!msg)
         throw std::invalid_argument("IRC protocol client, receivedMessageAutonomous(): Incoming message can't be null");
 
-    if (msg->argsList.isEmpty())
-        throw std::invalid_argument("IRC protocol client, receivedMessageAutonomous(): Incoming message can't miss first argument (the command name)");
-
-    auto commandArg = std::dynamic_pointer_cast<CommandNameMessageArg>(msg->argsList.front());
-    if (!commandArg)
-        throw std::invalid_argument("IRC protocol client, receivedMessageAutonomous(): Incoming message first argument is not a command name argument");
-
-    auto numericArg = std::dynamic_pointer_cast<NumericCommandNameMessageArg>(commandArg);
-
-    if (commandArg->commandUpper == "PING") {
-        if (msg->argsList.length() < 2)
-            throw std::invalid_argument("IRC protocol client, receivedMessageAutonomous(): Incoming message misses second argument, the ping source");
-
-        auto sourceArg = std::dynamic_pointer_cast<SourceMessageArg>(msg->argsList[1]);
-        if (!sourceArg)
-            throw std::invalid_argument("IRC protocol client, receivedMessageAutonomous(): Incoming message second argument is not a source argument");
-
-        sendRaw("PONG :" + sourceArg->source);
+    if (auto pingMsg = std::dynamic_pointer_cast<PingMessage>(msg)) {
+        sendRaw("PONG :" + pingMsg->sourceArg->source);
         in->handled = true;
     }
-    else if (numericArg && numericArg->numeric == 1) {
+    else if (/* auto welcomeMsg = */ std::dynamic_pointer_cast<WelcomeMessage>(msg)) {
         if (connectionState() != ConnectionState::Registering) {
             notifyUser("Protocol error, disconnecting: Got random Welcome/001 message");
             disconnectFromIRCServer("Protocol error");
@@ -506,16 +490,20 @@ void IRCProtoClient::_loadMsgArgTypes()
 
 void IRCProtoClient::_loadMsgTypeVocabIn()
 {
-    _msgTypeVocabIn.registerMessageType("PING", MessageType::make_shared("PingType", _msgArgTypesHolder.originType, {
-        make_const_fwd("PingCommandType", _msgArgTypesHolder.commandNameType, "PING"),
-        _msgArgTypesHolder.sourceType,
-        //OptionalMessageArgType("[server2]", _msgArgTypesHolder.FIXME),
-    }));
+    _msgTypeVocabIn.registerMessageTypeGeneric("PING", MessageTypeWithDest<PingMessage>::make_shared("PingType",
+        _msgArgTypesHolder.originType, {
+            make_const_fwd("PingCommandType", _msgArgTypesHolder.commandNameType, "PING"),
+            _msgArgTypesHolder.sourceType,
+            //OptionalMessageArgType("[server2]", _msgArgTypesHolder.FIXME),
+        }
+    ));
 
-    _msgTypeVocabIn.registerMessageType("001", MessageType::make_shared("WelcomeType", _msgArgTypesHolder.originType, {
-        make_const_fwd("WelcomeNumericType", _msgArgTypesHolder.numericCommandNameType, "001"),
-        _msgArgTypesHolder.unrecognizedArgListType,
-    }));
+    _msgTypeVocabIn.registerMessageTypeGeneric("001", MessageTypeWithDest<WelcomeMessage>::make_shared("WelcomeType",
+        _msgArgTypesHolder.originType, {
+            make_const_fwd("WelcomeNumericType", _msgArgTypesHolder.numericCommandNameType, "001"),
+            _msgArgTypesHolder.unrecognizedArgListType,
+        }
+    ));
 
     _msgTypeVocabIn.registerMessageType("JOIN", MessageType::make_shared("JoinChannelType", _msgArgTypesHolder.originType, {
         make_const_fwd("JoinChannelCommandType", _msgArgTypesHolder.commandNameType, "JOIN"),
